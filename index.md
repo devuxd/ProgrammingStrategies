@@ -1,37 +1,9 @@
-## Welcome to GitHub Pages
+## Programming Strategies
 
-You can use the [editor on GitHub](https://github.com/devuxd/ProgrammingStrategies/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
+A programming strategy constitute a high-level plan for accomplishing a programming tasks. Imagine trying to debug a deadlock. What would you do first? Set a breakpoint and use the debugger to inspect what locks have aquired? Or add a log statement before each related call to acquire or release a resource? Each of these constitute the first actions in a programming strategy, enumerating a set of steps to accomplish a specific goal. 
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## Check out some examples of programming strategies 
 
-### Markdown
+## About
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/devuxd/ProgrammingStrategies/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+This page is brought to you by the Developer Experience Design Lab at [George Mason University](https://www2.gmu.edu/) and the Code and Cognition Lab at the [University of Washington](https://www.washington.edu/) and includes contributions from [Dastyni Loksa](http://students.washington.edu/dloksa/), Maryam Arab, [Andy Ko](http://faculty.washington.edu/ajko/), and [Thomas LaToza](https://cs.gmu.edu/~tlatoza/).
