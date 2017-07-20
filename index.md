@@ -3,6 +3,8 @@ A programming strategy constitute a high-level plan for accomplishing a programm
 
 ### Check out some examples of programming strategies 
 
+* [Fault localization](localize-fault.md)
+
 ### About
 
 This page is brought to you by the Developer Experience Design Lab at [George Mason University](https://www2.gmu.edu/) and the Code and Cognition Lab at the [University of Washington](https://www.washington.edu/) and includes contributions from [Dastyni Loksa](http://students.washington.edu/dloksa/), Maryam Arab, [Andy Ko](http://faculty.washington.edu/ajko/), and [Thomas LaToza](https://cs.gmu.edu/~tlatoza/).
