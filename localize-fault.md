@@ -1,18 +1,18 @@
 # Fault localization
-## Andrew J. Ko
 
 When we say "debug", we are usually referring to many different activities, including reproducing a failure, localizing the root causes of a failure, and patching an implementation to prevent those causes. There are many strategies for each of these activities. Below is a strategy for the *fault localization* part of debugging.
 
 ## The strategy
 
-Below is a algorithm you can follow that should generally result in successful localization of a fault. Since it's something a _human_ executes, I've written the strategy in a loosely formal pseudocode. 
+Below is a algorithm you can follow manually. If you follow it reliably, it should result in successful localization of a defect. Since it's something a _person_ executes, I've written the strategy in a loosely formal pseudocode. While you execute the strategy, keep track of any variables you need to track in a text editor or paper, and keep track of which step and function you're on, just like a computer does when it executes a program.
 
-strategy `localizeFailure(failure)`
+*strategy* `localizeFailure(failure)`
 
 1. Reproduce the failure by finding a sequence of inputs that produces the failure reliably.
-2. If the failure is output that shouldn't have occurred, return `localizeWrongOutput(failure)`. Otherwise, if the failure is output that _should_ have occurred, but didn't return `localizeMissingOutput(failure)`
+2. To the extent that you can, write down the inputs for later reference.
+3. If the failure is output that shouldn't have occurred, return `localizeWrongOutput(failure)`. Otherwise, if the failure is output that _should_ have occurred, but didn't return `localizeMissingOutput(failure)`
 
-strategy `localizeWrongOutput(failure)`
+*strategy* `localizeWrongOutput(failure)`
 
 1. Find the line of code `L` in the application that _most directly_ produced the incorrect output. For example, if it was console output, it's a print statement; if it's user interface output, it's whatever component was responsible for rendering the output. If you don't know how to find this line, one strategy is to find a unique feature in the output such as a string constant and do a global search in the code for that string.
 2. Set a breakpoint on `L`.
@@ -23,7 +23,7 @@ strategy `localizeWrongOutput(failure)`
 	2. Otherwise, return `localizeWrongValue(failure, V)`
 6. If none of the values were wrong, then one of the inputs to the program was not handled correctly. Identify which input was unexpected and devise a way to handle it correctly.
 
-strategy `localizeWrongValue(failure, value)`
+*strategy* `localizeWrongValue(failure, value)`
 
 1. The goal of this strategy is to find where `value` was computed.
 2. Find all lines `L` in the program that can set `value`
@@ -33,10 +33,20 @@ strategy `localizeWrongValue(failure, value)`
 6. If the line is correct, is a value `value2` used by the last `L` to execute incorrect? If so, return `localizeWrongValue(failure, value2)`.
 7. Failed to find defect. Return nothing.
 
-strategy `diagnoseMissingOutput(failure)`
+*strategy* `diagnoseMissingOutput(failure)`
 
-1. I haven't written this yet. Return nothing.
+1. Find the line of code `L` that would have produced the output you expected.
+2. Do `diagnoseUnexecutedLine(failure, L)`
 
+*strategy* `diagnoseUnexecutedLine(failure, line)`
+
+1. Find all conditional statements `conditions` that would have caused `line` to execute. These may be an if-statements, switch-statements, or other conditional statements that would have prevented the line from executing.
+2. For each line `L` in `conditions`:
+	1. Set a breakpoint on line
+	2. Reproduce the failure to see if `L` executed
+	3. If `L` executed, did it execute correctly? If so, move on to the next `L` in `conditions`.
+	4. If it didn't execute correctly, identify the value `V` that caused it to execute incorrectly
+	5. Return `localizeWrongValue(failure, V)	
 
 ## A task
 
