@@ -1,6 +1,6 @@
 ## A task
 
-Visit [Python Tutor](http://www.pythontutor.com) and open a blank Python 2.7 editor. Paste in the code below and try to compute 1+1, noticing that the output is "Invalid input" instead of 2. Use the fault localization strategy above to find out why.
+Visit [Python Tutor](http://www.pythontutor.com) and open a blank Python 2.7 editor. Paste in the code below and try to compute 1+1, noticing that the output is "Invalid input" instead of 2. Find out why and propose a change to the program to fix the bug.
 
 ```python
 ''' Program make a simple calculator that can add, subtract, multiply and divide using functions '''
