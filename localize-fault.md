@@ -33,7 +33,7 @@ Below is a algorithm you can follow manually. If you follow it reliably, it shou
 6. If the line is correct, is a value `value2` used by the last `L` to execute incorrect? If so, return `localizeWrongValue(failure, value2)`.
 7. Failed to find defect. Return nothing.
 
-*strategy* `diagnoseMissingOutput(failure)`
+*strategy* `localizeMissingOutput(failure)`
 
 1. Find the line of code `L` that would have produced the output you expected.
 2. Do `diagnoseUnexecutedLine(failure, L)`
