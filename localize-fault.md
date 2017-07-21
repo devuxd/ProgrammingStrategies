@@ -15,8 +15,8 @@ Below is a algorithm you can follow manually. If you follow it reliably, it shou
 *strategy* `localizeWrongOutput(failure)`
 
 1. Find the line of code `L` in the application that _most directly_ produced the incorrect output. For example, if it was console output, it's a print statement; if it's user interface output, it's whatever component was responsible for rendering the output. If you don't know how to find this line, one strategy is to find a unique feature in the output such as a string constant and do a global search in the code for that string.
-2. Set a breakpoint on `L`.
-3. Reproduce `failure`. If the program does not halt on `L`, return to step 1 and find an alternate `L` until it does. If there is no such `L`, then something else is creating the problem.
+2. Execute the program to line `L` (using a breakpoint or a time-travel debugger).
+3. Reproduce `failure`. If the program does not execute `L`, return to step 1 and find an alternate `L` that does. If there is no such `L`, then something else is creating the problem.
 4. With the program halted on `L`, inspect the state of all values in memory and all values `V` of local variables in the call stack that resulted in `L` being reached. This includes all variables that were referenced in conditional statements that resulted in `L` being executed.
 5. For each of these values `V`:
 	1. If `V` correct in this context, move on to the next `V`.
@@ -27,11 +27,10 @@ Below is a algorithm you can follow manually. If you follow it reliably, it shou
 
 1. The goal of this strategy is to find where `value` was computed.
 2. Find all lines `L` in the program that can set `value`
-3. Set breakpoints on all `L`
-4. Reproduce `failure`, finding last execution of a line `L` that occurred before `failure`. If your debugger supports reverse execution, this is a matter of stepping backwards. If not, you may have to reproduce `failure` more than once to find the last execution.
-5. Is the last `L` to execute incorrect? Reflect on the intended behavior of the line and whether, as implemented, it achieves this behavior. If it's incorrect, you've found the bug! Return `L`. 
-6. If the line is correct, is a value `value2` used by the last `L` to execute incorrect? If so, return `localizeWrongValue(failure, value2)`.
-7. Failed to find defect. Return nothing.
+3. Reproduce `failure`, finding last execution of a line `L` that occurred before `failure` (using breakpoints or a time-travel debugger). If your debugger supports reverse execution, this is a matter of stepping backwards. If not, you may have to reproduce `failure` more than once to find the last execution.
+4. Is the last `L` to execute incorrect? Reflect on the intended behavior of the line and whether, as implemented, it achieves this behavior. If it's incorrect, you've found the bug! Return `L`. 
+5. If the line is correct, is a value `value2` used by the last `L` to execute incorrect? If so, return `localizeWrongValue(failure, value2)`.
+6. Failed to find defect. Return nothing.
 
 *strategy* `localizeMissingOutput(failure)`
 
