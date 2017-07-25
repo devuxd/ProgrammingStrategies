@@ -4,6 +4,7 @@ A programming strategy constitute a high-level plan for accomplishing a programm
 ### Check out some examples of programming strategies 
 
 * [Fault localization](localize-fault.md)
+* [Model fault localization](model-fault-localization.md)
 
 ### About
 
