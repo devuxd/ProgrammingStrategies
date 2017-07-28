@@ -38,6 +38,6 @@ delta debugging (code snippet, reference code snippet, fault)
 
 # A task
 
-Open [seeCode.run](https://seecode.run/#:-Kptx0KiHtLoD-k5eHDW). Determine how to fix the program so that it stores data to Firebase and successfully reads back and outputs outputs 5325 to the console. 
+Open [seeCode.run](https://seecode.run/#:-Kptx0KiHtLoD-k5eHDW). Determine how to fix the program so that it stores data to Firebase and successfully reads back and outputs the data.
 
 
