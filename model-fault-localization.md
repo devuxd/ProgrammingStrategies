@@ -10,10 +10,14 @@ expect to update some data but instead seems to do nothing. Model fault localiza
 ```
 strategy modelFaultLocalization(code, failure, system)
 {
-   Identify reference code snippet that interacts with system that the system authors created. 
-   Reference code snippet might be an example given in a tutorial.
-   If this is not possible, identify reference code snippet that a third party wrote that interacts with the system 
-   on sites such as StackOverflow or in other parts of your codebase.
+   Identify reference code snippet that interacts with system 
+   that the system authors created. 
+   Reference code snippet might be an example given in a 
+   tutorial.
+   If this is not possible, identify reference code snippet 
+   that a third party wrote that interacts with the system 
+   on sites such as StackOverflow or in other parts of your 
+   codebase.
   if (execute(referenceCode, system) throws failure)
        configurationDebugging(code, failure, system);
   else
@@ -22,7 +26,7 @@ strategy modelFaultLocalization(code, failure, system)
 
 strategy configurationDebugging(code, failure, system)
 {
-  configurationParameters = enumerateConfigurationParameters(code);
+  configurationParameters = enumerateConfigParameters(code);
   for (praam in configurationParameters)
   {
       system.changeConfigurationParameter();
@@ -40,17 +44,23 @@ strategy configurationDebugging(code, failure, system)
 }
 
 
-// Brainstorm a list of all configuration parameters you might be able to vary. A configuration paramater
-// here refers to some aspect of how the code is being executed that might be changed. This does NOT refer to changes
-// to the code itself. Rather, it refers to changes to everything else that influences HOW the code is executed.
-// This might include the development environment that runs the code, the version of the system that is being used, 
-// the operating system on which the code is being executed, the runtime engine being used to execute the code, 
-// the configuration files that are being used to initialize the system. 
-strategy enumerateConfigurationParameters(system)
+// Brainstorm a list of all configuration parameters you might 
+// be able to vary. A configuration paramater
+// here refers to some aspect of how the code is being executed 
+// that might be changed. This does NOT refer to changes
+// to the code itself. Rather, it refers to changes to everything 
+// else that influences HOW the code is executed.
+// This might include the development environment that runs the 
+// code, the version of the system that is being used, 
+// the operating system on which the code is being executed, 
+// the runtime engine being used to execute the code, 
+// the configuration files that are being used to initialize 
+// the system. 
+strategy enumerateConfigParameters(system)
 {
    configurationParameters = {};
    while (moreIdeas)
-       configuratinoParameters.add(brainstormConfigurationParameters());
+       configuratinoParameters.add(brainstormConfigParameters());
        
    return configurationParameters;
 }
