@@ -10,8 +10,10 @@ expect to update some data but instead seems to do nothing. Model fault localiza
 ```
 strategy modelFaultLocalization(code, failure, system)
 {
-   Identify reference code snippet that interacts with system that the system authors created. Reference code snippet might be an example given in a tutorial.
-  If this is not possible, identify reference code snippet that a third party wrote that interacts with the system on sites such as StackOverflow or in other parts of your codebase.
+   Identify reference code snippet that interacts with system that the system authors created. 
+   Reference code snippet might be an example given in a tutorial.
+   If this is not possible, identify reference code snippet that a third party wrote that interacts with the system 
+   on sites such as StackOverflow or in other parts of your codebase.
   if (execute(referenceCode, system) throws failure)
        configurationDebugging(code, failure, system);
   else
