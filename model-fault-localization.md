@@ -7,34 +7,66 @@ involved is not available or its execution is occurring in a remote system? Imag
 expect to update some data but instead seems to do nothing. Model fault localization offers a strategy for debugging in such a situation.
 
 # The strategy
+```
+strategy modelFaultLocalization(code, failure, system)
+{
+   Identify reference code snippet that interacts with system that the system authors created. Reference code snippet might be an example given in a tutorial.
+  If this is not possible, identify reference code snippet that a third party wrote that interacts with the system on sites such as StackOverflow or in other parts of your codebase.
+  if (execute(referenceCode, system) throws failure)
+       configurationDebugging(code, failure, system);
+  else
+       deltaDebugging(code, referenceCode, failure);
+}
 
-strategy model fault localization (fault, system)
-1. Identify reference code snippet that interacts with system that the system authors created. Reference code snippet might be an example given in a tutorial.
-If this is not possible, identify reference code snippet that a third party wrote that interacts with the system on sites such as StackOverflow
-or in other parts of your codebase.
-2. Run reference code snippet in your environment.
-3. If a fault still occurs
-4. Execute configuration debugging.
-5. Else, execute delta debugging(your code snippet, reference code snippet, fault).
+strategy configurationDebugging(code, failure, system)
+{
+  configurationParameters = enumerateConfigurationParameters(code);
+  for (praam in configurationParameters)
+  {
+      system.changeConfigurationParameter();
+      if (execute(code, sytem) throws failure)
+      {
+           system.revertConfigurationParameter();
+           continue;
+      }
+      else
+      {
+         return SUCCESS;
+      }
+      
+  }
+}
 
-configuration debugging(fault, system)
-1. Enumerate all paramaters of the current configuration. This could include the environment that the code is run in (development environment,
-OS, runtime, etc.), the version of the system, and configuration parameters (e.g., config files, parameters passed to initialize system).
-2. For each configuration parameter
-3. Edit code to vary configuration paramater.
-4. Run code
-5. If fault is not present
-6. Succees.
-7. Else, Continue
+
+// Brainstorm a list of all configuration parameters you might be able to vary. A configuration paramater
+// here refers to some aspect of how the code is being executed that might be changed. This does NOT refer to changes
+// to the code itself. Rather, it refers to changes to everything else that influences HOW the code is executed.
+// This might include the development environment that runs the code, the version of the system that is being used, 
+// the operating system on which the code is being executed, the runtime engine being used to execute the code, 
+// the configuration files that are being used to initialize the system. 
+strategy enumerateConfigurationParameters(system)
+{
+   configurationParameters = {};
+   while (moreIdeas)
+       configuratinoParameters.add(brainstormConfigurationParameters());
+       
+   return configurationParameters;
+}
 
 
-delta debugging (code snippet, reference code snippet, fault)
-1. Edit reference code snippet to match code snippet. 
-2. Run the new code snippet. 
-3. If the fault is not present
-4.  Success
-5.  Else, revert to reference code snippet. Add just one edit to make reference code snippet look like code snippet. Go to 2.
+strategy deltaDebugging(code, referenceCode, failure)
+{ 
+   Edit reference code snippet to match code snippet. 
+   if (! (execute(code, system) throws failure))
+      return SUCCESS;
+   else
+   {
+       revert(code);
+       Edit reference code snippet to match code snippet. 
+   }
+}
 
+```
 
 # A task
 
