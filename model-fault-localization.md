@@ -101,5 +101,5 @@ strategy deltaDebugging(code, referenceCode, failure)
 
 Open [seeCode.run](https://seecode.run/#:-Kptx0KiHtLoD-k5eHDW). Determine how to fix the program so that it stores data to Firebase and successfully reads back and outputs the data. More precisely, 
 ```
-modelFaultLocalization(codeInFirebase, "Script error.", " at line 16, column 4", Firebase);
+modelFaultLocalization(codeInFirebase, '"Script error.", " at line 16, column 4"', Firebase);
 ```
