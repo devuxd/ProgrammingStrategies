@@ -60,7 +60,6 @@ strategy configurationDebugging(code, failure, system)
   }
 }
 
-
 // Brainstorm a list of all configuration parameters you might 
 // be able to vary. A configuration paramater
 // here refers to some aspect of how the code is being executed 
@@ -96,11 +95,11 @@ strategy deltaDebugging(code, referenceCode, failure)
        Edit reference code snippet to match code snippet. 
    }
 }
-
 ```
 
 # A task
 
-Open [seeCode.run](https://seecode.run/#:-Kptx0KiHtLoD-k5eHDW). Determine how to fix the program so that it stores data to Firebase and successfully reads back and outputs the data. More precisely, modelFaultLocalization(codeInFirebase, "Script error.", " at line 16, column 4", Firebase);
-
-
+Open [seeCode.run](https://seecode.run/#:-Kptx0KiHtLoD-k5eHDW). Determine how to fix the program so that it stores data to Firebase and successfully reads back and outputs the data. More precisely, 
+```
+modelFaultLocalization(codeInFirebase, "Script error.", " at line 16, column 4", Firebase);
+```
