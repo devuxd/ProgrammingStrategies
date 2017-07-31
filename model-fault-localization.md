@@ -62,16 +62,16 @@ strategy configurationDebugging(code, failure, system)
 
 // Brainstorm a list of all configuration parameters you 
 // might be able to vary. A configuration paramater
-// here refers to some aspect of how the code is being executed 
-// that might be changed. This does NOT refer to changes
-// to the code itself. Rather, it refers to changes to 
-// everything else that influences HOW the code is executed.
-// This might include the development environment that runs 
-// the code, the version of the system that is being used, 
-// the operating system on which the code is being executed, 
-// the runtime engine being used to execute the code, 
-// the configuration files that are being used to initialize 
-// the system. 
+// here refers to some aspect of how the code is being 
+// executed that might be changed. This does NOT refer to 
+// changes to the code itself. Rather, it refers to changes 
+// to everything else that influences HOW the code is 
+// executed. This might include the development environment 
+// that runs the code, the version of the system that is 
+// being used, the operating system on which the code is 
+// being executed, the runtime engine being used to execute 
+// the code, the configuration files that are being used 
+// to initialize the system. 
 strategy enumerateConfigParameters(system)
 {
    configurationParameters = {};
