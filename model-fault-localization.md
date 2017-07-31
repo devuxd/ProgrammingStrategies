@@ -55,8 +55,7 @@ strategy configurationDebugging(code, failure, system)
       else
       {
          return SUCCESS;
-      }
-      
+      }      
   }
 }
 
