@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel = "stylesheet" type = "text/css" href = "style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
+    <title> Debugging Strategy</title>
+</head>
+<body>
+<section  class="container" ng-app="app" ng-controller="MainCtrl">
+    <div class="row">
+        <div class="col col-sm-12">
+            <h1>
+                Model fault localization
+            </h1>
+            <!--<div class="wrapper">-->
+
+                <!--<p1> Model fault localization takes code, a failure that the code generates, and a system with which the code interacts.</p1>-->
+                <!--<p1> After finding referenceCode,the strategy tests if failure is still witnessed this differen (and assumed correct) code.</p1>-->
+                <!--<p1> If it is, then a cause of the failure lies in the configuration.</p1>-->
+                <!--<p1> If not, the fault can then be localized by systematically comparing referenceCode to code.</p1>-->
+            <!--</div>-->
+            <div class="col col-sm-12 tt" ng-class="{'hidden' : current.length<2}">
+                <p4 style="align-content: center; font-size: large; color: darkred; margin-left: 15%;">Please Select which prompt you wanna continue</p4>
+            </div>
+        </div>
+    </div>
+    <div class="buttons" >
+        <button class="btn btn-primary pull-right" id="next" ng-click="nextStatement()" ng-disabled="current.length > 1"> Next </button>
+        <button class="btn btn-default pull-right" id="prev" ng-click="prevStatement()"> Previous </button>
+
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            Model fault localization
+        </div>
+
+        <div class="panel-body">
+            <div class="{{stat.class}}" ng-attr-id="{{stat.lineNum}} "
+            ng-class="{'active': current.indexOf(stat.lineNum) !== -1 , 'code': current.indexOf(stat.lineNum) === -1, 'hidden': stat.state !==currentItem.state}"
+            ng-repeat="stat in statements" ng-click="chooseNextStatement($event)"
+            >
+                <!---->
+                <!--<p style="color:darkgreen;" ng-class="{'unhidden': current.indexOf(stat.lineNum) !== -1 , 'hidden': current.indexOf(stat.lineNum) === -1}">{{stat.description}}</p>-->
+                <p style="font-weight: bold; font-style: italic;" >{{stat.text}}</p>
+            </div>
+            <div class="desc-div panel panel-primary">
+                <div class="panel-heading">
+                    Description
+                </div>
+                <div class="panel-body sub-decs" >
+                    {{currentItem.description}}
+                </div>
+                <!--<div class="sub-decs"> variables</div>-->
+
+            </div>
+        </div>
+
+    </div>
+
+
+</section>
+</body>
+</html>
+</body>
+<script src="wizard.js"></script>
+</html>
