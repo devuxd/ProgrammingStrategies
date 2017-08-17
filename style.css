@@ -17,7 +17,7 @@
 }
 
 .margin-1 {
-margin-left:2%;
+    margin-left:2%;
 }
 
 .margin-2 {
@@ -45,21 +45,25 @@ margin-left:2%;
 }
 .panel-body{
     position: relative;
-    height:800px;
-    overflow:scroll;
+    height:600px;
+    overflow:auto;
     overflow-x:hidden;
 }
-.desc-div{
-    position:absolute; 
+.desc-div {
+    position:absolute;
     width:40%;
     right: 10px;
-    top:10px; 
-
-    min-height: 40%;
+    top:10px;
+// min-height:30%;
 
 }
+
+.desc-div .panel-body {
+    height: 200px;
+}
+
 .sub-decs{
-    height:30%;
+    min-height:10%;
     overflow-y: auto;
 
 }

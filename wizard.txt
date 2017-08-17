@@ -1,11 +1,21 @@
 angular.module('app', []);
+angular.module('app').filter('myFilter', function() {
+
+    return function(inputArray, filterIDs) {
+        console.log(inputArray);
+        // return inputArray.filter(function (entry) {
+        //     console.log(entry);
+        //     return this.indexOf(entry) !== -1;
+        // }, filterIDs); // filterIDs here is what "this" is referencing in the line above
+    };
+});
 angular.module('app').controller('MainCtrl', function ($scope) {
     $scope.current = [1];
     $scope.allVariables={
-        system: null,
-        code: null,
-        referenceCode:null,
-        failure: null
+        'system':null,
+        'code': null,
+        'referenceCode':null,
+        'failure':null
     };
     $scope.statements = [{
         lineNum: 1,
@@ -17,7 +27,7 @@ angular.module('app').controller('MainCtrl', function ($scope) {
         "If not, the fault can then be localized by systematically comparing referenceCode to code.",
         htmlId: 'statement1',
         class: 'active',
-        variables: ["code", "system", "failure"],
+        variables: [$scope.allVariables.code, $scope.allVariables.system, $scope.allVariables.failure],
         state: 1
     }, {
         lineNum: 2,
@@ -331,15 +341,19 @@ angular.module('app').controller('MainCtrl', function ($scope) {
     var history = [];
 
     $scope.nextStatement = function () {
+        console.log("$scope.currentItem", $scope.currentItem);
+        if($scope.currentItem.lineNum == 37) {
+            return;
+        }
         history.push($scope.current);
         $scope.current = [];
-        counter = $scope.currentItem.successor[0] - 1;
+
         if (counter < $scope.statements.length) {
             angular.forEach($scope.currentItem.successor, function (value, key) {
                 $scope.current.push(value);
             });
 
-            $scope.currentItem = $scope.statements[counter];
+            $scope.currentItem = $scope.statements[++counter];
         }
         console.log(counter);
     };
