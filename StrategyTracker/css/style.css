@@ -1,0 +1,137 @@
+
+#strategy-panel {
+    margin-top: 10px;
+}
+
+.container {
+    margin-top: 50px;
+}
+
+.buttons > :first-child {
+    margin-left: 10px;
+}
+
+.code {
+    opacity: 0.2 !important;
+}
+
+.code p {
+    color: #000 !important;
+}
+
+.active {
+    opacity: 1;
+    font-weight: 600;
+}
+
+.margin-1 {
+    margin-left: 2%;
+}
+
+.margin-2 {
+    margin-left: 4%;
+}
+
+.margin-3 {
+    margin-left: 6%;
+}
+
+.margin-4 {
+    margin-left: 8%;
+}
+
+.margin-5 {
+    margin-left: 10%;
+}
+
+.hidden {
+    vissibility: hidden;
+}
+
+.unhidden {
+    visibility: visible;
+}
+
+.well {
+    color: #777777;
+}
+
+.current {
+    color: black;
+    font-weight: 600;
+}
+
+.wrapper {
+    white-space: pre;
+}
+
+.panel-body {
+    position: relative;
+    height: 600px;
+    overflow: auto;
+    overflow-x: hidden;
+}
+
+.desc-div {
+    position: absolute;
+    width: 40%;
+    right: 10px;
+    top: 10px;
+/ / min-height: 30 %;
+
+}
+
+.desc-div .panel-body {
+    height: 200px;
+}
+
+.sub-decs {
+    min-height: 10%;
+    overflow-y: auto;
+
+}
+
+.tt {
+    position: absolute;
+    top: 10px;
+    right: 10px
+}
+
+pre {
+    font-family: "Courier 10 Pitch", Courier, monospace;
+    font-size: 95%;
+    line-height: 140%;
+    white-space: pre;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -o-pre-wrap;
+}
+
+.code-text {
+    font-family: Monaco, Consolas, "Andale Mono", "DejaVu Sans Mono", monospace;
+    font-size: 95%;
+    line-height: 140%;
+    white-space: pre;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -o-pre-wrap;
+    /*background: #faf8f0;*/
+}
+
+#content code {
+    display: block;
+    padding: 0.5em 1em;
+    border: 1px solid #bebab0;
+}
+
+.pointer {
+    cursor: pointer;
+}
+.wizard-block {
+    width: auto;
+    width: 200px;
+    padding: 10px;
+    height: auto;
+    color: #777777;
+    display: inline;
+}

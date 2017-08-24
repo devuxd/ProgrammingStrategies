@@ -1,0 +1,23 @@
+{
+  "name": "strategy-tracker",
+  "version": "1.0.0",
+  "description": "Strategy tracker is an application to help users to follow the strategy steps",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify js/index.js -t babelify --outfile js/main.js"
+  },
+  "keywords": [
+    "strategy",
+    "strategy-tracker"
+  ],
+  "author": "Maryam Arab",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
+    "babelify": "^7.3.0",
+    "browserify": "^14.4.0"
+  },
+  "dependencies": {}
+}

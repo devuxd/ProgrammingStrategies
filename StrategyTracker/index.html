@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myapp">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+          href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <script src="js/bundle.js"></script>
+    <title> Debugging Strategy</title>
+</head>
+<body ng-controller="MainCtrl" ng-cloak>
+<section class="container" style="margin-top: 50px">
+    <div class="row">
+        <!--<div class="col-sm-12" style="margin-bottom: 50px">-->
+            <!--<p class="well" ng-repeat="strat in strategies"-->
+               <!--style="display: inline; margin:  10px; width: 300px"-->
+               <!--ng-class="{'current': strat.name === strategy.name}">-->
+                <!--{{strat.displayName}}-->
+            <!--</p>-->
+        <!--</div>-->
+        <div id="wizard" class="col-sm-12" style="margin-bottom: 50px;">
+            <div class="wizard-block well">Model Fault Localization</div>
+
+        </div>
+    </div>
+    <div class=" panel panel-info">
+        <div class=" panel-heading">
+            <div id="buttons" class="form-group" style="margin-bottom: 0; text-align: right">
+                <button class="btn btn-default" id="prev"
+                        ng-disabled="isPrevDisabled"
+                        ng-click="prevStatement()"> Previous
+                </button>
+                <button class="btn btn-primary" id="next"
+                        ng-disabled="currentStatement.activeLines.length > 1"
+                        ng-click="nextStatement()"> Next
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="strategy-panel" class="panel panel-info">
+        <div class="panel-heading">
+            {{strategy.displayName}}      <div ng-if="currentStatement.activeLines.length > 1" style="color: #a94442; display: inline; margin-left: 3%">
+            <strong>Please Select the desired prompt.</strong>
+        </div>
+        </div>
+
+        <div class="panel-body">
+            <div class="{{stat.class}}" ng-attr-id="{{stat.lineNum}} "
+                 ng-repeat="stat in statements"
+                 ng-class="currentStatement.activeLines.indexOf(stat.lineNum) !== -1 ? 'active' : 'code'"
+                 ng-click="chooseNextStatement($event)">
+                <p class="code-text">{{stat.text}}</p>
+            </div>
+            <div class="desc-div">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        Description
+                    </div>
+                    <div class="panel-body">
+                        {{currentStatement.description}}
+                    </div>
+                </div>
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        variables
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group" ng-repeat="var in currentStatement.variables track by $index">
+                            <label class="col-sm-4" ng-for="{{var.name}}"
+                                   style="margin-bottom: 10px">{{var.name}} </label>
+                            <input class="col-sm-8" type="text" ng-id="{{var.name}}" ng-model="var.value"
+                                   style="margin-bottom: 10px">
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+</section>
+</body>
+</html>
+</body>
+</html>
