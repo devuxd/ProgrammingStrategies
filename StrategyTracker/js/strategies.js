@@ -135,7 +135,7 @@ let strategies = [
             activeLines: [4]
         }, {
             lineNum: 5,
-            text: " execute(code, system); ",
+            text: " newExecution = execute(code, system); ",
             successor: 6,
             description: "for the changed parameters, execute the code and see if the failure get fixed or not",
             class: "margin-2",
@@ -144,7 +144,7 @@ let strategies = [
             activeLines: [5]
         }, {
             lineNum: 6,
-            text: " if(execute(code, system) throws failure) {",
+            text: " if(newExecution throws failure) {",
             successor: 7,
             description: "if the changed parameters do not have any effect in fixing the failure and you still have the failure,",
             class: "margin-2",
@@ -231,11 +231,11 @@ let strategies = [
             description: "",
             class: "margin-1",
             nextStrategy: "",
-            activeLines: [2]
+            activeLines: [2,4]
         }, {
             lineNum: 3,
             text: "configuratinoParameters.add(brainstormConfigParameters());",
-            successor: 4,
+            successor: 2,
             description: "Add as much parameters as you can add including:" +
             "the development environment that runs the code," +
             "the version of the system that is being used," +
@@ -244,15 +244,15 @@ let strategies = [
             "the configuration files that are being used to initialize the system ",
             class: "margin-2",
             nextStrategy: "",
-            activeLines: [3,4]
+            activeLines: [3]
         }, {
             lineNum: 4,
-            text: "return configurationParameters;",
+            text: "if(no more ideas) return configurationParameters;",
             successor: 5,
             description: "go back to the strategy : configurationDebugging with the list of parameters to continue.",
             class: "margin-1",
             nextStrategy: "",
-            activeLines: [3,4]
+            activeLines: [2,4]
         }, {
             lineNum: 5,
             text: "}",
