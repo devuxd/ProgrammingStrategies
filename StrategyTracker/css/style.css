@@ -10,10 +10,12 @@
 
 .buttons > :first-child {
     margin-left: 10px;
+    width : 50%;
 }
 #btn-reset{
     float: left;
     width: 20%;
+    float: left;
 }
 .code {
     opacity: 0.2 !important;
@@ -83,6 +85,9 @@
     top: 10px;
 / / min-height: 30 %;
 
+}
+.panel-info>.panel-heading {
+    min-height: 60px!important;
 }
 
 .desc-div .panel-body {
