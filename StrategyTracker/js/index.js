@@ -15,6 +15,15 @@ if (typeof window !== 'undefined' && window.angular) {
         $scope.currentStatement = execObj.currentStatement;
         $scope.statements = $scope.strategy.statements;
 
+        $scope.reset= function () {
+            execObj = interpreter.reset();
+            interpreter = new models.Interpreter(strategies);
+            execObj = interpreter.init("modelFaultLocalization");
+            $scope.strategy = execObj.currentStrategy;
+            $scope.currentStatement = execObj.currentStatement;
+            $scope.statements = $scope.strategy.statements;
+        };
+
         $scope.nextStatement = function () {
             execObj = interpreter.execute();
             if (execObj === null) return;
@@ -41,7 +50,7 @@ if (typeof window !== 'undefined' && window.angular) {
                  {
                 // (currentTarget.includes("if") || currentTarget.includes("else") || currentTarget.includes("while") || currentTarget.includes("return"))
                 let lineNum = parseInt($event.currentTarget.id);
-                execObj = interpreter.execute(lineNum + 1);
+                execObj = interpreter.execute(lineNum+1);
                 if (execObj === null) return;
                 if ($scope.strategy.name !== execObj.currentStrategy.name) {
                     $scope.strategy = execObj.currentStrategy;
@@ -53,7 +62,8 @@ if (typeof window !== 'undefined' && window.angular) {
 
         $(document).ready(function(){
             $(document).on('mouseover', '.active', function() {
-                if ($scope.currentStatement.activeLines.length > 1) $(this).addClass('pointer');
+                if ($scope.currentStatement.activeLines.length > 1 || $scope.currentStatement.activeLines=='undefined')
+                    $(this).addClass('pointer');
             });
         });
 

@@ -3,10 +3,13 @@
 var clone = require('clone');
 
 class Interpreter {
+
+
     constructor(strategies) {
         this.executionStack = [];
         this.historyBackward = [];
         this.strategies = strategies;
+        this.dirty= false;
     }
 
     init(name) {
@@ -14,9 +17,18 @@ class Interpreter {
         this.executionStack.push(initExecutionContext);
         return {
             currentStatement: initExecutionContext.pc,
-            currentStrategy: initExecutionContext.strategy
+            currentStrategy: initExecutionContext.strategy,
+            executionStack: this.executionStack,
         }
     }
+    reset(){
+        let wizardDiv = document.getElementById("wizard");
+        this.historyBackward.splice(0,this.historyBackward.length);
+        this.executionStack.splice(0,this.executionStack.length);
+        this.updateWizard(wizardDiv);
+        this.dirty= false;
+    }
+
 
     findStrategy(strategyname) {
         return this.strategies.find(function(strategy) {
@@ -25,44 +37,59 @@ class Interpreter {
     }
 
     execute(lineNum) {
-        if(this.executionStack.length) {
-            this.historyBackward.push(clone(this.executionStack)); // take a snapshot from our current executionStack to our history
-        }
-        let executionContext = this.executionStack.pop();
-        if(executionContext === undefined) return null;
-        if(!executionContext.pc.dirty && executionContext.pc.nextStrategy.length) {
-            let wizardDiv = document.getElementById("wizard");
+        let wizardDiv = document.getElementById("wizard");
 
-            let nextExecutionContext = new FunctionExecContext(this.findStrategy(executionContext.pc.nextStrategy));
-            executionContext.pc.dirty = true;
-            this.executionStack.push(executionContext);
-            this.executionStack.push(nextExecutionContext);
-           // this.appendToWizard((executionContext,wizardDiv))
-            this.appendToWizard(nextExecutionContext, wizardDiv);
-            return {
-                currentStatement: nextExecutionContext.pc,
-                currentStrategy: nextExecutionContext.strategy,
-            };
-
-
-        } else {
-            executionContext.pc.dirty = false;
-            let nextStatement = executionContext.getNextStatement(lineNum);
-            if(nextStatement.successor !== undefined) {
-                this.executionStack.push(executionContext);
+            if(this.executionStack.length) {
+                this.historyBackward.push(clone(this.executionStack)); // take a snapshot from our current executionStack to our history
             }
-            return {
-                currentStatement: nextStatement,
-                currentStrategy: executionContext.strategy,
-            };
-        }
-    }
+            let executionContext = this.executionStack.pop();
+            if(executionContext === undefined)
+                return null;
+            if(!this.dirty && executionContext.pc.nextStrategy.length) {
 
-    appendToWizard(nextExecutionContext, wizardDiv) {
-        var innerDiv = document.createElement('div');
-        innerDiv.className = 'wizard-block well';
-        innerDiv.append(nextExecutionContext.strategy.displayName);
-        wizardDiv.appendChild(innerDiv);
+                let nextExecutionContext = new FunctionExecContext(this.findStrategy(executionContext.pc.nextStrategy));
+                this.dirty = true;
+                this.executionStack.push(executionContext);
+                this.executionStack.push(nextExecutionContext);
+
+
+                this.updateWizard(wizardDiv);
+                return {
+                    currentStatement: nextExecutionContext.pc,
+                    currentStrategy: nextExecutionContext.strategy,
+                    executionStack: this.executionStack,
+                };
+            } else {
+                this.dirty = false;
+                let nextStatement = executionContext.getNextStatement(lineNum);
+                if(nextStatement.successor==undefined)
+                {
+                    executionContext = this.executionStack.pop();
+                    if(executionContext === undefined)
+                        return null;
+                    nextStatement= executionContext.getNextStatement(executionContext.pc.lineNum);
+
+                }
+                this.executionStack.push(executionContext);
+                this.updateWizard(wizardDiv);
+                return {
+                    currentStatement: nextStatement,
+                    currentStrategy: executionContext.strategy,
+                    executionStack: this.executionStack,
+                };
+            }
+    }
+    updateWizard( wizardDiv) {
+        while (wizardDiv.firstChild) {
+            wizardDiv.removeChild(wizardDiv.firstChild);
+        }
+        for(var i=0; i<this.executionStack.length; i++){
+            var innerDiv = document.createElement('div');
+            innerDiv.className = 'wizard-block well';
+            innerDiv.append(this.executionStack[i].strategy.displayName);
+            wizardDiv.appendChild(innerDiv);
+        }
+
     }
 
     goBack() {
@@ -71,9 +98,14 @@ class Interpreter {
             return null;
         this.executionStack = stack;
         let executionContext = this.executionStack[this.executionStack.length - 1];
+        let wizardDiv = document.getElementById("wizard");
+        if(executionContext.strategy.displayName != wizardDiv.lastElementChild.lastChild.data)
+            this.updateWizard(wizardDiv)
+
         return {
             currentStatement:  executionContext.pc,
             currentStrategy: executionContext.strategy,
+            executionStack: this.executionStack,
         };
     }
 }
@@ -101,6 +133,7 @@ class FunctionExecContext {
         }
         return this.pc;
     }
+
 }
 
 module.exports = {

@@ -46,7 +46,7 @@ let strategies = [
         }, {
             lineNum: 4,
             text: " configurationDebugging(code, failure, system); ",
-            successor: 7,
+            successor: 8,
             description: "Continue with strategy configurationDebugging by clicking next button ",
             class: "margin-2",
             variables: [{name: "code", value: ""}, {name: "failure", value: ""}, {name: "system", value: ""}],
@@ -80,11 +80,19 @@ let strategies = [
         }, {
             lineNum: 8,
             text: "}",
-            successor: undefined,
+            successor: 9,
             description: "",
             class: "",
             nextStrategy: "",
             activeLines: [8]
+        }, {
+            lineNum: 9,
+            text: "",
+            successor: undefined,
+            description: "",
+            class: "",
+            nextStrategy: "",
+            activeLines: [9]
         }]
     },
     {
@@ -178,7 +186,7 @@ let strategies = [
         }, {
             lineNum: 10,
             text: "return SUCCESS;",
-            successor: undefined,
+            successor: 11,
             description: " Congrats, you fixed the failure.",
             class: "margin-3",
             nextStrategy: "",
@@ -194,11 +202,19 @@ let strategies = [
         }, {
             lineNum: 12,
             text: "}",
-            successor: undefined,
+            successor: 13,
             description: "",
             class: "margin-1",
             nextStrategy: "",
             activeLines: [12]
+        }, {
+            lineNum: 13,
+            text: "",
+            successor: undefined,
+            description: "",
+            class: "margin-1",
+            nextStrategy: "",
+            activeLines: [13]
         }]
     },
     {
@@ -232,6 +248,7 @@ let strategies = [
             class: "margin-1",
             nextStrategy: "",
             activeLines: [2,4]
+
         }, {
             lineNum: 3,
             text: "configuratinoParameters.add(brainstormConfigParameters());",
@@ -244,7 +261,8 @@ let strategies = [
             "the configuration files that are being used to initialize the system ",
             class: "margin-2",
             nextStrategy: "",
-            activeLines: [3]
+            activeLines: [3],
+            loop: true
         }, {
             lineNum: 4,
             text: "if(no more ideas) return configurationParameters;",
@@ -256,11 +274,19 @@ let strategies = [
         }, {
             lineNum: 5,
             text: "}",
-            successor: undefined,
+            successor: 6,
             description: "",
             class: "",
             nextStrategy: "",
             activeLines: [5]
+        }, {
+            lineNum: 6,
+            text: "",
+            successor: undefined,
+            description: "",
+            class: "",
+            nextStrategy: "",
+            activeLines: [6]
         }]
     },
     {
@@ -301,7 +327,7 @@ let strategies = [
         }, {
             lineNum: 4,
             text: "return SUCCESS; ",
-            successor: undefined,
+            successor: 10,
             description: "Congrats! you succeed to fix the problem",
             class: "margin-2",
             nextStrategy: "",
@@ -341,6 +367,14 @@ let strategies = [
         }, {
             lineNum: 9,
             text: "}",
+            successor: 10,
+            description: "",
+            class: "",
+            nextStrategy: "",
+            activeLines: [9]
+        }, {
+            lineNum: 10,
+            text: "",
             successor: undefined,
             description: "",
             class: "",

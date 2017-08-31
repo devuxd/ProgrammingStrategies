@@ -34,7 +34,12 @@
     </div>
     <div class=" panel panel-info">
         <div class=" panel-heading">
+            <div id="btn-reset">
+                <button class="btn btn-default" id="reset" ng-click="reset()"> Reset</button>
+            </div>
+
             <div id="buttons" class="form-group" style="margin-bottom: 0; text-align: right">
+
                 <button class="btn btn-default" id="prev"
                         ng-disabled="isPrevDisabled"
                         ng-click="prevStatement()"> Previous
@@ -48,8 +53,8 @@
     </div>
     <div id="strategy-panel" class="panel panel-info">
         <div class="panel-heading">
-            {{strategy.displayName}}      <div ng-if="currentStatement.activeLines.length > 1" style="color: #a94442; display: inline; margin-left: 3%">
-            <strong>Please Select the desired prompt.</strong>
+            {{strategy.displayName}}      <div ng-if="currentStatement.activeLines.length > 1" style="color:orangered; font-family: '.SF NS Display'; font-size: 22px; display: inline; margin-left: 3%">
+            <strong>Please Select the desired statement.</strong>
         </div>
         </div>
 
@@ -59,7 +64,10 @@
                  ng-class="currentStatement.activeLines.indexOf(stat.lineNum) !== -1 ? 'active' : 'code'"
                  ng-click="chooseNextStatement($event)">
                 <p class="code-text">{{stat.text}}</p>
+                <div ng-class="currentStatement.loop =='true' ? 'unhidden' :'hidden' "
+                        style="height: 10px; background-color: red;"><textarea>kjgs;jdsafhkj</textarea></div>
             </div>
+
             <div class="desc-div">
                 <div class="panel panel-primary">
                     <div class="panel-heading">

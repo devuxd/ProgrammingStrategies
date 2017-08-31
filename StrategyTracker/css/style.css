@@ -1,6 +1,7 @@
 
 #strategy-panel {
     margin-top: 10px;
+
 }
 
 .container {
@@ -10,7 +11,10 @@
 .buttons > :first-child {
     margin-left: 10px;
 }
-
+#btn-reset{
+    float: left;
+    width: 20%;
+}
 .code {
     opacity: 0.2 !important;
 }
@@ -105,6 +109,13 @@ pre {
     white-space: pre-wrap;
     white-space: -moz-pre-wrap;
     white-space: -o-pre-wrap;
+}
+.selection-prompt{
+    color:orangered;
+    font-family: '.SF NS Display';
+    font-size: 22px;
+    display: inline;
+    margin-left: 3%;
 }
 
 .code-text {
