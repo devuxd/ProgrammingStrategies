@@ -64,6 +64,7 @@ class Interpreter {
                 let nextStatement = executionContext.getNextStatement(lineNum);
                 if(nextStatement.successor==undefined)
                 {
+                    this.dirty = true;
                     executionContext = this.executionStack.pop();
                     if(executionContext === undefined)
                         return null;
