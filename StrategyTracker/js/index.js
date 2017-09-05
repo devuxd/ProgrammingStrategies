@@ -7,6 +7,12 @@ if (typeof window !== 'undefined' && window.angular) {
         "use strict";
 
         $scope.strategies = strategies;
+        $scope.allVariables=[
+            {name: 'code', val: null},
+            {name: 'referenceCode', val: null},
+            {name: 'failure', val: null},
+            {name: 'system', val: null},
+        ];
         // create interpreter object from model
         let interpreter = new models.Interpreter(strategies);
         // initialize the application
@@ -22,6 +28,9 @@ if (typeof window !== 'undefined' && window.angular) {
             $scope.strategy = execObj.currentStrategy;
             $scope.currentStatement = execObj.currentStatement;
             $scope.statements = $scope.strategy.statements;
+            angular.forEach($scope.allVariables, function(val, key) {
+                val.val = null;
+            });
         };
 
         $scope.nextStatement = function () {

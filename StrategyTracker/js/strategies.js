@@ -13,7 +13,8 @@ let strategies = [
             "If it is, then a cause of the failure lies in the configuration. " +
             "If not, the fault can then be localized by systematically comparing referenceCode to code.",
             class: '',
-            variables: [{name: "code", value: ""}, {name: "failure", value: ""}, {name: "system", value: ""}],
+            // variables: [{name: "code", value: ""}, {name: "failure", value: ""}, {name: "system", value: ""}],
+            variables: ["code", "system", "failure"],
             nextStrategy: "",
             activeLines: [0]
         }, {
@@ -22,7 +23,7 @@ let strategies = [
             successor: 2,
             description: "Find some reference code that interacts with the system that you know must be correct code.This code might be given by the system authors in an official tutorial or might be code found from a third party.",
             class: "margin-1",
-            variables: [{name: "system", value: ""}],
+            variables: ["system"],
             nextStrategy: "",
             activeLines: [1]
         }, {
@@ -31,7 +32,7 @@ let strategies = [
             successor: 3,
             description: "Try to execute the code you have found from Github or Stackoverflow and check if it fixes the failure ",
             class: "margin-1",
-            variables: [{name: 'referenceCode', value: ""}, {name: "system", value: ""}],
+            variables: ["referenceCode", "system"],
             nextStrategy: "",
             activeLines: [2]
         }, {
@@ -40,7 +41,7 @@ let strategies = [
             successor: 4,
             description: "If executing the referenceCode causes Failure, click the if statement. Otherwise click the else statement ",
             class: "margin-1",
-            variables: [{name: 'referenceCode', value: ""}, {name: "system", value: ""}],
+            variables: ["referenceCode", "system"],
             nextStrategy: "",
             activeLines: [3, 5]
         }, {
@@ -49,7 +50,7 @@ let strategies = [
             successor: 8,
             description: "Continue with strategy configurationDebugging by clicking next button ",
             class: "margin-2",
-            variables: [{name: "code", value: ""}, {name: "failure", value: ""}, {name: "system", value: ""}],
+            variables: [ "code", "failure", "system"],
             nextStrategy: "configurationDebugging",
             activeLines: [4]
         }, {
@@ -66,7 +67,7 @@ let strategies = [
             successor: 7,
             description: "Continue with deltaDebugging strategy by clicking next button",
             class: "margin-2",
-            variables: [{name: "code", value: ""}, {name: "referenceCode", value: ""}, {name: "failure", value: ""}],
+            variables: [ "code", "referenceCode", "failure"],
             nextStrategy: "deltaDebugging",
             activeLines: [6]
         }, {
@@ -104,7 +105,7 @@ let strategies = [
             successor: 1,
             description: 'Systematically enumerate and individually vary all possible configuration parameters to find a correct configuration.',
             class: "",
-            variables: [{name: "code", value: ""}, {name: "failure", value: ""}, {name: "system", value: ""}],
+            variables: [ "code", "failure","system"],
             nextStrategy: "",
             activeLines: [0]
         }, {
@@ -113,7 +114,7 @@ let strategies = [
             successor: 2,
             description: 'Use strategy enumerateConfigParameters to collect configurationParameters ',
             class: "margin-1",
-            variables: [{name: "code", value: ""}],
+            variables: ["code"],
             nextStrategy: "",
             activeLines: [1]
         }, {
@@ -122,7 +123,7 @@ let strategies = [
             successor: 3,
             description: "Continue with strategy enumerateConfigParameters by clicking next button",
             class: "margin-1",
-            variables: [{name: "system", value: ""}],
+            variables: ["system"],
             nextStrategy: "enumerateConfigParameters",
             activeLines: [2]
         }, {
@@ -147,7 +148,7 @@ let strategies = [
             successor: 6,
             description: "for the changed parameters, execute the code and see if the failure get fixed or not",
             class: "margin-2",
-            variables: [{name: "code", value: ""}, {name: "system", value: ""}],
+            variables: ["code", "system"],
             nextStrategy: "",
             activeLines: [5]
         }, {
@@ -156,7 +157,7 @@ let strategies = [
             successor: 7,
             description: "if the changed parameters do not have any effect in fixing the failure and you still have the failure,",
             class: "margin-2",
-            variables: [{name: "code", value: ""}, {name: "system", value: ""}],
+            variables: ["code","system"],
             nextStrategy: "",
             activeLines: [6, 9]
         }, {

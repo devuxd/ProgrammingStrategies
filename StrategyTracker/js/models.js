@@ -27,6 +27,8 @@ class Interpreter {
         this.executionStack.splice(0,this.executionStack.length);
         this.updateWizard(wizardDiv);
         this.dirty= false;
+        //document.getElementsByClassName("var-div").getElementsByTagName('input').value ="";
+
     }
 
 

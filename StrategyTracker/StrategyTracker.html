@@ -53,9 +53,9 @@
     </div>
     <div id="strategy-panel" class="panel panel-info">
         <div class="panel-heading">
-            {{strategy.displayName}}      <p ng-if="currentStatement.activeLines.length > 1" style="color:orangered; font-family: '.SF NS Display'; font-size: 22px; display: inline; margin-left: 3%">
+            {{strategy.displayName}}      <div ng-if="currentStatement.activeLines.length > 1" style="color:orangered; font-family: '.SF NS Display'; font-size: 22px; display: inline; margin-left: 3%">
             <strong>Please Select the desired statement.</strong>
-        </p>
+        </div>
         </div>
 
         <div class="panel-body">
@@ -82,11 +82,10 @@
                         variables
                     </div>
                     <div class="panel-body">
-                        <div class="form-group" ng-repeat="var in currentStatement.variables track by $index">
-                            <label class="col-sm-4" ng-for="{{var.name}}"
-                                   style="margin-bottom: 10px">{{var.name}} </label>
-                            <input class="col-sm-8" type="text" ng-id="{{var.name}}" ng-model="var.value"
-                                   style="margin-bottom: 10px">
+                        <div class="form-group var-div"  ng-repeat="var in allVariables track by $index" ng-class="{'hidden': currentStatement.variables.indexOf(var.name) === -1}">
+                            <label class="col-sm-4" ng-for="var.name" style="margin-bottom: 10px">{{var.name}} </label>
+                            <input class="col-sm-8" type="text" ng-id="var.name" ng-model="var.val" style="margin-bottom: 10px">
+
                         </div>
 
                     </div>
