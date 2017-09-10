@@ -27,13 +27,15 @@ class Interpreter {
         this.executionStack.splice(0,this.executionStack.length);
         this.updateWizard(wizardDiv);
         this.dirty= false;
-        //document.getElementsByClassName("var-div").getElementsByTagName('input').value ="";
 
     }
 
 
     findStrategy(strategyname) {
+        console.log(this.strategies);
+
         return this.strategies.find(function(strategy) {
+
             return strategy.name === strategyname;
         })
     }
@@ -64,7 +66,7 @@ class Interpreter {
             } else {
                 this.dirty = false;
                 let nextStatement = executionContext.getNextStatement(lineNum);
-                if(nextStatement.successor==undefined)
+                if(nextStatement.successor==undefined || nextStatement.successor=="undefined")
                 {
                     this.dirty = true;
                     executionContext = this.executionStack.pop();

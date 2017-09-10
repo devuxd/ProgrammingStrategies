@@ -13,7 +13,6 @@ let strategies = [
             "If it is, then a cause of the failure lies in the configuration. " +
             "If not, the fault can then be localized by systematically comparing referenceCode to code.",
             class: '',
-            // variables: [{name: "code", value: ""}, {name: "failure", value: ""}, {name: "system", value: ""}],
             variables: ["code", "system", "failure"],
             nextStrategy: "",
             activeLines: [0]
@@ -23,7 +22,7 @@ let strategies = [
             successor: 2,
             description: "Find some reference code that interacts with the system that you know must be correct code.This code might be given by the system authors in an official tutorial or might be code found from a third party.",
             class: "margin-1",
-            variables: ["system"],
+            variables: ["system","referenceCode"],
             nextStrategy: "",
             activeLines: [1]
         }, {
@@ -37,7 +36,7 @@ let strategies = [
             activeLines: [2]
         }, {
             lineNum: 3,
-            text: "if (execute(referenceCode, system) throws failure) {",
+            text: "if (execution of referenceCode throws failure) {",
             successor: 4,
             description: "If executing the referenceCode causes Failure, click the if statement. Otherwise click the else statement ",
             class: "margin-1",
@@ -89,7 +88,7 @@ let strategies = [
         }, {
             lineNum: 9,
             text: "",
-            successor: undefined,
+            successor: "undefined",
             description: "",
             class: "",
             nextStrategy: "",
@@ -211,7 +210,7 @@ let strategies = [
         }, {
             lineNum: 13,
             text: "",
-            successor: undefined,
+            successor: "undefined",
             description: "",
             class: "margin-1",
             nextStrategy: "",
@@ -283,7 +282,7 @@ let strategies = [
         }, {
             lineNum: 6,
             text: "",
-            successor: undefined,
+            successor: "undefined",
             description: "",
             class: "",
             nextStrategy: "",
@@ -376,7 +375,7 @@ let strategies = [
         }, {
             lineNum: 10,
             text: "",
-            successor: undefined,
+            successor: "undefined",
             description: "",
             class: "",
             nextStrategy: "",

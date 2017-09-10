@@ -1,8 +1,12 @@
 
 #strategy-panel {
     margin-top: 10px;
+    /*min-height:300px;*/
+    border: 1px solid lightgray;
+    border-radius: 5px;
 
 }
+
 
 .container {
     margin-top: 50px;
@@ -150,4 +154,20 @@ pre {
     height: auto;
     color: #777777;
     display: inline;
+}
+/*/*?*?*?*?/*/
+.menu {
+    font-size: 11px;
+    padding: 0px 10px 0 10px;
+    float: left;
+    width: 880px;
+}
+ul, menu, dir {
+    display: block;
+    list-style-type: disc;
+    -webkit-margin-before: 1em;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    -webkit-padding-start: 40px;
 }

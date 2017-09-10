@@ -1,22 +1,52 @@
 const models = require('./models.js');
-const strategies = require('./strategies').strategies;
+const db = require('./dataManagement.js');
+var strategies = require('./strategies').strategies;
+
+
+// Initialize Firebase/
+
 
 if (typeof window !== 'undefined' && window.angular) {
     let myapp = angular.module('myapp', []);
-    myapp.controller('MainCtrl', function ($scope) {
+    myapp.factory('StrategyService', function() {
+
+        firebase.database().ref('strategies').once('value').then(function(snapshot) {
+            snapshot.forEach(function(childStrategy) {
+                //console.log(childStrategy.key + ": " + childStrategy.val().displayName);
+                //strategies.push(childStrategy.val());
+            });
+        });
+        return {
+            getAll: function() {
+                return strategies;
+            },
+        };
+    })
+    myapp.controller('MainCtrl', function ($scope, StrategyService) {
         "use strict";
 
+        //let strategies = StrategyService.getAll();
+
         $scope.strategies = strategies;
+
+        // for(var i =0;i<strategies.length; i++){
+        //     var key = firebase.database().ref().child('strategies').push(strategies[i]);
+        // }
         $scope.allVariables=[
             {name: 'code', val: null},
             {name: 'referenceCode', val: null},
             {name: 'failure', val: null},
             {name: 'system', val: null},
         ];
+
+            //console.log($scope.strategies);
+
         // create interpreter object from model
+        //console.log(strategies);
         let interpreter = new models.Interpreter(strategies);
         // initialize the application
         let execObj = interpreter.init("modelFaultLocalization");
+        console.log("execObj", execObj);
         $scope.strategy = execObj.currentStrategy;
         $scope.currentStatement = execObj.currentStatement;
         $scope.statements = $scope.strategy.statements;

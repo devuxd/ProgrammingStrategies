@@ -14,7 +14,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
     <link rel="stylesheet" type="text/css"
           href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
+
+
+    <script src="https://www.gstatic.com/firebasejs/4.3.0/firebase.js"></script>
     <script src="js/bundle.js"></script>
+
+
     <title> Debugging Strategy</title>
 </head>
 <body ng-controller="MainCtrl" ng-cloak>
@@ -65,7 +70,7 @@
                  ng-click="chooseNextStatement($event)">
                 <p class="code-text">{{stat.text}}</p>
                 <div ng-class="currentStatement.loop =='true' ? 'unhidden' :'hidden' "
-                        style="height: 10px; background-color: red;"><textarea>kjgs;jdsafhkj</textarea></div>
+                        style="height: 10px; background-color: red;"><textarea>loop params //todo</textarea></div>
             </div>
 
             <div class="desc-div">
@@ -85,7 +90,6 @@
                         <div class="form-group var-div"  ng-repeat="var in allVariables track by $index" ng-class="{'hidden': currentStatement.variables.indexOf(var.name) === -1}">
                             <label class="col-sm-4" ng-for="var.name" style="margin-bottom: 10px">{{var.name}} </label>
                             <input class="col-sm-8" type="text" ng-id="var.name" ng-model="var.val" style="margin-bottom: 10px">
-
                         </div>
 
                     </div>
