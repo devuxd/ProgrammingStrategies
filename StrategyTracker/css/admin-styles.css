@@ -7,8 +7,10 @@
 #statements-panel{
     border: 1px solid lightgray;
     border-radius: 5px;
-    /*height: -webkit-fill-available;*/
-    min-height:300px;
+    height: -webkit-fill-available;
+    /*min-height:300px;*/
+    padding-top: 15px;
+
 }
 .row{
     margin-bottom: 10px;

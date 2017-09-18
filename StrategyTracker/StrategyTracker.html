@@ -37,7 +37,7 @@
 
         </div>
     </div>
-    <div class=" panel panel-info">
+    <div class="panel-info">
         <div class=" panel-heading">
             <div id="btn-reset">
                 <button class="btn btn-default" id="reset" ng-click="reset()"> Reset</button>
@@ -56,7 +56,7 @@
             </div>
         </div>
     </div>
-    <div id="strategy-panel" class="panel panel-info">
+    <div id="strategy-panel" class="panel-info">
         <div class="panel-heading">
             {{strategy.displayName}}      <div ng-if="currentStatement.activeLines.length > 1" style="color:orangered; font-family: '.SF NS Display'; font-size: 22px; display: inline; margin-left: 3%">
             <strong>Please Select the desired statement.</strong>
@@ -64,36 +64,54 @@
         </div>
 
         <div class="panel-body">
-            <div class="{{stat.class}}" ng-attr-id="{{stat.lineNum}} "
-                 ng-repeat="stat in statements"
-                 ng-class="currentStatement.activeLines.indexOf(stat.lineNum) !== -1 ? 'active' : 'code'"
-                 ng-click="chooseNextStatement($event)">
-                <p class="code-text">{{stat.text}}</p>
-                <div ng-class="currentStatement.loop =='true' ? 'unhidden' :'hidden' "
-                        style="height: 10px; background-color: red;"><textarea>loop params //todo</textarea></div>
-            </div>
+            <div class="row">
+                <div class="col-md-7">
+                <!--<div class="{{stat.class}}" ng-attr-id="{{stat.lineNum}} "-->
+                <!--ng-repeat="stat in statements"-->
+                <!--ng-class="currentStatement.activeLines.indexOf(stat.lineNum) !== -1 ? 'active' : 'code'"-->
+                <!--ng-click="chooseNextStatement($event)">-->
+                <!--<p class="code-text">{{stat.text}}</p>-->
+                <!--<div ng-class="currentStatement.loop =='true' ? 'unhidden' :'hidden' "-->
+                <!--style="height: 10px; background-color: red;"><textarea>loop params //todo</textarea></div>-->
+                <!--</div>-->
+                    <div class="panel-heading">
+                        <button class="accordion"  ng-repeat="strat in strategies" ng-click="accordion.current = strat.displayName">
+                                {{strat.displayName}}
 
-            <div class="desc-div">
-                <div class="panel panel-primary">
-                    <div class="panel-heading">
-                        Description
+                                <div ng-show="accordion.current == strat.displayName">
+                                    <div ng-repeat="st in strat.statements"
+                                        ng-class="currentStatement.activeLines.indexOf(st.lineNum) !== -1 ? 'active' : 'code'"
+                                        ng-click="chooseNextStatement($event)"
+                                        class="{{st.class}}" ng-attr-id="{{st.lineNum}} ">
+                                        <p class="code-text">{{st.text}}</p>
+                                    </div>
+                                </div>
+                        </button>
                     </div>
-                    <div class="panel-body">
-                        {{currentStatement.description}}
-                    </div>
+
                 </div>
-                <div class="panel panel-primary">
-                    <div class="panel-heading">
-                        variables
+                <div class="desc-div col-md-5">
+                    <div class="panel-primary">
+                        <div class="panel-heading">
+                            Description
+                        </div>
+                        <div class="panel-body">
+                            {{currentStatement.description}}
+                        </div>
                     </div>
-                    <div class="panel-body">
-                        <div class="form-group var-div"  ng-repeat="var in allVariables track by $index" ng-class="{'hidden': currentStatement.variables.indexOf(var.name) === -1}">
-                            <label class="col-sm-4" ng-for="var.name" style="margin-bottom: 10px">{{var.name}} </label>
-                            <input class="col-sm-8" type="text" ng-id="var.name" ng-model="var.val" style="margin-bottom: 10px">
+                    <div class="panel-primary">
+                        <div class="panel-heading">
+                            variables
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group var-div"  ng-repeat="var in allVariables track by $index" ng-class="{'hidden': currentStatement.variables.indexOf(var.name) === -1}">
+                                <label class="col-sm-4" ng-for="var.name" style="margin-bottom: 10px">{{var.name}} </label>
+                                <input class="col-sm-8" type="text" ng-id="var.name" ng-model="var.val" style="margin-bottom: 10px">
+                            </div>
+
                         </div>
 
                     </div>
-
                 </div>
             </div>
         </div>

@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="myAdmin">
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="css/admin-styles.css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -14,12 +13,14 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
     <link rel="stylesheet" type="text/css"
           href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
 
 
     <script src="https://www.gstatic.com/firebasejs/4.3.0/firebase.js"></script>
-    <script src="js/bundle.js"></script>
+    <script src="js/bundle-admin.js"></script>
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -30,8 +31,7 @@
 
     <title> Strategy Build Admin Page</title>
 </head>
-<body>
-
+<body  ng-controller="AdminCtrl">
     <div class="header">
         <div class="container">
             <div class="row">
@@ -60,66 +60,92 @@
         </div>
     </div>
     <section class="container" >
-    <div class="col-md-12" style="margin-bottom:15px;">
-        <button> Create New Strategy</button>
-    </div>
+    <!--<div class="col-md-12" style="margin-bottom:15px;">-->
+        <!--&lt;!&ndash;<button ng-click="createStrategy"> Create New Strategy</button>&ndash;&gt;-->
+    <!--</div>-->
     <div class="page-content">
         <div class="row">
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <div class="sidebar content-box" style="display: block;">
                     <ul class="nav">
                         <!-- Main menu -->
-                        <li class="current"><a href="index.html"><i class="glyphicon glyphicon-home"></i> current Strategy</a></li>
+                        <li class="current"><a href="Admin.html"><i class="glyphicon glyphicon-home"></i> Creating New Strategy</a></li>
+                        <li>
+                            <div>
+                                <form class="form" action="#" id="frmStrategyCreation" style=" min-height: 10px;">
+                                    <br/>
+                                    <label>Owner: <span>*</span></label>
+                                    <br/>
+                                    <input type="text" id="owner" placeholder="Owner of the strategy"/><br/>
+                                    <br/>
+                                    <label>Display Name: <span>*</span></label>
+                                    <br/>
+                                    <input type="text" id="displayName" placeholder="Display name"/><br/>
+                                    <br/>
+                                    <label>Strategy Name:</label>
+                                    <br/>
+                                    <input type="text" id="strategyName" placeholder="Name"/><br/>
+                                    <br/>
+
+                                    <br/>
+                                </form>
+                                <input type="button"  ng-click="createStrategy()" value="Create"/>
+                                <input type="button"  ng-click="cancelStrategy" value="Cancel"/>
+                            </div>
+                        </li>
+
 
                     </ul>
                 </div>
             </div>
-            <div class="col-md-10">
+            <div class="col-md-9">
                 <div class="row">
                     <div class="col-md-12">
                         <div class="content-box-header">
-                            <div class="panel-title">Strategy Content</div>
-                        </div>
+                            <div class="panel-title col-md-10">Current Strategy Content</div>
+                            <div class="panel-options">
+                                <button ng-click="publish()" title="Save the strategy to database " href="#" data-rel="reload"><i class="glyphicon glyphicon-save"></i></button>
 
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-12">
-                        <div id="strategy-panel">
-                            strat1
-                        </div>
+                        <div id="strategy-panel"></div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-12">
                         <div class="content-box-header">
                             <div class="panel-title">Strategy Statement</div>
-
-                            <div class="panel-options">
-                                <a href="#" data-rel="collapse"><i class="glyphicon glyphicon-refresh"></i></a>
-                                <a href="#" data-rel="reload"><i class="glyphicon glyphicon-cog"></i></a>
-                            </div>
                         </div>
                     </div>
                 <div class="col-md-12">
                         <div id="statements-panel">
-                            <label class="col-sm-3" style="margin-bottom: 10px">Text: </label>
-                            <input class="col-sm-7" type="text" style="margin-bottom: 10px">
+                            <label class="col-sm-3" style="margin-bottom: 10px" title="Statement text which is shown on the steps">Text: </label>
+                            <input class="col-sm-7" type="text" id="statText" style="margin-bottom: 10px">
 
-                            <label class="col-sm-3" style="margin-bottom: 10px">Description: </label>
-                            <input class="col-sm-7" type="text" style="margin-bottom: 10px">
-                            <label class="col-sm-3" style="margin-bottom: 10px">Line Num: </label>
-                            <input class="col-sm-7" type="text" style="margin-bottom: 10px">
-                            <label class="col-sm-3" style="margin-bottom: 10px">Successor Line Num: </label>
-                            <input class="col-sm-7" type="text" style="margin-bottom: 10px">
-                            <label class="col-sm-3" style="margin-bottom: 10px">Variables: </label>
-                            <input class="col-sm-7" type="text" style="margin-bottom: 10px">
-                            <label class="col-sm-3" style="margin-bottom: 10px">Next Strategy: </label>
-                            <input class="col-sm-7" type="text" style="margin-bottom: 10px">
-                            <label class="col-sm-3" style="margin-bottom: 10px">class: </label>
-                            <input class="col-sm-7" type="text" style="margin-bottom: 10px">
+                            <label class="col-sm-3" style="margin-bottom: 10px" title="Description for clarifying the text to the user">Description: </label>
+                            <input class="col-sm-7" type="text" id="statDesc" style="margin-bottom: 10px">
+                            <label class="col-sm-3" style="margin-bottom: 10px" title="The ordering number">Line Num: </label>
+                            <input class="col-sm-7" type="text" id="statLineNum" style="margin-bottom: 10px">
+                            <label class="col-sm-3" style="margin-bottom: 10px" title="Line number of the next statement ">Successor Line Num: </label>
+                            <input class="col-sm-7" type="text" id="statSuccessor" style="margin-bottom: 10px">
+                            <label class="col-sm-3" style="margin-bottom: 10px" title="Variables in the scope of the project">Variables: </label>
+                            <input class="col-sm-7" type="text" id="statVariables" style="margin-bottom: 10px">
+                            <label class="col-sm-3" style="margin-bottom: 10px" title="If the next statement is in a different sub-strategy fill this field with the name of the sub-strategy">Next Strategy: </label>
+                            <input class="col-sm-7" type="text" id="statNextStrategy" style="margin-bottom: 10px">
+                            <label class="col-sm-3" style="margin-bottom: 10px" title="For keeping the design of the statement similar to coding(indentation)">class: </label>
+                            <input class="col-sm-7" type="text" id="statClass" style="margin-bottom: 10px">
                             <label class="col-sm-3" style="margin-bottom: 10px">Active Lines: </label>
                             <input class="col-sm-7" type="text" style="margin-bottom: 10px">
-
+                            <div class="col-sm-12">
+                                <button class="btn btn-default" ng-click="addStatement()" title="Add the statement to the current strategy"> add </button>
+                                <button class="btn btn-default" ng-click="clearFields()" title="Clear the fields"> clear</button>
+                                <button class="btn btn-default" ng-click="deleteSelectedStatement()" title="Delete selected statement">delete</button>
+                            </div>
                         </div>
+
+
                     </div>
 
                 </div>

@@ -12,8 +12,6 @@ if (typeof window !== 'undefined' && window.angular) {
 
         firebase.database().ref('strategies').once('value').then(function(snapshot) {
             snapshot.forEach(function(childStrategy) {
-                //console.log(childStrategy.key + ": " + childStrategy.val().displayName);
-                //strategies.push(childStrategy.val());
             });
         });
         return {
@@ -21,9 +19,15 @@ if (typeof window !== 'undefined' && window.angular) {
                 return strategies;
             },
         };
-    })
+    });
+
     myapp.controller('MainCtrl', function ($scope, StrategyService) {
         "use strict";
+
+        $scope.accordion = {
+            current: null
+        };
+
 
         //let strategies = StrategyService.getAll();
 
@@ -98,13 +102,6 @@ if (typeof window !== 'undefined' && window.angular) {
                 $scope.currentStatement = execObj.currentStatement;
             }
         };
-
-        $(document).ready(function(){
-            $(document).on('mouseover', '.active', function() {
-                if ($scope.currentStatement.activeLines.length > 1 || $scope.currentStatement.activeLines=='undefined')
-                    $(this).addClass('pointer');
-            });
-        });
-
     });
+
 }
