@@ -2,19 +2,16 @@
 
 class Strategy {
 
-    constructor(name, statements) {
+    constructor(owner, name, displayName) {
         this.name = name;
+        this.owner= owner;
+        this.displayName= displayName;
         this.statements = [] ;
     }
 
     insertStatement(text, description, lineNum, successor, variables, nextStrategy, classstyle){
-        this.text = text;
-        this.description = description;
-        this.lineNum = lineNum;
-        this.successor = successor;
-        this.variables = variables;
-        this.nextStrategy = nextStrategy;
-        this.classStyle = classstyle;
+        let newStat = new Statement(text, description, lineNum, successor, variables, nextStrategy, classstyle);
+        this.statements.push(newStat);
     }
 }
 

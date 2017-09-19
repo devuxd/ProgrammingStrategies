@@ -76,15 +76,15 @@
                                     <br/>
                                     <label>Owner: <span>*</span></label>
                                     <br/>
-                                    <input type="text" id="owner" placeholder="Owner of the strategy"/><br/>
+                                    <input type="text" id="owner" placeholder="Owner of the strategy" ng-model="newStrategy.owner"/><br/>
                                     <br/>
                                     <label>Display Name: <span>*</span></label>
                                     <br/>
-                                    <input type="text" id="displayName" placeholder="Display name"/><br/>
+                                    <input type="text" id="displayName" placeholder="Display name" ng-model="newStrategy.displayName"/><br/>
                                     <br/>
                                     <label>Strategy Name:</label>
                                     <br/>
-                                    <input type="text" id="strategyName" placeholder="Name"/><br/>
+                                    <input type="text" id="strategyName" placeholder="Name" ng-model="newStrategy.name"/><br/>
                                     <br/>
 
                                     <br/>
@@ -110,7 +110,31 @@
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <div id="strategy-panel"></div>
+                        <div id="strategy-panel">
+                            <div class="wizard-block well ">{{currentStrategy.displayName}}</div>
+
+                            <div ng-repeat="stat in currentStrategy.statements">
+                                {{stat.text}}
+                            </div>
+
+
+                            <!--<button class="accordion" style="width:100%;"  ng-repeat="stat in currentStrategy.statements" ng-click="accordion.current = stat.text" >-->
+                                <!--{{stat.text}}-->
+
+                                <!--<div ng-show="accordion.current == stat.text">-->
+                                    <!--&lt;!&ndash;<div style="background-color: white">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<p class="code-text"> Description: {{stat.description}}</p>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<p class="code-text">Text: {{stat.text}}</p>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<p class="code-text">Description: {{stat.description}}</p>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<p class="code-text">Successor: {{stat.successor}}</p>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<p class="code-text">Next Strategy: {{stat.nextStrategy}}</p>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                <!--</div>-->
+                            <!--</button>-->
+
+
+
+                        </div>
                     </div>
                 </div>
                 <div class="row">
@@ -120,22 +144,22 @@
                         </div>
                     </div>
                 <div class="col-md-12">
-                        <div id="statements-panel">
+                     <div id="statements-panel">
                             <label class="col-sm-3" style="margin-bottom: 10px" title="Statement text which is shown on the steps">Text: </label>
-                            <input class="col-sm-7" type="text" id="statText" style="margin-bottom: 10px">
+                            <input class="col-sm-7" type="text" id="statText" style="margin-bottom: 10px" ng-model="currentStatement.text">
 
                             <label class="col-sm-3" style="margin-bottom: 10px" title="Description for clarifying the text to the user">Description: </label>
-                            <input class="col-sm-7" type="text" id="statDesc" style="margin-bottom: 10px">
+                            <input class="col-sm-7" type="text" id="statDesc" style="margin-bottom: 10px" ng-model="currentStatement.description">
                             <label class="col-sm-3" style="margin-bottom: 10px" title="The ordering number">Line Num: </label>
-                            <input class="col-sm-7" type="text" id="statLineNum" style="margin-bottom: 10px">
-                            <label class="col-sm-3" style="margin-bottom: 10px" title="Line number of the next statement ">Successor Line Num: </label>
-                            <input class="col-sm-7" type="text" id="statSuccessor" style="margin-bottom: 10px">
+                            <input class="col-sm-7" type="text" id="statLineNum" style="margin-bottom: 10px" ng-model="currentStatement.lineNum">
+                            <label class="col-sm-3" style="margin-bottom: 10px" title="Line number of the next statement">Successor Line Num: </label>
+                            <input class="col-sm-7" type="text" id="statSuccessor" style="margin-bottom: 10px" ng-model="currentStatement.successor">
                             <label class="col-sm-3" style="margin-bottom: 10px" title="Variables in the scope of the project">Variables: </label>
-                            <input class="col-sm-7" type="text" id="statVariables" style="margin-bottom: 10px">
+                            <input class="col-sm-7" type="text" id="statVariables" style="margin-bottom: 10px" ng-model="currentStatement.variables">
                             <label class="col-sm-3" style="margin-bottom: 10px" title="If the next statement is in a different sub-strategy fill this field with the name of the sub-strategy">Next Strategy: </label>
-                            <input class="col-sm-7" type="text" id="statNextStrategy" style="margin-bottom: 10px">
+                            <input class="col-sm-7" type="text" id="statNextStrategy" style="margin-bottom: 10px" ng-model="currentStatement.nextStrategy">
                             <label class="col-sm-3" style="margin-bottom: 10px" title="For keeping the design of the statement similar to coding(indentation)">class: </label>
-                            <input class="col-sm-7" type="text" id="statClass" style="margin-bottom: 10px">
+                            <input class="col-sm-7" type="text" id="statClass" style="margin-bottom: 10px" ng-model="currentStatement.classstyle">
                             <label class="col-sm-3" style="margin-bottom: 10px">Active Lines: </label>
                             <input class="col-sm-7" type="text" style="margin-bottom: 10px">
                             <div class="col-sm-12">
@@ -145,7 +169,6 @@
                             </div>
                         </div>
 
-
                     </div>
 
                 </div>
@@ -153,6 +176,7 @@
             </div>
         </div>
     </div>
+
 </section>
 </body>
 </html>
