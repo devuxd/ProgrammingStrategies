@@ -40,7 +40,7 @@ if (typeof window !== 'undefined' && window.angular) {
 
 
         $scope.publish = function () {
-            firebase.database().ref().child($scopeeeeeeeeee).push(angular.fromJson(angular.toJson($scope.currentStrategy)));
+            firebase.database().ref().child('strategies').push(angular.fromJson(angular.toJson($scope.currentStrategy)));
         }
     });
 };
