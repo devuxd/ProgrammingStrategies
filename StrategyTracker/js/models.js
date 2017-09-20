@@ -32,7 +32,7 @@ class Interpreter {
 
 
     findStrategy(strategyname) {
-        console.log(this.strategies);
+
 
         return this.strategies.find(function(strategy) {
 

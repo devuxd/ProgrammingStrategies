@@ -23,7 +23,23 @@
     <title> Debugging Strategy</title>
 </head>
 <body ng-controller="MainCtrl" ng-cloak>
+
 <section class="container" style="margin-top: 50px">
+    <header class="row" style="margin-bottom: 50px;">
+       <span class="ribbon-inner">
+            <h1 style="text-align: center;">ProgrammingStrategies</h1>
+            <h5 style="text-align: center;">A repository of strategies for programming</h5>
+          </span>
+        <h1 id="model-fault-localization" class="header-level-1">Model fault localization</h1>
+        <p>
+            Fault localization refers to the debugging activity of determining the location of the root cause of a failure.
+            There are many strategies for fault localization, often involving tracking the flow of data or control to determine
+            how some action occurred or how some data was computed. But what happens when explicitly tracking control and data
+            flow is not possible, because the code involved is not available or its execution is occurring in a
+            remote system? Imagine calling a function on an external library that you expect to update some data but
+            instead seems to do nothing. Model fault localization offers a strategy for debugging in such a situation.
+        </p>
+    </header>
     <div class="row">
         <!--<div class="col-sm-12" style="margin-bottom: 50px">-->
             <!--<p class="well" ng-repeat="strat in strategies"-->
@@ -40,7 +56,7 @@
     <div class="panel-info">
         <div class=" panel-heading">
             <div id="btn-reset">
-                <button class="btn btn-default" id="reset" ng-click="reset()"> Reset</button>
+                <button class="btn btn-default" id="reset" ng-click="reset()" title="Reset the strategy steps to the first step"> Reset</button>
             </div>
 
             <div id="buttons" class="form-group" style="margin-bottom: 0; text-align: right">
@@ -75,14 +91,14 @@
                 <!--style="height: 10px; background-color: red;"><textarea>loop params //todo</textarea></div>-->
                 <!--</div>-->
                     <div class="panel-heading">
-                        <button class="accordion"  ng-repeat="strat in strategies" ng-click="accordion.current = strat.displayName">
+                        <button class="accordion wizard-block well"  ng-repeat="strat in strategies" ng-click="accordion.current = strat.displayName">
                                 {{strat.displayName}}
 
-                                <div ng-show="accordion.current == strat.displayName">
+                                <div  style="background: #fff;" ng-show="accordion.current == strat.displayName">
                                     <div ng-repeat="st in strat.statements"
                                         ng-class="currentStatement.activeLines.indexOf(st.lineNum) !== -1 ? 'active' : 'code'"
                                         ng-click="chooseNextStatement($event)"
-                                        class="{{st.class}}" ng-attr-id="{{st.lineNum}} ">
+                                        class="{{st.class}} " ng-attr-id="{{st.lineNum}} ">
                                         <p class="code-text">{{st.text}}</p>
                                     </div>
                                 </div>
@@ -104,7 +120,8 @@
                             variables
                         </div>
                         <div class="panel-body">
-                            <div class="form-group var-div"  ng-repeat="var in allVariables track by $index" ng-class="{'hidden': currentStatement.variables.indexOf(var.name) === -1}">
+                            <!--ng-class="{'hidden': currentStatement.variables.indexOf(var.name) === -1}-->
+                            <div class="form-group var-div"  ng-repeat="var in allVariables track by $index ">
                                 <label class="col-sm-4" ng-for="var.name" style="margin-bottom: 10px">{{var.name}} </label>
                                 <input class="col-sm-8" type="text" ng-id="var.name" ng-model="var.val" style="margin-bottom: 10px">
                             </div>

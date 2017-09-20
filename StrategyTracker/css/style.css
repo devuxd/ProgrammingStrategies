@@ -175,12 +175,37 @@ button.accordion {
     background-color: #eee;
     color: #444;
     cursor: pointer;
-    //padding: 18px;
+    padding: 0px;
     width: 100%;
     text-align: left;
-    border: none;
+    /*border: none;*/
     outline: none;
-    transition: 0.4s;
+    transition: 0.8s;
+    min-height: 50px;
+    margin: 5px;
+}
+header span.ribbon-inner {
+    position: relative;
+    display: block;
+    padding: 2px;
+    color: #f2f2e6;
+    z-index: 1;
+    background-image: -webkit-linear-gradient(top,#337ab7 0,#265a88 100%);
+    background-image: -o-linear-gradient(top,#337ab7 0,#265a88 100%);
+    background-image: -webkit-gradient(linear,left top,left bottom,from(#337ab7),to(#265a88));
+    background-image: linear-gradient(to bottom,#337ab7 0,#265a88 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff337ab7', endColorstr='#ff265a88', GradientType=0);
+    filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+    background-repeat: repeat-x;
+    border-color: #245580;
+}
+accordion .accordion-navigation {
+    background: #EFEFEF;
+    color: #222222;
+    display: block;
+    font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif !important;
+    font-size: 0.88889rem;
+    padding: 0.88889rem;
 }
 
 /*!* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) *!*/

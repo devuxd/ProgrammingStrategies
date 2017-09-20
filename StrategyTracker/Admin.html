@@ -113,27 +113,9 @@
                         <div id="strategy-panel">
                             <div class="wizard-block well ">{{currentStrategy.displayName}}</div>
 
-                            <div ng-repeat="stat in currentStrategy.statements">
+                            <div style="padding:0px 10px;" ng-repeat="stat in currentStrategy.statements" ng-click="editCurrentStatement()" >
                                 {{stat.text}}
                             </div>
-
-
-                            <!--<button class="accordion" style="width:100%;"  ng-repeat="stat in currentStrategy.statements" ng-click="accordion.current = stat.text" >-->
-                                <!--{{stat.text}}-->
-
-                                <!--<div ng-show="accordion.current == stat.text">-->
-                                    <!--&lt;!&ndash;<div style="background-color: white">&ndash;&gt;-->
-                                        <!--&lt;!&ndash;<p class="code-text"> Description: {{stat.description}}</p>&ndash;&gt;-->
-                                        <!--&lt;!&ndash;<p class="code-text">Text: {{stat.text}}</p>&ndash;&gt;-->
-                                        <!--&lt;!&ndash;<p class="code-text">Description: {{stat.description}}</p>&ndash;&gt;-->
-                                        <!--&lt;!&ndash;<p class="code-text">Successor: {{stat.successor}}</p>&ndash;&gt;-->
-                                        <!--&lt;!&ndash;<p class="code-text">Next Strategy: {{stat.nextStrategy}}</p>&ndash;&gt;-->
-                                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                                <!--</div>-->
-                            <!--</button>-->
-
-
-
                         </div>
                     </div>
                 </div>
@@ -159,7 +141,7 @@
                             <label class="col-sm-3" style="margin-bottom: 10px" title="If the next statement is in a different sub-strategy fill this field with the name of the sub-strategy">Next Strategy: </label>
                             <input class="col-sm-7" type="text" id="statNextStrategy" style="margin-bottom: 10px" ng-model="currentStatement.nextStrategy">
                             <label class="col-sm-3" style="margin-bottom: 10px" title="For keeping the design of the statement similar to coding(indentation)">class: </label>
-                            <input class="col-sm-7" type="text" id="statClass" style="margin-bottom: 10px" ng-model="currentStatement.classstyle">
+                            <input class="col-sm-7" type="text" id="statClass" style="margin-bottom: 10px" ng-model="currentStatement.classStyle">
                             <label class="col-sm-3" style="margin-bottom: 10px">Active Lines: </label>
                             <input class="col-sm-7" type="text" style="margin-bottom: 10px">
                             <div class="col-sm-12">

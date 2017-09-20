@@ -29,14 +29,18 @@ if (typeof window !== 'undefined' && window.angular) {
             $scope.currentStrategy.insertStatement(text,desc,lNum,successor,vars,nextStrat,classStyle);
             $scope.currentStatement = {};
         }
+        $scope.accordion = {
+            current: null
+        };
+
+        $scope.editCurrentStatement- function () {
+
+
+        }
 
 
         $scope.publish = function () {
-            for(var i= 0; i<statements.length; i++)
-            {
-                console.log(statements[i]);
-            }
-
+            firebase.database().ref().child($scopeeeeeeeeee).push(angular.fromJson(angular.toJson($scope.currentStrategy)));
         }
     });
 };

@@ -16,14 +16,14 @@ class Strategy {
 }
 
 class Statement{
-    constructor(text, description, lineNum, successor, variables, nextStrategy, classstyle){
+    constructor(text, description, lineNum, successor, variables, nextStrategy, classStyle){
         this.text = text;
         this.description = description;
         this.lineNum = lineNum;
         this.successor = successor;
         this.variables = variables;
         this.nextStrategy = nextStrategy;
-        this.classStyle = classstyle;
+        this.classStyle = classStyle;
     }
 }
 
