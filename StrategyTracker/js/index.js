@@ -78,7 +78,11 @@ if (typeof window !== 'undefined' && window.angular) {
                 if ($scope.strategy.name !== execObj.currentStrategy.name) {
                     $scope.strategy = execObj.currentStrategy;
                     $scope.statements = $scope.strategy.statements;
+                    $('#' + $scope.strategy.name).collapse('toggle');
+                    $('#' + execObj.currentStrategy.name).collapse('toggle');
+                    //$('#' +$scope.strategy.name).collapse('show');
                 }
+
                 $scope.currentStatement = execObj.currentStatement;
             };
 

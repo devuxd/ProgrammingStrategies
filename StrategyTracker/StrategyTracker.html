@@ -90,20 +90,47 @@
                 <!--<div ng-class="currentStatement.loop =='true' ? 'unhidden' :'hidden' "-->
                 <!--style="height: 10px; background-color: red;"><textarea>loop params //todo</textarea></div>-->
                 <!--</div>-->
-                    <div class="panel-heading">
-                        <button class="accordion wizard-block well"  ng-repeat="strat in strategies" ng-click="accordion.current = strat.displayName">
-                                {{strat.displayName}}
-
-                                <div  style="background: #fff;" ng-show="accordion.current == strat.displayName">
+                    <div class="panel-group" id="strategiesAccordion">
+                        <div ng-attr-id="{{strat.name}}" class="panel panel-default" ng-repeat="strat in strategies track by $index">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#strategiesAccordion" ng-href="{{'#strategy' + $index}}">
+                                        {{strat.displayName}}
+                                    </a>
+                                </h4>
+                            </div>
+                            <div ng-attr-id="{{'strategy' + $index}}" class="panel-collapse collapse" ng-class="{'in' : $index == 0}">
+                                <div class="panel-body" style="height: auto;">
                                     <div ng-repeat="st in strat.statements"
-                                        ng-class="currentStatement.activeLines.indexOf(st.lineNum) !== -1 ? 'active' : 'code'"
-                                        ng-click="chooseNextStatement($event)"
-                                        class="{{st.class}} " ng-attr-id="{{st.lineNum}} ">
+                                    ng-class="currentStatement.activeLines.indexOf(st.lineNum) !== -1 ? 'active' : 'code'"
+                                    ng-click="chooseNextStatement($event)"
+                                    class="{{st.class}} " ng-attr-id="{{st.lineNum}} ">
                                         <p class="code-text">{{st.text}}</p>
                                     </div>
+
                                 </div>
-                        </button>
+                            </div>
+                        </div>
+
                     </div>
+
+
+
+
+                    <!--<div class="panel-heading">-->
+                        <!--<button class="accordion wizard-block well"  ng-repeat="strat in strategies" ng-click="accordion.current = strat.displayName">-->
+                                <!--{{strat.displayName}}-->
+
+                                <!--<div  style="background: #fff;" ng-show="accordion.current == strat.displayName">-->
+                                    <!--<div ng-repeat="st in strat.statements"-->
+                                        <!--ng-class="currentStatement.activeLines.indexOf(st.lineNum) !== -1 ? 'active' : 'code'"-->
+                                        <!--ng-click="chooseNextStatement($event)"-->
+                                        <!--class="{{st.class}} " ng-attr-id="{{st.lineNum}} ">-->
+                                        <!--<p class="code-text">{{st.text}}</p>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                        <!--</button>-->
+                    <!--</div>-->
 
                 </div>
                 <div class="desc-div col-md-5">
