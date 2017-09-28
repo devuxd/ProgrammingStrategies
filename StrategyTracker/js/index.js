@@ -43,8 +43,8 @@ if (typeof window !== 'undefined' && window.angular) {
         //Asynchronous : If the records are ready from deffered.promise, then the following steps is run.
         myStrat.then(function(strategies) {
             $scope.allStrategies =strategies;
-            $scope.strategies = strategies[0].subStrategies;
-            $scope.selectedStrategy = strategies[0];
+            $scope.strategies = strategies[1].subStrategies;
+            $scope.selectedStrategy = strategies[1];
             console.log($scope.selectedStrategy.name);
 
 
