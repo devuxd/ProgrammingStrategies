@@ -1,6 +1,6 @@
 const models = require('./models.js');
 const db = require('./dataManagement.js');
-//var strategies = require('./strategies').strategies;
+//var dbstrategies = require('./strategies').strategies;
 
 
 // Initialize Firebase/
@@ -8,7 +8,10 @@ const db = require('./dataManagement.js');
 
 if (typeof window !== 'undefined' && window.angular) {
     let myapp = angular.module('myapp', []);
-    //$q is a default service by angular to handle Asynchronous in order not to block threads
+    // for(var i =0;i<dbstrategies.length; i++){
+    //     var key = firebase.database().ref().child('strategies').push(dbstrategies[i]);
+    // }
+    // $q is a default service by angular to handle Asynchronous in order not to block threads
     myapp.factory('StrategyService', function($q) {
         let strategies= [];
         let deferred = $q.defer();
@@ -39,11 +42,12 @@ if (typeof window !== 'undefined' && window.angular) {
 
         //Asynchronous : If the records are ready from deffered.promise, then the following steps is run.
         myStrat.then(function(strategies) {
-            $scope.strategies = strategies;
+            $scope.allStrategies =strategies;
+            $scope.strategies = strategies[0].subStrategies;
+            $scope.selectedStrategy = strategies[0];
+            console.log($scope.selectedStrategy.name);
 
-            // for(var i =0;i<strategies.length; i++){
-            //     var key = firebase.database().ref().child('strategies').push(strategies[i]);
-            // }
+
             $scope.allVariables=[
                 {name: 'code', val: null},
                 {name: 'referenceCode', val: null},
@@ -53,9 +57,9 @@ if (typeof window !== 'undefined' && window.angular) {
 
             // create interpreter object from model
             //console.log(strategies);
-            let interpreter = new models.Interpreter(strategies);
+            let interpreter = new models.Interpreter($scope.selectedStrategy.subStrategies);
             // initialize the application
-            let execObj = interpreter.init("modelFaultLocalization");
+            let execObj = interpreter.init($scope.selectedStrategy.subStrategies[0].name);
             $scope.strategy = execObj.currentStrategy;
             $scope.currentStatement = execObj.currentStatement;
             $scope.statements = $scope.strategy.statements;
@@ -63,7 +67,7 @@ if (typeof window !== 'undefined' && window.angular) {
             $scope.reset= function () {
                 execObj = interpreter.reset();
                 interpreter = new models.Interpreter(strategies);
-                execObj = interpreter.init("modelFaultLocalization");
+                execObj = interpreter.init("localizeFailure");
                 $scope.strategy = execObj.currentStrategy;
                 $scope.currentStatement = execObj.currentStatement;
                 $scope.statements = $scope.strategy.statements;
@@ -71,15 +75,20 @@ if (typeof window !== 'undefined' && window.angular) {
                     val.val = null;
                 });
             };
+            $scope.loadCurrentStrategy = function () {
+                // $scope.strategies =
+                // $scope.reset();
+
+            }
 
             $scope.nextStatement = function () {
                 execObj = interpreter.execute();
                 if (execObj === null) return;
                 if ($scope.strategy.name !== execObj.currentStrategy.name) {
+                    $('#' + execObj.currentStrategy.name).collapse('show');
+                    $('#' + $scope.strategy.name).collapse('hide');
                     $scope.strategy = execObj.currentStrategy;
                     $scope.statements = $scope.strategy.statements;
-                    $('#' + $scope.strategy.name).collapse('toggle');
-                    $('#' + execObj.currentStrategy.name).collapse('toggle');
                     //$('#' +$scope.strategy.name).collapse('show');
                 }
 
@@ -90,6 +99,8 @@ if (typeof window !== 'undefined' && window.angular) {
                 execObj = interpreter.goBack();
                 if (execObj === null) return;
                 if ($scope.strategy.name !== execObj.currentStrategy.name) {
+                    $('#' + execObj.currentStrategy.name).collapse('show');
+                    $('#' + $scope.strategy.name).collapse('hide');
                     $scope.strategy = execObj.currentStrategy;
                     $scope.statements = $scope.strategy.statements;
                 }

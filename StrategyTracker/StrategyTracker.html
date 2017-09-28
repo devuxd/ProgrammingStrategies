@@ -29,8 +29,17 @@
        <span class="ribbon-inner">
             <h1 style="text-align: center;">ProgrammingStrategies</h1>
             <h5 style="text-align: center;">A repository of strategies for programming</h5>
-          </span>
-        <h1 id="model-fault-localization" class="header-level-1">Model fault localization</h1>
+       </span>
+
+        <h2 id="model-fault-localization" class="header-level-1">
+            <select ng-model="selectedStrategy" ng-options="strat.displayName for strat in allStrategies" >
+
+            </select>
+
+
+
+
+        </h2>
         <p>
             The core idea of model fault localization is to explore permutations of interactions with the system to understand how the interaction needs to happen differently to
             remove the failure. For example, you might a config file to initialize a
@@ -46,15 +55,8 @@
         </p>
     </header>
     <div class="row">
-        <!--<div class="col-sm-12" style="margin-bottom: 50px">-->
-            <!--<p class="well" ng-repeat="strat in strategies"-->
-               <!--style="display: inline; margin:  10px; width: 300px"-->
-               <!--ng-class="{'current': strat.name === strategy.name}">-->
-                <!--{{strat.displayName}}-->
-            <!--</p>-->
-        <!--</div>-->
         <div id="wizard" class="col-sm-12" style="margin-bottom: 50px;">
-            <div class="wizard-block well">Model Fault Localization</div>
+            <div class="wizard-block well">{{selectedStrategy.displayName}}</div>
 
         </div>
     </div>
@@ -79,7 +81,8 @@
     </div>
     <div id="strategy-panel" class="panel-info">
         <div class="panel-heading">
-            {{strategy.displayName}}      <div ng-if="currentStatement.activeLines.length > 1" style="color:orangered; font-family: '.SF NS Display'; font-size: 22px; display: inline; margin-left: 3%">
+            {{selectedStrategy.displayName}}
+            <div ng-if="currentStatement.activeLines.length > 1" style="color:orangered; font-family: '.SF NS Display'; font-size: 22px; display: inline; margin-left: 3%">
             <strong>Please Select the desired statement.</strong>
         </div>
         </div>
@@ -87,56 +90,29 @@
         <div class="panel-body">
             <div class="row">
                 <div class="col-md-7">
-                <!--<div class="{{stat.class}}" ng-attr-id="{{stat.lineNum}} "-->
-                <!--ng-repeat="stat in statements"-->
-                <!--ng-class="currentStatement.activeLines.indexOf(stat.lineNum) !== -1 ? 'active' : 'code'"-->
-                <!--ng-click="chooseNextStatement($event)">-->
-                <!--<p class="code-text">{{stat.text}}</p>-->
-                <!--<div ng-class="currentStatement.loop =='true' ? 'unhidden' :'hidden' "-->
-                <!--style="height: 10px; background-color: red;"><textarea>loop params //todo</textarea></div>-->
-                <!--</div>-->
                     <div class="panel-group" id="strategiesAccordion">
-                        <div ng-attr-id="{{strat.name}}" class="panel panel-default" ng-repeat="strat in strategies track by $index">
+                        <div ng-attr-id="{{'strategy' + $index}}" class="panel panel-default" ng-repeat="strat in selectedStrategy.subStrategies track by $index">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
-                                    <a data-toggle="collapse" data-parent="#strategiesAccordion" ng-href="{{'#strategy' + $index}}">
+                                    <a data-toggle="collapse" data-parent="#strategiesAccordion" ng-href="{{'#' + strat.name}}">
                                         {{strat.displayName}}
                                     </a>
                                 </h4>
                             </div>
-                            <div ng-attr-id="{{'strategy' + $index}}" class="panel-collapse collapse" ng-class="{'in' : $index == 0}">
+                            <div ng-attr-id="{{strat.name}}" class="panel-collapse collapse" ng-class="{'in' : $index == 0}">
+                                <!--todo &&(strat.name == )-->
                                 <div class="panel-body" style="height: auto;">
                                     <div ng-repeat="st in strat.statements"
-                                    ng-class="currentStatement.activeLines.indexOf(st.lineNum) !== -1 ? 'active' : 'code'"
+                                    ng-class="(currentStatement.activeLines.indexOf(st.lineNum) !== -1) && (strategy.name === strat.name) ? 'active' : 'code'"
                                     ng-click="chooseNextStatement($event)"
                                     class="{{st.class}} " ng-attr-id="{{st.lineNum}} ">
                                         <p class="code-text">{{st.text}}</p>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
 
                     </div>
-
-
-
-
-                    <!--<div class="panel-heading">-->
-                        <!--<button class="accordion wizard-block well"  ng-repeat="strat in strategies" ng-click="accordion.current = strat.displayName">-->
-                                <!--{{strat.displayName}}-->
-
-                                <!--<div  style="background: #fff;" ng-show="accordion.current == strat.displayName">-->
-                                    <!--<div ng-repeat="st in strat.statements"-->
-                                        <!--ng-class="currentStatement.activeLines.indexOf(st.lineNum) !== -1 ? 'active' : 'code'"-->
-                                        <!--ng-click="chooseNextStatement($event)"-->
-                                        <!--class="{{st.class}} " ng-attr-id="{{st.lineNum}} ">-->
-                                        <!--<p class="code-text">{{st.text}}</p>-->
-                                    <!--</div>-->
-                                <!--</div>-->
-                        <!--</button>-->
-                    <!--</div>-->
-
                 </div>
                 <div class="desc-div col-md-5">
                     <div class="panel-primary">
