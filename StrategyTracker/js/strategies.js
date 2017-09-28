@@ -5,6 +5,15 @@ let strategies = [
         owner:"Thomas LaToza",
         name:"ModelFaultLocalication",
         displayName:"Model Fault Localization",
+        processDescription : "The core idea of model fault localization is to explore permutations of interactions with the system to understand how the interaction needs to happen differently to\n" +
+        "            remove the failure. For example, you might a config file to initialize a\n" +
+        "            library (configuration paramters), a code snippet making three calls (code),\n" +
+        "            and the external library it uses (the system). Model fault localization separately considers two separate causes of failure.",
+
+        strategyDescription:"In the following tool, you can follow the Model Fault Localization strategy steps by clicking the buttons \"next\" and \"previous\".</br>\n" +
+        "            In the description panel, there is more details about each steps.</br>\n" +
+        "            The variables panel shows all the variables in the strategy. You can assign specific values and keep track of them during the execution of the strategy steps.</br>\n" +
+        "            Every time you need to come back to the first step, just reset the strategy.",
         subStrategies: [
             {
                 name: "modelFaultLocalization",
@@ -397,6 +406,11 @@ let strategies = [
         owner:"Andy Co",
         name:"localizeFailure",
         displayName:"Fault localization",
+        processDescription :"When we say “debug”, we are usually referring to many different activities, including reproducing a failure, localizing the root causes of a failure," +
+        " and patching an implementation to prevent those causes. There are many strategies for each of these activities. Below is a strategy for the fault localization part of debugging.",
+        strategyDescription : "Below is a algorithm you can follow manually. If you follow it reliably, it should result in successful localization of a defect. Since it’s something a person " +
+        "executes, I’ve written the strategy in a loosely formal pseudocode. While you execute the strategy, keep track of any variables you need to track in a text editor or paper," +
+        " and keep track of which step and function you’re on, just like a computer does when it executes a program.",
         subStrategies: [
             {
                 name:"localizeFailure",

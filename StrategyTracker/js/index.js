@@ -1,6 +1,6 @@
 const models = require('./models.js');
 const db = require('./dataManagement.js');
-//var dbstrategies = require('./strategies').strategies;
+// var dbstrategies = require('./strategies').strategies;
 
 
 // Initialize Firebase/

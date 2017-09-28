@@ -32,26 +32,14 @@
        </span>
 
         <h2 id="model-fault-localization" class="header-level-1">
-            <select ng-model="selectedStrategy" ng-options="strat.displayName for strat in allStrategies" >
-
-            </select>
-
-
-
-
+            <select ng-model="selectedStrategy" ng-options="strat.displayName for strat in allStrategies" ></select>
         </h2>
         <p>
-            The core idea of model fault localization is to explore permutations of interactions with the system to understand how the interaction needs to happen differently to
-            remove the failure. For example, you might a config file to initialize a
-            library (configuration paramters), a code snippet making three calls (code),
-            and the external library it uses (the system). Model fault localization separately considers two separate causes of failure.
+            {{selectedStrategy.processDescription}}
         </p>
 
         <p>
-            In the following tool, you can follow the Model Fault Localization strategy steps by clicking the buttons "next" and "previous".</br>
-            In the description panel, there is more details about each steps.</br>
-            The variables panel shows all the variables in the strategy. You can assign specific values and keep track of them during the execution of the strategy steps.</br>
-            Every time you need to come back to the first step, just reset the strategy.
+            {{selectedStrategy.strategyDescription}}
         </p>
     </header>
     <div class="row">
