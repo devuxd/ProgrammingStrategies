@@ -14,6 +14,12 @@ let strategies = [
         "            In the description panel, there is more details about each steps.</br>\n" +
         "            The variables panel shows all the variables in the strategy. You can assign specific values and keep track of them during the execution of the strategy steps.</br>\n" +
         "            Every time you need to come back to the first step, just reset the strategy.",
+        aalVariables:[
+            {name: 'code', val: null},
+            {name: 'referenceCode', val: null},
+            {name: 'failure', val: null},
+            {name: 'system', val: null}
+        ],
         subStrategies: [
             {
                 name: "modelFaultLocalization",
@@ -398,10 +404,6 @@ let strategies = [
             }
         ]
     },
-
-
-
-
     {
         owner:"Andy Co",
         name:"localizeFailure",
@@ -411,6 +413,11 @@ let strategies = [
         strategyDescription : "Below is a algorithm you can follow manually. If you follow it reliably, it should result in successful localization of a defect. Since it’s something a person " +
         "executes, I’ve written the strategy in a loosely formal pseudocode. While you execute the strategy, keep track of any variables you need to track in a text editor or paper," +
         " and keep track of which step and function you’re on, just like a computer does when it executes a program.",
+        allVariables :[
+                {name: 'failure', val: null},
+                {name: 'value', val: null},
+                {name: 'L', val: null},
+                {name: 'V', val: null}],
         subStrategies: [
             {
                 name:"localizeFailure",
@@ -468,7 +475,7 @@ let strategies = [
                     ,
                     {
                         lineNum:5,
-                        text:"return localizeWrongOutput(failure)",
+                        text:"localizeWrongOutput(failure)",
                         successor:9,
                         description:"",
                         class:"margin-2",
@@ -549,7 +556,7 @@ let strategies = [
                         class:"margin-1",
                         variables:["failure"],
                         nextStrategy:"",
-                        activeLines:[1]
+                        activeLines:[1,16]
                     },
                     {
                         lineNum:2,
@@ -579,11 +586,11 @@ let strategies = [
                         class:"margin-1",
                         variables:["failure"],
                         nextStrategy:"",
-                        activeLines:[4,6]
+                        activeLines:[6,4]
                     },
                     {
                         lineNum:5,
-                        text:"return to step 1 and find an alternate L that does produce the failure",
+                        text:"return to step 1 and find an alternate L that does produce the failure}",
                         successor:0,
                         description:"",
                         class:"margin-2",
@@ -593,7 +600,7 @@ let strategies = [
                     },
                     {
                         lineNum:6,
-                        text:"} else If there is no such L",
+                        text:"}else{",
                         successor:7,
                         description:"",
                         class:"margin-1",
@@ -603,107 +610,109 @@ let strategies = [
                     },
                     {
                         lineNum:7,
-                        text:"then something else is creating the problem.",
+                        text:"Values= Inspect the state of all values that resulted in L being reached",
                         successor:8,
-                        description:"",
+                        description:"With the program halted on L, inspect the state of all values in memory and all values V of local variables in the call stack that resulted in L being reached. " +
+                        "This includes all variables that were referenced in conditional statements that resulted in L being executed.",
                         class:"margin-2",
                         variables:["failure"],
                         nextStrategy:"",
                         activeLines:[7]
-                    },{
+                    },
+                    {
                         lineNum:8,
-                        text:"}",
+                        text:"For each of these values V{",
                         successor:9,
                         description:"",
-                        class:"margin-1",
+                        class:"margin-2",
                         variables:["failure"],
                         nextStrategy:"",
                         activeLines:[8]
-                    },
-                    {
+                    },{
                         lineNum:9,
-                        text:"Values= Inspect the state of all values that resulted in L being reached",
+                        text:"If V correct in this context{",
                         successor:10,
-                        description:"With the program halted on L, inspect the state of all values in memory and all values V of local variables in the call stack that resulted in L being reached. " +
-                        "This includes all variables that were referenced in conditional statements that resulted in L being executed.",
-                        class:"margin-1",
+                        description:"",
+                        class:"margin-2",
                         variables:["failure"],
                         nextStrategy:"",
-                        activeLines:[9]
+                        activeLines:[9,11,14]
                     },
                     {
                         lineNum:10,
-                        text:"For each of these values V{",
-                        successor:11,
+                        text:"move on to the next V",
+                        successor:9,
                         description:"",
-                        class:"margin-1",
+                        class:"margin-3",
                         variables:["failure"],
                         nextStrategy:"",
                         activeLines:[10]
                     },{
                         lineNum:11,
-                        text:"If V correct in this context{",
+                        text:"} else {",
                         successor:12,
                         description:"",
                         class:"margin-2",
                         variables:["failure"],
                         nextStrategy:"",
-                        activeLines:[11,13,16]
+                        activeLines:[9,11,14]
                     },
                     {
                         lineNum:12,
-                        text:"move on to the next V",
-                        successor:11,
+                        text:"return localizeWrongValue",
+                        successor:20,
                         description:"",
                         class:"margin-3",
                         variables:["failure"],
-                        nextStrategy:"",
-                        activeLines:12
-                    },{
+                        nextStrategy:"localizeWrongValue",
+                        activeLines:[12]
+                    },
+                    {
                         lineNum:13,
-                        text:"} else {",
+                        text:"}",
                         successor:14,
                         description:"",
                         class:"margin-2",
                         variables:["failure"],
                         nextStrategy:"",
-                        activeLines:[11,13,16]
-                    },
-                    {
-                        lineNum:14,
-                        text:"return localizeWrongValue",
-                        successor:19,
-                        description:"",
-                        class:"margin-3",
-                        variables:["failure"],
-                        nextStrategy:"localizeWrongValue",
-                        activeLines:[14]
-                    },
-                    {
-                        lineNum:15,
-                        text:"}",
-                        successor:16,
-                        description:"",
-                        class:"margin-2",
-                        variables:["failure"],
-                        nextStrategy:"",
-                        activeLines:[15]
+                        activeLines:[13]
                     },{
-                        lineNum:16,
+                        lineNum:14,
                         text:"If none of V is wrong {",
-                        successor:17,
+                        successor:15,
                         description:"If none of the values were wrong, then one of the inputs to the program was not handled correctly. Identify which input was unexpected and devise a way to handle it correctly.",
                         class:"margin-2",
                         variables:["failure"],
                         nextStrategy:"",
-                        activeLines:[11,13,16]
+                        activeLines:[9,11,14]
+                    },
+                    {
+                        lineNum:15,
+                        text:"One of the inputs was not handled correctly",
+                        successor:20,
+                        description:"",
+                        class:"margin-3",
+                        variables:["failure"],
+                        nextStrategy:"",
+                        activeLines:[15]
+                    },
+
+                    {
+                        lineNum:16,
+                        text:" If there is no such L",
+                        successor:17,
+                        description:"",
+                        class:"margin-1",
+                        variables:["failure"],
+                        nextStrategy:"",
+                        activeLines:[1,16]
                     },
                     {
                         lineNum:17,
-                        text:"One of the inputs was not handled correctly",
+                        text:"then something else is creating the problem.",
                         successor:18,
                         description:"",
-                        class:"margin-3",
+                        class:"margin-2",
                         variables:["failure"],
                         nextStrategy:"",
                         activeLines:[17]
@@ -712,7 +721,7 @@ let strategies = [
                         text:"}",
                         successor:19,
                         description:"",
-                        class:"margin-2",
+                        class:"margin-1",
                         variables:["failure"],
                         nextStrategy:"",
                         activeLines:[18]
@@ -725,14 +734,23 @@ let strategies = [
                         variables:["failure"],
                         nextStrategy:"",
                         activeLines:[19]
+                    },{
+                        lineNum:20,
+                        text:"}",
+                        successor:21,
+                        description:"",
+                        class:"",
+                        variables:["failure"],
+                        nextStrategy:"",
+                        activeLines:[20]
                     }, {
-                        lineNum: 20,
+                        lineNum: 21,
                         text: "",
                         successor: "undefined",
                         description: "",
                         class: "",
                         nextStrategy: "",
-                        activeLines: [20]
+                        activeLines: [21]
                     }
                 ]
             },
@@ -933,7 +951,7 @@ let strategies = [
                         successor:1,
                         description:"",
                         class:"",
-                        variables:["failure", "value"],
+                        variables:["failure", "L"],
                         nextStrategy:"",
                         activeLines:[0]
                     },
@@ -943,7 +961,7 @@ let strategies = [
                         successor:2,
                         description:"These may be an if-statements, switch-statements, or other conditional statements that would have prevented the line from executing.",
                         class:"margin-1",
-                        variables:["failure", "value"],
+                        variables:["failure", "L"],
                         nextStrategy:"",
                         activeLines:[1]
                     },
@@ -953,7 +971,7 @@ let strategies = [
                         successor:3,
                         description:"",
                         class:"margin-1",
-                        variables:["failure", "value"],
+                        variables:["failure", "L"],
                         nextStrategy:"",
                         activeLines:[2]
                     },
@@ -963,7 +981,7 @@ let strategies = [
                         successor:4,
                         description:"",
                         class:"margin-2",
-                        variables:["failure", "value"],
+                        variables:["failure", "L"],
                         nextStrategy:"",
                         activeLines:[3]
                     },
@@ -973,7 +991,7 @@ let strategies = [
                         successor:5,
                         description:"",
                         class:"margin-2",
-                        variables:["failure", "value"],
+                        variables:["failure", "L"],
                         nextStrategy:"",
                         activeLines:[4]
                     },
@@ -983,7 +1001,7 @@ let strategies = [
                         successor:0,
                         description:"",
                         class:"margin-2",
-                        variables:["failure", "value"],
+                        variables:["failure", "L"],
                         nextStrategy:"",
                         activeLines:[5,7]
                     },
@@ -993,7 +1011,7 @@ let strategies = [
                         successor:7,
                         description:"move on to the next L in conditions",
                         class:"margin-3",
-                        variables:["failure", "value"],
+                        variables:["failure", "L"],
                         nextStrategy:"",
                         activeLines:[3,6]
                     },
@@ -1003,7 +1021,7 @@ let strategies = [
                         successor:8,
                         description:"",
                         class:"margin-2",
-                        variables:["failure", "value"],
+                        variables:["failure", "L"],
                         nextStrategy:"",
                         activeLines:[5,7]
                     },{
@@ -1012,7 +1030,7 @@ let strategies = [
                         successor:9,
                         description:"",
                         class:"margin-3",
-                        variables:["failure", "value"],
+                        variables:["failure", "L"],
                         nextStrategy:"",
                         activeLines:[8]
                     },

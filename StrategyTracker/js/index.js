@@ -1,6 +1,6 @@
 const models = require('./models.js');
 const db = require('./dataManagement.js');
-// var dbstrategies = require('./strategies').strategies;
+var dbstrategies = require('./strategies').strategies;
 
 
 // Initialize Firebase/
@@ -8,9 +8,9 @@ const db = require('./dataManagement.js');
 
 if (typeof window !== 'undefined' && window.angular) {
     let myapp = angular.module('myapp', []);
-    // for(var i =0;i<dbstrategies.length; i++){
-    //     var key = firebase.database().ref().child('strategies').push(dbstrategies[i]);
-    // }
+    for(var i =0;i<dbstrategies.length; i++){
+        var key = firebase.database().ref().child('strategies').push(dbstrategies[i]);
+    }
     // $q is a default service by angular to handle Asynchronous in order not to block threads
     myapp.factory('StrategyService', function($q) {
         let strategies= [];
@@ -48,12 +48,13 @@ if (typeof window !== 'undefined' && window.angular) {
             console.log($scope.selectedStrategy.name);
 
 
-            $scope.allVariables=[
-                {name: 'code', val: null},
-                {name: 'referenceCode', val: null},
-                {name: 'failure', val: null},
-                {name: 'system', val: null},
-            ];
+            // $scope.allVariables=[
+            //     {name: 'code', val: null},
+            //     {name: 'referenceCode', val: null},
+            //     {name: 'failure', val: null},
+            //     {name: 'system', val: null},
+            // ];
+            $scope.allVariables = $scope.selectedStrategy.allVariables;
 
             // create interpreter object from model
             //console.log(strategies);
