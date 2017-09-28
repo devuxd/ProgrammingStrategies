@@ -42,15 +42,27 @@
                         <select ng-model="selectedStrategy" ng-options="strat.displayName for strat in allStrategies">
                         </select>
                         <h1>{{selectedStrategy.displayName}}</h1>
-                        <!--<ul >-->
-                            <!--<li class="dropdown">-->
-                                <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown">Model Fault Localization <b class="caret"></b></a>-->
-                                <!--<ul class="dropdown-menu animated fadeInUp">-->
-                                    <!--<li ng-repeat="stat in allStrategies">{{stat.displayName}}</li>-->
-                                <!--</ul>-->
-                            <!--</li>-->
-                        <!--</ul>-->
-                        <pre style="min-height: 400px;" id="editor">{{selectedStrategy.displayName}}
+                        <pre style="min-height: 400px;" id="editor">owner:"Thomas LaToza",
+        name:"ModelFaultLocalication",
+        displayName:"Model Fault Localization",
+        processDescription : "",
+        strategyDescription:"",
+        subStrategies: [{
+                name: "modelFaultLocalization",
+                displayName: "Model Fault Localization",
+                statements: [{
+                    lineNum: 0,
+                    text: "Strategy modelFaultLocalization(code, failure, system) {",
+                    successor: 1,
+                    description: "Model fault localization takes code, a failure that the code generates, and a system with which the code interacts. " +
+                    "After finding referenceCode, the strategy tests if failure is still witnessed this different (and assumed correct) code. " +
+                    "If it is, then a cause of the failure lies in the configuration. " +
+                    "If not, the fault can then be localized by systematically comparing referenceCode to code.",
+                    class: '',
+                    variables: ["code", "system", "failure"],
+                    nextStrategy: "",
+                    activeLines: [0]
+                }]}]
 
                         </pre>
                     </div>
