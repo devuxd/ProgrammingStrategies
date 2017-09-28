@@ -5,7 +5,7 @@ A programming strategy constitute a high-level plan for accomplishing a programm
 
 * [Fault localization](localize-fault.md)
 * [Model fault localization](model-fault-localization.md)
-* [Model fault localization-step tracker](StrategyTracker/StrategyTracker.html)
+* [Fault localization-Tracker](StrategyTracker/StrategyTracker.html)
 
 ### About
 
