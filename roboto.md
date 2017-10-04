@@ -37,7 +37,7 @@ DEFINITION :: `set` IDENTIFIER `to` QUERY
 
 RETURN :: `return` QUERY
 
-QUERY :: (_`word`_ | REFERENCE | CALL)+
+QUERY :: (_`word`_ | IDENTIFIER | CALL)+
 
 IDENTIFIER :: `'` _`identifier`_ `'`
 
