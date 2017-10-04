@@ -3,7 +3,8 @@ const stratModel = require('./strategyModel.js');
 
 if (typeof window !== 'undefined' && window.angular) {
 
-    let myAdmin = angular.module('myAdmin',[]);
+    let myAdmin = angular.module('myAdmin',['ui.ace']);
+
     myAdmin.factory('StrategyService', function($q) {
         let strategies= [];
         let deferred = $q.defer();
@@ -23,8 +24,6 @@ if (typeof window !== 'undefined' && window.angular) {
         };
     });
 
-
-
     myAdmin.controller('AdminCtrl', function ($scope, StrategyService) {
         "use strict";
         $scope.currentStatement = {};
@@ -32,22 +31,33 @@ if (typeof window !== 'undefined' && window.angular) {
         let myStrat = StrategyService.getAll();
         myStrat.then(function(strategies) {
             $scope.allStrategies = strategies;
+            $scope.editedStrategy ={};
+
+            $scope.aceOption = {
+                onLoad: function (_ace) {
+                    _ace.getSession().setMode("ace/mode/json");
+                    _ace.setTheme("ace/theme/twilight")
+                    $scope.strategyChanged = function () {
+                        _ace.setValue(JSON.stringify($scope.selectedStrategy, null, '\t'));
+                    }
+                }
+            };
 
 
-        $scope.createStrategy= function () {
-            $scope.currentStrategy = new stratModel.Strategy($scope.newStrategy.owner,$scope.newStrategy.name,$scope.newStrategy.displayName );
-        }
+            $scope.publish = function () {
+                var editor = ace.edit("aceEditor");
+                var ref= firebase.database().ref().child('strategies');
+                var x= ref.orderByChild("name").equalTo($scope.selectedStrategy.name);
+                x.on("child_added", function(snapshot) {
+                var key = snapshot.key;
+                    //first argument contains an invalid key ($$hashKey) in property.... this is an error happens when we want to push , update or set
+                    // a record in firebase. in order to remove the hash ke we should add:
+                    //I've gotten around this issue by doing something like
+                    // myRef.push(angular.fromJson(angular.toJson(myAngularObject))).
+                    firebase.database().ref().child('strategies/'+key).set(angular.fromJson(angular.toJson(JSON.parse(editor.getValue()))));
 
-
-        $scope.editCurrentStatement- function () {
-
-
-        }
-
-
-        $scope.publish = function () {
-            firebase.database().ref().child('strategies').push(angular.fromJson(angular.toJson($scope.currentStrategy)));
-        }
-    });
+                });
+            }
+        });
     });
 };

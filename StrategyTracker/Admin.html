@@ -18,6 +18,7 @@
             crossorigin="anonymous"></script>
     <script src="https://www.gstatic.com/firebasejs/4.3.0/firebase.js"></script>
     <script src="js/bundle-admin.js"></script>
+    <script type="text/javascript" src="bower_components/angular-ui-ace/ui-ace.js"></script>
     <title> Strategy Build Admin Page</title>
 </head>
 <body ng-controller="AdminCtrl">
@@ -39,32 +40,17 @@
                 <div class="content-box-header">
 
                     <div class="col-md-10">
-                        <select ng-model="selectedStrategy" ng-options="strat.displayName for strat in allStrategies">
+                        <select ng-model="selectedStrategy"
+                                ng-options= "s.displayName for s in allStrategies"
+                                ng-change = "strategyChanged()">
                         </select>
                         <h1>{{selectedStrategy.displayName}}</h1>
-                        <pre style="min-height: 400px;" id="editor">owner:"Thomas LaToza",
-        name:"ModelFaultLocalication",
-        displayName:"Model Fault Localization",
-        processDescription : "",
-        strategyDescription:"",
-        subStrategies: [{
-                name: "modelFaultLocalization",
-                displayName: "Model Fault Localization",
-                statements: [{
-                    lineNum: 0,
-                    text: "Strategy modelFaultLocalization(code, failure, system) {",
-                    successor: 1,
-                    description: "Model fault localization takes code, a failure that the code generates, and a system with which the code interacts. " +
-                    "After finding referenceCode, the strategy tests if failure is still witnessed this different (and assumed correct) code. " +
-                    "If it is, then a cause of the failure lies in the configuration. " +
-                    "If not, the fault can then be localized by systematically comparing referenceCode to code.",
-                    class: '',
-                    variables: ["code", "system", "failure"],
-                    nextStrategy: "",
-                    activeLines: [0]
-                }]}]
+                        <div id="aceEditor" style="min-height: 600px;"
+                             ui-ace="aceOption" [autoUpdateContent]="true" ng-model="aceModel">
 
-                        </pre>
+                        </div>
+                        <!--<pre style="min-height: 400px;" id="aceEditor">owner:"Thomas LaToza",-->
+                        <!--</pre>-->
                     </div>
                     <div class="panel-options col-md-2">
                         <button ng-click="publish()" title="Save the strategy to database " href="#" data-rel="reload"><i class="glyphicon glyphicon-save"></i></button>
@@ -77,17 +63,13 @@
     </div>
     </section>
     <script src="ace-builds-master/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-    <script>
-        var editor = ace.edit("editor");
-        editor.setOptions({
-            useWrapMode: true,
-            highlightActiveLine: true,
-            showPrintMargin: false,
-            theme: 'ace/theme/tomorrow_night',
-            mode: 'ace/mode/javascript'
-        })
-        console.log(editor.getValue());
-    </script>
+    <!--<script>-->
+        <!--var aceEditor = ace.edit("aceEditor");-->
+        <!--aceEditor.setOptions({-->
+
+        <!--})-->
+
+    <!--</script>-->
 
 </body>
 </html>

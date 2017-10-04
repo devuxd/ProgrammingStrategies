@@ -79,7 +79,7 @@ let strategies = [
                     description: "",
                     class: "margin-1",
                     nextStrategy: "",
-                    activeLines: [3, 5]
+                    activeLines: [5,3]
                 }, {
                     lineNum: 6,
                     text: "deltaDebugging(code, referenceCode, failure); ",
@@ -202,7 +202,7 @@ let strategies = [
                     description: "If no failure occurred, you succeeded to fix the problem.",
                     class: "margin-2",
                     nextStrategy: "",
-                    activeLines: [6, 9]
+                    activeLines: [9,6]
                 }, {
                     lineNum: 10,
                     text: "return SUCCESS;",
@@ -290,7 +290,7 @@ let strategies = [
                     description: "go back to the strategy : configurationDebugging with the list of parameters to continue.",
                     class: "margin-1",
                     nextStrategy: "",
-                    activeLines: [2, 4]
+                    activeLines: [4, 2]
                 }, {
                     lineNum: 5,
                     text: "}",
@@ -359,7 +359,7 @@ let strategies = [
                     description: "If the execution of new code throws failure ",
                     class: "margin-1",
                     nextStrategy: "",
-                    activeLines: [3, 5]
+                    activeLines: [ 5,3]
                 }, {
                     lineNum: 6,
                     text: "revert(referenceCode);",
@@ -399,7 +399,7 @@ let strategies = [
                     description: "",
                     class: "",
                     nextStrategy: "",
-                    activeLines: [9]
+                    activeLines: [10]
                 }]
             }
         ]
@@ -491,7 +491,7 @@ let strategies = [
                         class:"margin-1",
                         variables:["failure"],
                         nextStrategy:"",
-                        activeLines:[4,6]
+                        activeLines:[6,4]
                     },
                     {
                         lineNum:7,
@@ -586,7 +586,7 @@ let strategies = [
                         class:"margin-1",
                         variables:["failure"],
                         nextStrategy:"",
-                        activeLines:[6,4]
+                        activeLines:[4,6]
                     },
                     {
                         lineNum:5,
@@ -606,7 +606,7 @@ let strategies = [
                         class:"margin-1",
                         variables:["failure"],
                         nextStrategy:"",
-                        activeLines:[4,6]
+                        activeLines:[6,4]
                     },
                     {
                         lineNum:7,
@@ -655,7 +655,7 @@ let strategies = [
                         class:"margin-2",
                         variables:["failure"],
                         nextStrategy:"",
-                        activeLines:[9,11,14]
+                        activeLines:[11,9,14]
                     },
                     {
                         lineNum:12,
@@ -684,7 +684,7 @@ let strategies = [
                         class:"margin-2",
                         variables:["failure"],
                         nextStrategy:"",
-                        activeLines:[9,11,14]
+                        activeLines:[14, 9,11]
                     },
                     {
                         lineNum:15,
@@ -705,7 +705,7 @@ let strategies = [
                         class:"margin-1",
                         variables:["failure"],
                         nextStrategy:"",
-                        activeLines:[1,16]
+                        activeLines:[16,1]
                     },
                     {
                         lineNum:17,
@@ -827,7 +827,7 @@ let strategies = [
                         class:"margin-1",
                         variables:["failure", "value"],
                         nextStrategy:"",
-                        activeLines:[3,6]
+                        activeLines:[6,3]
                     },
                     {
                         lineNum:7,
@@ -1023,7 +1023,7 @@ let strategies = [
                         class:"margin-2",
                         variables:["failure", "L"],
                         nextStrategy:"",
-                        activeLines:[5,7]
+                        activeLines:[7,5]
                     },{
                         lineNum:8,
                         text:" V : identify the value V that caused it to execute incorrectly",
