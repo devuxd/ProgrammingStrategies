@@ -1,0 +1,42 @@
+STRATEGY localizeFailure(failure):
+	* SET 'inputs' to the sequence of inputs that reproduces the failure reliably # You can capture this in whatever form is easiest to write down. The most common format is a series of reproduction steps. Note that if you do not have reliable reproduction steps, this strategy will be difficult to use.
+	* IF 'failure' is output that should not have occurred but did:
+		* RETURN localizeWrongOutput(failure).
+	* IF the failure is output that should have occurred but did not:
+		* RETURN localizeMissingOutput(failure).
+	* RETURN nothing
+.
+
+STRATEGY localizeWrongOutput(failure):
+	* SET 'L' to the line of code in the application that most directly produced the incorrect output # For example, if it was console output, it is a print statement; if it is user interface output, it is whatever component was responsible for rendering the output. If you do not know how to find this line, one strategy is to find a unique feature in the output such as a string constant and do a global search in the code for that string.
+	* Execute the program to line 'L' # You can use a breakpoint or a time-travel debugger to do this.
+	* Reproduce 'failure' # Follow the steps you wrote down.
+	* IF the program does not execute 'L':
+		* RETURN to step 1 and find an alternate L that does. If there is no such L, then something else is creating the problem.
+	With the program halted on L, inspect the state of all values in memory and all values V of local variables in the call stack that resulted in L being reached. This includes all variables that were referenced in conditional statements that resulted in L being executed.
+	For each of these values V:
+	If V correct in this context, move on to the next V.
+	Otherwise, return localizeWrongValue(failure, V)
+	If none of the values were wrong, then one of the inputs to the program was not handled correctly. Identify which input was unexpected and devise a way to handle it correctly.
+
+STRATEGY localizeWrongValue(failure, value):
+
+	* SET 'lines' to all of the lines of the the program that can produce the wrong value
+	* SET Finding last execution of a line that occurred before failure # Use breakpoints or a time-travel debugger. If your debugger supports reverse execution, this is a matter of stepping backwards. If not, you may have to reproduce failure more than once to find the last execution.
+	* IF the last line L to execute incorrect: # Reflect on the intended behavior of the line and whether, as implemented, it achieves this behavior. If it’s incorrect, you’ve found the bug!
+		Return 'L'.
+	* IF value2 used by the last L to execute incorrect? If so, return localizeWrongValue(failure, value2).
+Failed to find defect. Return nothing.
+strategy localizeMissingOutput(failure)
+
+Find the line of code L that would have produced the output you expected.
+Do diagnoseUnexecutedLine(failure, L)
+strategy diagnoseUnexecutedLine(failure, line)
+
+Find all conditional statements conditions that would have caused line to execute. These may be an if-statements, switch-statements, or other conditional statements that would have prevented the line from executing.
+For each line L in conditions:
+Set a breakpoint on line
+Reproduce the failure to see if L executed
+If L executed, did it execute correctly? If so, move on to the next L in conditions.
+If it didn’t execute correctly, identify the value V that caused it to execute incorrectly
+Return `localizeWrongValue(failure, V)
