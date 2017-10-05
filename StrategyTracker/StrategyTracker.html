@@ -117,7 +117,7 @@
                         </div>
                         <div class="panel-body">
                             <!--ng-class="{'hidden': currentStatement.variables.indexOf(var.name) === -1}-->
-                            <div class="form-group var-div"  ng-repeat="var in allVariables track by $index ">
+                            <div class="form-group var-div"  ng-repeat="var in variables track by $index ">
                                 <label class="col-sm-4" ng-for="var.name" style="margin-bottom: 10px">{{var.name}} </label>
                                 <input class="col-sm-8" type="text" ng-id="var.name" ng-model="var.val" style="margin-bottom: 10px">
                             </div>

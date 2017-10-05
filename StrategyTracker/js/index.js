@@ -43,7 +43,7 @@ if (typeof window !== 'undefined' && window.angular) {
             $scope.selectedStrategy = strategies[1];
             console.log($scope.selectedStrategy.name);
 
-            $scope.allVariables = $scope.selectedStrategy.allVariables;
+            $scope.variables = $scope.selectedStrategy.variables;
 
             // create interpreter object from model
             //console.log(strategies);
@@ -61,7 +61,7 @@ if (typeof window !== 'undefined' && window.angular) {
                 $scope.strategy = execObj.currentStrategy;
                 $scope.currentStatement = execObj.currentStatement;
                 $scope.statements = $scope.strategy.statements;
-                angular.forEach($scope.allVariables, function(val, key) {
+                angular.forEach($scope.variables, function(val, key) {
                     val.val = null;
                 });
             };

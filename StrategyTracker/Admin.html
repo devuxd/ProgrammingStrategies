@@ -44,7 +44,7 @@
                                 ng-options= "s.displayName for s in allStrategies"
                                 ng-change = "strategyChanged()">
                         </select>
-                        <h1>{{selectedStrategy.displayName}}</h1>
+                        <h1 id="stratHeader">{{selectedStrategy.displayName}}</h1>
                         <div id="aceEditor" style="min-height: 600px;"
                              ui-ace="aceOption" [autoUpdateContent]="true" ng-model="aceModel">
                         </div>
@@ -53,7 +53,7 @@
                         <button ng-click="publish()" title="Publish changes to database " href="#" data-rel="reload"><i class="glyphicon glyphicon-export"></i></button>
                     </div>
                     <div class="panel-options col-md-0.5">
-                        <button ng-click="createNewStrategy()" title="Making new strategy Json " href="#" data-rel="reload"><i class="glyphicon glyphicon-plus"></i></button>
+                        <button ng-click="addNewStrategy()" title="Making new strategy Json " href="#" data-rel="reload"><i class="glyphicon glyphicon-plus"></i></button>
                     </div>
                 </div>
 
