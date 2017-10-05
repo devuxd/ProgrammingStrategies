@@ -28,8 +28,17 @@ if (typeof window !== 'undefined' && window.angular) {
         "use strict";
         $scope.currentStatement = {};
         $scope.currentStrategy = {};
+
+
+
+
         let myStrat = StrategyService.getAll();
         myStrat.then(function(strategies) {
+
+            $scope.selectedStrategy=strategies[1];
+
+
+
             $scope.allStrategies = strategies;
             $scope.editedStrategy ={};
 
@@ -43,10 +52,11 @@ if (typeof window !== 'undefined' && window.angular) {
                 }
             };
 
-
+            var editor = ace.edit("aceEditor");
+            editor.setValue(JSON.stringify($scope.selectedStrategy, null, '\t'))
+            var ref= firebase.database().ref().child('strategies');
             $scope.publish = function () {
-                var editor = ace.edit("aceEditor");
-                var ref= firebase.database().ref().child('strategies');
+
                 var x= ref.orderByChild("name").equalTo($scope.selectedStrategy.name);
                 x.on("child_added", function(snapshot) {
                 var key = snapshot.key;
@@ -57,6 +67,38 @@ if (typeof window !== 'undefined' && window.angular) {
                     firebase.database().ref().child('strategies/'+key).set(angular.fromJson(angular.toJson(JSON.parse(editor.getValue()))));
 
                 });
+            }
+            $scope.createNewStrategy = function () {
+                editor.setValue("");
+                $scope.newStrategyOwner = "";
+                $scope.newStrategyName="";
+                $scope.newStrategyDisplayName="";
+                $("#frmStrategyCreation").css("display", "block");
+
+            }
+            $scope.createStrategy = function () {
+                $("#frmStrategyCreation").css("display", "block");
+
+
+                var owner = $scope.newStrategyOwner;
+                var displayName = $scope.newStrategyDisplayName;
+                var name = $scope.newStrategyName;
+
+                if(name=="" || owner=="" || displayName == "")
+                {
+                    $("#frmStrategyCreation").css("display", "none");
+                    return;
+                }
+                $scope.selectedStrategy = new stratModel.Strategy(owner, name,displayName);
+                firebase.database().ref().child('strategies').push($scope.selectedStrategy);
+                $("#frmStrategyCreation").css("display", "none");
+                $scope.strategyChanged();
+
+
+
+            }
+            $scope.cancelCreatingStrategy = function () {
+                $("#frmStrategyCreation").css("display", "none");
             }
         });
     });

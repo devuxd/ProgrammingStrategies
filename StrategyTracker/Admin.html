@@ -19,6 +19,7 @@
     <script src="https://www.gstatic.com/firebasejs/4.3.0/firebase.js"></script>
     <script src="js/bundle-admin.js"></script>
     <script type="text/javascript" src="bower_components/angular-ui-ace/ui-ace.js"></script>
+    <script src="ace-builds-master/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
     <title> Strategy Build Admin Page</title>
 </head>
 <body ng-controller="AdminCtrl">
@@ -28,7 +29,7 @@
                 <div class="col-md-5">
                     <div class="logo">
                         <h1><a href="Admin-backup.html"> Strategy Tracker Admin</a></h1>
-                    </div
+                    </div>
                 </div>
             </div>
         </div>
@@ -38,7 +39,6 @@
         <div class="row">
             <div class="col-md-12" style="margin-bottom:20px;">
                 <div class="content-box-header">
-
                     <div class="col-md-10">
                         <select ng-model="selectedStrategy"
                                 ng-options= "s.displayName for s in allStrategies"
@@ -47,30 +47,41 @@
                         <h1>{{selectedStrategy.displayName}}</h1>
                         <div id="aceEditor" style="min-height: 600px;"
                              ui-ace="aceOption" [autoUpdateContent]="true" ng-model="aceModel">
-
                         </div>
-                        <!--<pre style="min-height: 400px;" id="aceEditor">owner:"Thomas LaToza",-->
-                        <!--</pre>-->
                     </div>
-                    <div class="panel-options col-md-2">
-                        <button ng-click="publish()" title="Save the strategy to database " href="#" data-rel="reload"><i class="glyphicon glyphicon-save"></i></button>
+                    <div class="panel-options col-md-0.5">
+                        <button ng-click="publish()" title="Publish changes to database " href="#" data-rel="reload"><i class="glyphicon glyphicon-export"></i></button>
+                    </div>
+                    <div class="panel-options col-md-0.5">
+                        <button ng-click="createNewStrategy()" title="Making new strategy Json " href="#" data-rel="reload"><i class="glyphicon glyphicon-plus"></i></button>
                     </div>
                 </div>
+
+                <div id="frmStrategyCreation" style="display: none;">
+                    <form class="form" action="#" >
+                        <br/>
+                        <label>Owner: <span></span></label>
+                        <br/>
+                        <input type="text" id="owner" placeholder="Owner of the strategy" ng-model="newStrategyOwner"/><br/>
+                        <br/>
+                        <label>Display Name: <span></span></label>
+                        <br/>
+                        <input type="text" id="displayName" placeholder="Display name" ng-model="newStrategyDisplayName"/><br/>
+                        <br/>
+                        <label>Strategy Name:</label>
+                        <br/>
+                        <input type="text" id="strategyName" placeholder="Name" ng-model="newStrategyName"/><br/>
+                        <br/>
+
+                        <br/>
+                    </form>
+                    <input type="button"  ng-click="createStrategy()" value="Create"/>
+                    <input type="button"  ng-click="cancelCreatingStrategy()" value="Cancel"/>
+                </div>
             </div>
-
-
         </div>
     </div>
     </section>
-    <script src="ace-builds-master/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-    <!--<script>-->
-        <!--var aceEditor = ace.edit("aceEditor");-->
-        <!--aceEditor.setOptions({-->
-
-        <!--})-->
-
-    <!--</script>-->
-
 </body>
 </html>
 
