@@ -5,13 +5,12 @@
 function Tokens(code) {
 
 	this.tokens = tokenize(code);
-	console.log("Made it after tokenize");
 	this.eat = function(expected) {
 	
 		if(expected && !this.nextIs(expected)) {
-			throw new Error("Expected '" + expected + "', but found '" + this.tokens[0]);	
+			throw new Error("Expected '" + expected + "', but found '" + this.tokens.slice(0, 5).join(" ") + "'");	
 		}
-	
+
 		return this.tokens.shift();
 
 	}
@@ -90,7 +89,6 @@ function tokenize(strategy) {
 // Expects a list of strings.
 function parseApproach(name, tokens) {
 
-	console.log("Made it to parseApproach.");
 	var strategies = [];
 	
 	// Parse one or more strategies.
@@ -240,7 +238,7 @@ function parseIf(tokens) {
 	
 }
 
-// FOREACH :: for each IDENTIFIER identifier STATEMENTS
+// FOREACH :: for each IDENTIFIER IDENTIFIER STATEMENTS
 function parseForEach(tokens) {
 
 	tokens.eat("for");
@@ -253,8 +251,8 @@ function parseForEach(tokens) {
 		type: "foreach",
 		list: list,
 		identifier: identifier,
-		statements
-	};		
+		statements: statements
+	};
 	
 }
 
@@ -305,7 +303,6 @@ fs.readFile(process.argv[2], 'utf8', function (err,data) {
 
 	try {
 		var tokens = new Tokens(strategy);
-		console.log("Made it after instantiation.");
 		var ast = parseApproach(process.argv[2], tokens);
 		console.log(JSON.stringify(ast, null, 2));
 	} catch(ex) {
