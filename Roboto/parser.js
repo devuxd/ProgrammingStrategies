@@ -161,7 +161,7 @@ function parseStatement(tokens) {
 		statement = parseDo(tokens);
 	else if(keyword === "if")
 		statement = parseIf(tokens);
-	else if(keyword === "for" && tokens[1] === "each")
+	else if(keyword === "for")
 		statement = parseForEach(tokens);
 	else if(keyword === "set")
 		statement = parseSet(tokens);
@@ -245,6 +245,7 @@ function parseForEach(tokens) {
 	tokens.eat("each");
 	var list = tokens.eat();
 	var identifier = tokens.eat();
+
 	var statements = parseStatements(tokens);
 	
 	return {
