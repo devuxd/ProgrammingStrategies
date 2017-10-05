@@ -1,13 +1,17 @@
 STRATEGY localizeFailure(failure):
+
 	* SET 'inputs' to the sequence of inputs that reproduces the failure reliably # You can capture this in whatever form is easiest to write down. The most common format is a series of reproduction steps. Note that if you do not have reliable reproduction steps, this strategy will be difficult to use.
 	* IF 'failure' is output that should not have occurred but did:
-		* RETURN localizeWrongOutput(failure).
+		* RETURN localizeWrongOutput(failure)
+	.
 	* IF the failure is output that should have occurred but did not:
-		* RETURN localizeMissingOutput(failure).
+		* RETURN localizeMissingOutput(failure)
+	.
 	* RETURN nothing
 .
 
 STRATEGY localizeWrongOutput(failure):
+
 	* SET 'candidateLines' to all of the lines of code that could have directly produced the incorrect output # For example, if it was console output, this might be a print statement. If it is user interface output, this might be whatever component was responsible for rendering the output. If you do not know how to find these line, one strategy is to find a unique feature in the output such as a string constant and do a global search in the code for that string.
 	* SET 'cause' TO nothing
 	* FOR EACH 'candidateLines' 'line':
@@ -16,10 +20,12 @@ STRATEGY localizeWrongOutput(failure):
 			* SET 'values' TO all values in memory and all values of local variables in the call stack that resulted in 'line' being reached
 			* FOR EACH 'values' 'value':
 				* IF 'value' is not correct in this context:
-					* RETURN localizeWrongValue('failure' 'value').
+					* RETURN localizeWrongValue('failure' 'value')
+				.
+			.
 		.
 	.
-	RETURN nothing.
+	* RETURN nothing
 .
 
 STRATEGY localizeWrongValue(failure value):
@@ -27,22 +33,27 @@ STRATEGY localizeWrongValue(failure value):
 	* SET 'lines' to all of the lines of the the program that can produce the 'value' # This involves tracking all of the possible sources of the wrong value.
 	* FOR EACH 'lines' 'line':
 		* Execute the program this line # Use breakpoints or a time-travel debugger. If your debugger supports reverse execution, this is a matter of stepping backwards. If not, you may have to reproduce failure more than once to find the last execution.
-		* IF 'line' is incorrect: # Reflect on the intended behavior of the line and whether, as implemented, it achieves this behavior. If it’s incorrect, you’ve found the bug!
-			* RETURN 'line'.
+		* Reflect on the intended behavior of the line and whether it achieves this behavior
+		* IF 'line' is incorrect: 
+			* RETURN 'line' # You've found the bug!
+		.
 		* SET 'values' TO all of the values used by 'line'
 		* FOR EACH 'values' 'value':
 			* IF 'value' is incorrect:
-				* DO localizeWrongValue('failure' 'value').
+				* DO localizeWrongValue('failure' 'value')
+			.
 		.
 	.
-	RETURN nothing
+	* RETURN nothing
+.
 
-STRATEGY localizeMissingOutput(failure)
+STRATEGY localizeMissingOutput(failure):
 
 	* SET 'line' TO the line of code that would have produced the output you expected
 	* DO diagnoseUnexecutedLine('failure' 'line')
+.
 
-STRATEGY diagnoseUnexecutedLine(failure line)
+STRATEGY diagnoseUnexecutedLine(failure line):
 
 	* SET 'lines' TO all conditional statements conditions that would have caused line to execute # These may be an if-statements, switch-statements, or other conditional statements that would have prevented the line from executing.
 	* FOR EACH 'lines' 'line':
@@ -54,4 +65,4 @@ STRATEGY diagnoseUnexecutedLine(failure line)
 		.
 	.
 	* RETURN nothing
-	.
+.
