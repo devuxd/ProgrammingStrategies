@@ -1,12 +1,15 @@
-STRATEGY verifyAPIHasCommunity (apiName):
-* SET 'site' to the website that hosts the project with 'apiName' # This is a comment
-* IF 'site' is nothing:
-	* RETURN nothing.
-* RETURN assessRepositoryActivity('site').
-	
-STRATEGY assessRepositoryActivity(site):
-* SET 'C' to the last commit to the project
-* SET 'CC' to the number of contributors who've committed in the last month
-* IF 'C' is in the last month and 'CC' is more than 5:
-	* RETURN true.
-* RETURN false.
+STRATEGY verifyAPIHasCommunity (apiName)
+	# This is the first comment
+	SET 'site' TO the website that hosts the project with 'apiName'
+	# This is a more serious comment
+	# Because it's two lines long
+	IF 'site' is nothing
+		RETURN nothing
+	RETURN assessRepositoryActivity('site')
+
+STRATEGY assessRepositoryActivity(site)
+	SET 'C' TO the last commit to the project
+	SET 'CC' TO the number of contributors who've committed in the last month
+	IF 'C' is in the last month and 'CC' is more than 5
+		RETURN true
+	RETURN false
