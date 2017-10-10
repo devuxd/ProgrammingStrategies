@@ -204,6 +204,8 @@ function parseStatement(tokens, tabsExpected) {
 	
 	if(keyword === "do")
 		statement = parseDo(tokens);
+	else if(keyword === "until")
+		statement = parseUntil(tokens, tabsExpected);
 	else if(keyword === "if")
 		statement = parseIf(tokens, tabsExpected);
 	else if(keyword === "for")
@@ -254,6 +256,22 @@ function parseDo(tokens) {
 		type: "do",
 		name: identifier,
 		arguments: arguments
+	};
+	
+}
+
+// UNTIL :: until QUERY STATEMENTS
+function parseUntil(tokens, tabsExpected) {
+	
+	tokens.eat("until");
+	var query = parseQuery(tokens);
+	
+	var statements = parseStatements(tokens, tabsExpected + 1);
+	
+	return {
+		type: "until",
+		query: query,
+		statements: statements
 	};
 	
 }
