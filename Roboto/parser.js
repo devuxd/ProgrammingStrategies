@@ -5,8 +5,9 @@
 function Tokens(code) {
 
 	this.tokens = tokenize(code);
-	this.eat = function(expected) {
 	
+	this.eat = function(expected) {
+		
 		if(expected && !this.nextIs(expected)) {
 			throw new Error("Expected '" + expected + "', but found '" + this.tokens.slice(0, 5).join(" ") + "'");	
 		}
@@ -14,6 +15,23 @@ function Tokens(code) {
 		return this.tokens.shift();
 
 	}
+	
+	this.eatN = function(n) {
+	
+		for(var i = 0; i < n; i++)
+			this.eat();		
+		
+	}		
+		
+	this.count = function(text) {
+
+		var index = 0;
+		while(index < this.tokens.length && this.tokens[index] === text)
+			index++;
+		return index;		
+		
+	}
+	
 	this.hasNext = function() { return this.tokens.length > 0; }
 	this.nextIs = function(string) { return this.hasNext() && this.peek() === string; }
 	this.nextMatches = function(regex) { return this.hasNext() && this.peek().matches(regex); }
@@ -29,15 +47,20 @@ function tokenize(strategy) {
 	
 	while(index < strategy.length) {
 
-		// Eat any whitespace.
-		while(strategy.charAt(index).match(/\s/))
+		// Eat any spaces.
+		while(strategy.charAt(index).match(/ /))
 			index++;
-			
+
+		// If we've reached the end of the string, we're done.
 		if(index === strategy.length)
 			break;
 			
-		if(strategy.charAt(index) === "*") {
-			tokens.push("*");
+		if(strategy.charAt(index) === "\n") {
+			tokens.push("\n");
+			index++;
+		}
+		else if(strategy.charAt(index) === "\t") {
+			tokens.push("\t");
 			index++;
 		}
 		else if(strategy.charAt(index) === "(") {
@@ -46,14 +69,6 @@ function tokenize(strategy) {
 		}
 		else if(strategy.charAt(index) === ")") {
 			tokens.push(")");
-			index++;
-		}
-		else if(strategy.charAt(index) === ":") {
-			tokens.push(":");
-			index++;
-		}
-		else if(strategy.charAt(index) === ".") {
-			tokens.push(".");
 			index++;
 		}
 		else if(strategy.charAt(index) === "#") {
@@ -107,7 +122,7 @@ function parseApproach(name, tokens) {
 
 }
 
-// STRATEGY :: strategy IDENTIFIER ( IDENTIFIER+ ) STATEMENTS
+// STRATEGY :: strategy IDENTIFIER ( IDENTIFIER+ ) STATEMENTS \n
 function parseStrategy(tokens) {
 	
 	tokens.eat("strategy");
@@ -121,7 +136,11 @@ function parseStrategy(tokens) {
 	tokens.eat(")"); // Consume right parenthesis
 
 	// Consume statements.
-	var statements = parseStatements(tokens);
+	var statements = parseStatements(tokens, 1);
+
+	// Consume any number of newlines.
+	while(tokens.nextIs("\n"))
+		tokens.eat("\n");
 	
 	return {
 		type: "strategy",
@@ -133,26 +152,40 @@ function parseStrategy(tokens) {
 }
 
 // STATEMENTS :: STATEMENT+
-function parseStatements(tokens) {
+function parseStatements(tokens, tabsExpected) {
 
 	var statements = [];
 
-	tokens.eat(":");
+	// Block starts with a newline.
+	tokens.eat("\n");
 
-	while(!tokens.nextIs(".")) {
-		statements.push(parseStatement(tokens));
-	}
+	// Read statements until we find fewer tabs than expected.
+	do {
 
-	tokens.eat(".");
+		// How many tabs?
+		var tabsCounted = tokens.count("\t");
+
+		// If we found all the tabs we expected and more, there are extra tabs, and we should fail.
+		if(tabsCounted > tabsExpected)
+			throw new Error("I expected " + tabsExpected + " but found " + tabsCounted + "; did some extra tabs get in?");
+		// If we found the right number, eat them.
+		else if(tabsCounted === tabsExpected)
+			tokens.eatN(tabsExpected);
+		// If we found fewer, we're done eating statements.
+		else
+			break;
+
+		// Read a statement
+		statements.push(parseStatement(tokens, tabsExpected));
+		
+	} while(true);
 
 	return statements;
 		
 }
 
 // STATEMENT :: * (ACTION | CALL | CONDITIONAL | FOREACH | DEFINITION | RETURN )+ [# word+]
-function parseStatement(tokens) {
-	
-	tokens.eat("*");
+function parseStatement(tokens, tabsExpected) {
 	
 	var keyword = tokens.peek();
 	var statement = null;
@@ -160,21 +193,15 @@ function parseStatement(tokens) {
 	if(keyword === "do")
 		statement = parseDo(tokens);
 	else if(keyword === "if")
-		statement = parseIf(tokens);
+		statement = parseIf(tokens, tabsExpected);
 	else if(keyword === "for")
-		statement = parseForEach(tokens);
+		statement = parseForEach(tokens, tabsExpected);
 	else if(keyword === "set")
 		statement = parseSet(tokens);
 	else if(keyword === "return")
 		statement = parseReturn(tokens);
 	else
 		statement = parseAction(tokens);
-	
-	var comment = null;
-	if(tokens.peek().charAt(0) === "#") {
-		comment = tokens.eat();
-	}
-	statement.comment = comment;
 	
 	return statement;
 	
@@ -184,15 +211,8 @@ function parseStatement(tokens) {
 function parseAction(tokens) {
 
 	var words = [];
-	while(
-		tokens.hasNext() && 
-		!tokens.nextIs("*") && 
-		!tokens.nextIs("strategy") && 
-		tokens.peek().charAt(0) !== "#" && 
-		!tokens.nextIs(":") && 
-		!tokens.nextIs(".")) {
+	while(tokens.hasNext() && !tokens.nextIs("\n"))
 		words.push(tokens.eat());
-	}
 
 	return {
 		type: "action",
@@ -213,6 +233,9 @@ function parseDo(tokens) {
 		arguments.push(tokens.eat());
 	}
 	tokens.eat(")");
+
+	// Eat the trailing newline
+	tokens.eat("\n");
 	
 	return {
 		type: "do",
@@ -223,12 +246,12 @@ function parseDo(tokens) {
 }
 
 // CONDITIONAL :: if QUERY STATEMENTS
-function parseIf(tokens) {
+function parseIf(tokens, tabsExpected) {
 	
 	tokens.eat("if");
 	var query = parseQuery(tokens);
 	
-	var statements = parseStatements(tokens);
+	var statements = parseStatements(tokens, tabsExpected + 1);
 	
 	return {
 		type: "if",
@@ -239,14 +262,14 @@ function parseIf(tokens) {
 }
 
 // FOREACH :: for each IDENTIFIER IDENTIFIER STATEMENTS
-function parseForEach(tokens) {
+function parseForEach(tokens, tabsExpected) {
 
 	tokens.eat("for");
 	tokens.eat("each");
 	var list = tokens.eat();
 	var identifier = tokens.eat();
 
-	var statements = parseStatements(tokens);
+	var statements = parseStatements(tokens, tabsExpected + 1);
 	
 	return {
 		type: "foreach",
@@ -265,6 +288,9 @@ function parseSet(tokens) {
 	tokens.eat("to");
 	var query = parseQuery(tokens);
 	
+	// Eat the trailing newline
+	tokens.eat("\n");
+
 	return {
 		type: "set",
 		identifier: identifier,
@@ -279,6 +305,9 @@ function parseReturn(tokens) {
 	tokens.eat("return");
 	var query = parseQuery(tokens);
 	
+	// Eat the trailing newline
+	tokens.eat("\n");
+
 	return {
 		type: "return",
 		query: query
