@@ -112,7 +112,7 @@ function parseApproach(name, tokens) {
 	}
 	
 	if(tokens.hasNext())
-		console.error("I'm not smart enough to handle anything other than strategies, so I got stuck on '" + tokens.peek() + "'");
+		console.error("I'm not smart enough to handle anything other than strategies, so I got stuck on '" + tokens.tokens.slice(0, 5).join(" ") + "'");
 	
 	return {
 		type: "approach",
@@ -146,7 +146,7 @@ function parseStrategy(tokens) {
 		type: "strategy",
 		name: identifier,
 		parameters: parameters,
-		statements: statements		
+		statements: statements
 	};
 	
 }
@@ -155,6 +155,7 @@ function parseStrategy(tokens) {
 function parseStatements(tokens, tabsExpected) {
 
 	var statements = [];
+	var comments = [];
 
 	// Block starts with a newline.
 	tokens.eat("\n");
@@ -172,11 +173,22 @@ function parseStatements(tokens, tabsExpected) {
 		else if(tabsCounted === tabsExpected)
 			tokens.eatN(tabsExpected);
 		// If we found fewer, we're done eating statements.
-		else
+		else {
 			break;
+		}
 
-		// Read a statement
-		statements.push(parseStatement(tokens, tabsExpected));
+		// If it's a comment, read a comment.
+		if(tokens.peek().charAt(0) === "#") {
+			comments.push(tokens.eat());
+			tokens.eat("\n");
+		}
+		// Otherwise, read a statement and assign the comments.
+		else {
+			var statement = parseStatement(tokens, tabsExpected);
+			statement.comments = comments;
+			comments = [];
+			statements.push(statement);
+		}
 		
 	} while(true);
 
@@ -213,6 +225,7 @@ function parseAction(tokens) {
 	var words = [];
 	while(tokens.hasNext() && !tokens.nextIs("\n"))
 		words.push(tokens.eat());
+	tokens.eat("\n");
 
 	return {
 		type: "action",
@@ -318,8 +331,14 @@ function parseReturn(tokens) {
 // QUERY :: (word | IDENTIFIER)+
 function parseQuery(tokens) {
 
-	// Couldn't think of a way that querying is different from an action.
-	return parseAction(tokens);	
+	var words = [];
+	while(tokens.hasNext() && !tokens.nextIs("\n"))
+		words.push(tokens.eat());
+
+	return {
+		type: "query",
+		words: words
+	}
 	
 }
 
