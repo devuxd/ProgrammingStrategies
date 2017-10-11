@@ -6,17 +6,28 @@ function Tokens(code) {
 
 	this.tokens = tokenize(code);
 	
+	// Remmeber all of the tokens eaten so we can provide useful error message context.
+	this.eaten = [];
+	
 	this.eat = function(expected) {
 		
 		if(expected && !this.nextIs(expected)) {
-			throw new Error("Expected '" + expected + "', but found '" + this.tokens.slice(0, 5).join(" ") + "'");	
+			throw new Error("Line " + this.currentLine() + ": expected '" + expected + "', but found '" + this.tokens.slice(0, 5).join(" ") + "'");	
 		}
 
-		return this.tokens.shift();
+		var eaten = this.tokens.shift();
+
+		this.eaten.push(eaten);
+
+		return eaten;
 
 	}
 	
-	this.uneat = function(token) { return this.tokens.unshift(token); }
+	this.uneat = function() { 
+		
+		this.tokens.unshift(this.eaten.pop());
+		
+	}
 
 	this.eatN = function(n) {
 	
@@ -37,6 +48,17 @@ function Tokens(code) {
 	this.hasNext = function() { return this.tokens.length > 0; }
 	this.nextIs = function(string) { return this.hasNext() && this.peek() === string; }
 	this.peek = function() { return this.hasNext() ? this.tokens[0].toLowerCase() : null; }
+	
+	this.currentLine = function() {
+		
+		var line = 1;
+		for(var i = 0; i < this.eaten.length; ++i) {
+    		if(this.eaten[i] === "\n")
+        		line++;
+		}
+		return line;
+		
+	}
 	
 }
 
@@ -375,7 +397,7 @@ function parseQuery(tokens) {
 	
 	if(tokens.nextIs("(")) {
 
-		tokens.uneat(first);
+		tokens.uneat();
 		return parseCall(tokens);
 
 	} else {
