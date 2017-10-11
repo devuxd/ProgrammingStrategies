@@ -36,7 +36,6 @@ function Tokens(code) {
 	
 	this.hasNext = function() { return this.tokens.length > 0; }
 	this.nextIs = function(string) { return this.hasNext() && this.peek() === string; }
-	this.nextMatches = function(regex) { return this.hasNext() && this.peek().matches(regex); }
 	this.peek = function() { return this.hasNext() ? this.tokens[0].toLowerCase() : null; }
 	
 }
