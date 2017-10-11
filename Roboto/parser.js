@@ -16,6 +16,8 @@ function Tokens(code) {
 
 	}
 	
+	this.uneat = function(token) { return this.tokens.unshift(token); }
+
 	this.eatN = function(n) {
 	
 		for(var i = 0; i < n; i++)
@@ -221,12 +223,10 @@ function parseStatement(tokens, tabsExpected) {
 	
 }
 
-// ACTION :: (word | IDENTIFIER)+
+// ACTION :: WORDS \n
 function parseAction(tokens) {
 
-	var words = [];
-	while(tokens.hasNext() && !tokens.nextIs("\n"))
-		words.push(tokens.eat());
+	var words = parseWords(tokens);
 	tokens.eat("\n");
 
 	return {
@@ -236,10 +236,36 @@ function parseAction(tokens) {
 	
 }
 
-// DO :: do identifier ( IDENTIFIER* )
+// WORDS :: .+
+function parseWords(tokens) {
+	
+	var words = [];
+	while(tokens.hasNext() && !tokens.nextIs("\n"))
+		words.push(tokens.eat());		
+	return words;
+
+}
+
+// DO :: do CALL
 function parseDo(tokens) {
 
 	tokens.eat("do");
+	
+	var call = parseCall(tokens);
+	
+	// Eat the trailing newline
+	tokens.eat("\n");
+
+	return {
+		type: "do",
+		call: call
+	};
+	
+}
+
+// CALL :: identifier ( IDENTIFIER* )
+function parseCall(tokens) {
+	
 	var identifier = tokens.eat(); // Consume name
 	tokens.eat("("); // Consume left paren
 	// Consume arguments
@@ -249,11 +275,8 @@ function parseDo(tokens) {
 	}
 	tokens.eat(")");
 
-	// Eat the trailing newline
-	tokens.eat("\n");
-	
 	return {
-		type: "do",
+		type: "call",
 		name: identifier,
 		arguments: arguments
 	};
@@ -346,16 +369,26 @@ function parseReturn(tokens) {
 	
 }
 
-// QUERY :: (word | IDENTIFIER)+
+// QUERY :: IDENTIFIER | CALL | WORDS
 function parseQuery(tokens) {
 
-	var words = [];
-	while(tokens.hasNext() && !tokens.nextIs("\n"))
-		words.push(tokens.eat());
+	var first = tokens.eat();
+	
+	if(tokens.nextIs("(")) {
 
-	return {
-		type: "query",
-		words: words
+		tokens.uneat(first);
+		return parseCall(tokens);
+
+	} else {
+
+		var words = parseWords(tokens);
+		words.unshift(first);
+
+		return {
+			type: "query",
+			words: words
+		}
+		
 	}
 	
 }
