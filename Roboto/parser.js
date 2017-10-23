@@ -336,13 +336,14 @@ function parseIf(tokens, tabsExpected) {
 	
 }
 
-// FOREACH :: for each IDENTIFIER IDENTIFIER STATEMENTS
+// FOREACH :: for each IDENTIFIER in IDENTIFIER STATEMENTS
 function parseForEach(tokens, tabsExpected) {
 
 	tokens.eat("for");
 	tokens.eat("each");
-	var list = tokens.eat();
 	var identifier = tokens.eat();
+	tokens.eat("in");
+	var list = tokens.eat();
 
 	var statements = parseStatements(tokens, tabsExpected + 1);
 	

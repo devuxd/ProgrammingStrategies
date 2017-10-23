@@ -16,12 +16,12 @@ STRATEGY localizeWrongOutput(failure)
 	# such as a string constant and do a global search in the code for that string.
 	SET 'candidateLines' to all of the lines of code that could have directly produced the incorrect output
 	SET 'cause' TO nothing
-	FOR EACH 'candidateLines' 'line'
+	FOR EACH 'line' IN 'candidateLines'
 		# You can use a breakpoint or a time-travel debugger to do this.
 		Execute the program to 'line' using the 'failure' inputs
 		IF the program executes 'L'
 			SET 'values' TO all values in memory and all values of local variables in the call stack that resulted in 'line' being reached
-			FOR EACH 'values' 'value'
+			FOR EACH 'value' IN 'values'
 				IF 'value' is not correct in this context
 					RETURN localizeWrongValue('failure' 'value')
 	RETURN nothing
@@ -29,7 +29,7 @@ STRATEGY localizeWrongOutput(failure)
 STRATEGY localizeWrongValue(failure value)
 	# This involves tracking all of the possible sources of the wrong value.
 	SET 'lines' to all of the lines of the the program that can produce the 'value'
-	FOR EACH 'lines' 'line'
+	FOR EACH 'line' in 'lines'
 		# Use breakpoints or a time-travel debugger. If your debugger supports reverse execution, this is a matter of stepping backwards. If not, you may have to reproduce failure more than once to find the last execution.
 		Execute the program this line
 		Reflect on the intended behavior of the line and whether it achieves this behavior
@@ -37,7 +37,7 @@ STRATEGY localizeWrongValue(failure value)
 		IF 'line' is incorrect
 			RETURN 'line' 
 		SET 'values' TO all of the values used by 'line'
-		FOR EACH 'values' 'value'
+		FOR EACH 'value' IN 'values'
 			IF 'value' is incorrect
 				DO localizeWrongValue('failure' 'value')
 	RETURN nothing
@@ -49,7 +49,7 @@ STRATEGY localizeMissingOutput(failure)
 STRATEGY diagnoseUnexecutedLine(failure line)
 	# These may be an if-statements, switch-statements, or other conditional statements that would have prevented the line from executing.
 	SET 'lines' TO all conditional statements conditions that would have caused line to execute
-	FOR EACH 'lines' 'line'
+	FOR EACH 'line' IN 'lines'
 		Turn on a breakpoint on 'line'
 		Reproduce the failure to see if 'line' executed
 		IF 'line' executed but did not execute correctly
