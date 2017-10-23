@@ -391,17 +391,29 @@ function parseReturn(tokens) {
 	
 }
 
-// QUERY :: IDENTIFIER | CALL | WORDS
+// QUERY :: IDENTIFIER | CALL | NOTHING | WORDS
 function parseQuery(tokens) {
 
 	var first = tokens.eat();
 	
+	// If it's a strategy call, parse a call.
 	if(tokens.nextIs("(")) {
 
 		tokens.uneat();
 		return parseCall(tokens);
 
-	} else {
+	} 
+	// If it's "nothing", stop parsing
+	else if(first === "nothing") {
+		
+		return {
+			type: "nothing",
+			nothing: first
+		}
+		
+	}
+	// Otherwise, parse words
+	else {
 
 		var words = parseWords(tokens);
 		words.unshift(first);
