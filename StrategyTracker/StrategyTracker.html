@@ -79,7 +79,7 @@
             <div class="row">
                 <div class="col-md-7">
                     <div class="panel-group" id="strategiesAccordion">
-                        <div ng-attr-id="{{'strategy' + $index}}" class="panel panel-default" ng-repeat="strat in selectedStrategy.subStrategies track by $index">
+                        <div ng-attr-id="{{'strategy' + $index}}" class="panel panel-default" ng-repeat="strat in selectedStrategy.strategies track by $index">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
                                     <a data-toggle="collapse" data-parent="#strategiesAccordion" ng-href="{{'#' + strat.name}}">

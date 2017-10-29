@@ -1,6 +1,5 @@
 const models = require('./models.js');
 const db = require('./dataManagement.js');
-//var dbstrategies = require('./strategies').strategies;
 
 if (typeof window !== 'undefined' && window.angular) {
     let myapp = angular.module('myapp', []);
@@ -9,6 +8,7 @@ if (typeof window !== 'undefined' && window.angular) {
     // }
     // $q is a default service by angular to handle Asynchronous in order not to block threads
     myapp.factory('StrategyService', function($q) {
+
         let strategies= [];
         let deferred = $q.defer();
         firebase.database().ref('strategies').once('value').then(function(snapshot) {
@@ -34,22 +34,22 @@ if (typeof window !== 'undefined' && window.angular) {
             current: null
         };
         let myStrat = StrategyService.getAll();
-
-
         //Asynchronous : If the records are ready from deffered.promise, then the following steps is run.
         myStrat.then(function(strategies) {
             $scope.allStrategies =strategies;
-            $scope.strategies = strategies[1].subStrategies;
-            $scope.selectedStrategy = strategies[1];
+            $scope.strategies = strategies[0].strategies;
+            $scope.selectedStrategy = strategies[0];
             console.log($scope.selectedStrategy.name);
 
-            $scope.variables = $scope.selectedStrategy.variables;
+            $scope.variables = $scope.selectedStrategy.strategies[0].parameters;
 
             // create interpreter object from model
             //console.log(strategies);
-            let interpreter = new models.Interpreter($scope.selectedStrategy.subStrategies);
+            let interpreter = new models.Interpreter($scope.selectedStrategy.strategies);
             // initialize the application
-            let execObj = interpreter.init($scope.selectedStrategy.subStrategies[0].name);
+            let execObj = interpreter.init($scope.selectedStrategy.strategies[0].name);
+
+
             $scope.strategy = execObj.currentStrategy;
             $scope.currentStatement = execObj.currentStatement;
             $scope.statements = $scope.strategy.statements;

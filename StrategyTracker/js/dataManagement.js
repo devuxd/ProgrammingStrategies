@@ -1,6 +1,4 @@
 
-
-
 var config = {
     apiKey: "AIzaSyAXjL6f739BVqLDknymCN2H36-NBDS8LvY",
     authDomain: "strategytracker.firebaseapp.com",
