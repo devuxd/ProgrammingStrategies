@@ -2,7 +2,7 @@
 
 In this task, you'll fix a problem with this web-based calculator
 
-https://codepen.io/andyjko/pen/wPoLmB?editors=0010
+[Broken Calculator](https://codepen.io/andyjko/pen/wPoLmB?editors=0010)
 
 Here are the reproduction steps for the problem:
 
