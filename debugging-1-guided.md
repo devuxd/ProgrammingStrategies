@@ -2,7 +2,7 @@
 
 In this task, you'll fix a problem with this simple web-based game:
 
-https://codepen.io/andyjko/pen/Ebxyvv
+[Broken Snake Game](https://codepen.io/andyjko/pen/Ebxyvv)
 
 The way the game is supposed to work is that the snake moves up, down, left, and right (using the keyboard). Every time the snake eats a dot, it grows in length by one. If the snake collides with itself, the game is over.
 
