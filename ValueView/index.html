@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>Value view demo</title>        
+
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  
+		<!-- Latest compiled and minified CSS -->
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    </head>
+    <body>
+
+		<div class="container">
+			<div class="row">
+				<div class="col-sm">
+				    <h1>Value View Demo</h1>
+				    <p>This is a simple demo of the value view. The parsing is pretty basic at this point. If the string is "nothing" or a link, it'll be formatted appropriately. If it's a comma separated list of more than one item, it'll be formatted as a list. There's a lot more complexity we can add to this later as necessary, but I think we should identify usability issues as we go.</p>
+				    <p><em>Click on to edit, click out to save.</em></p>
+				</div>
+				<div class="col-sm">
+			        <div id="value-view-demo">
+						<!-- This element's contents will be replaced with your component. -->
+					</div>
+				</div>
+				<div class="col-sm"></div>
+			</div>
+		</div>	    
+
+		<!-- Load the JavaScript -->
+		<script src="build.js"></script>
+
+    </body>
+</html>

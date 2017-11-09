@@ -1,10 +1,13 @@
-STRATEGY verifyAPIHasCommunity (apiName)
+STRATEGY verifyAPIHasCommunity(apiName)
 	# This is the first comment
 	SET 'site' TO the website that hosts the project with 'apiName'
 	# This is a more serious comment
 	# Because it's two lines long
 	IF 'site' is nothing
 		RETURN nothing
+	# This tests the do/until loop
+	UNTIL you have all the diamonds
+		Look over your shoulder for cops
 	RETURN assessRepositoryActivity('site')
 
 STRATEGY assessRepositoryActivity(site)

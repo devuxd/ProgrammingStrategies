@@ -5,19 +5,60 @@
 function Tokens(code) {
 
 	this.tokens = tokenize(code);
-	this.eat = function(expected) {
 	
+	// Remmeber all of the tokens eaten so we can provide useful error message context.
+	this.eaten = [];
+	
+	this.eat = function(expected) {
+		
 		if(expected && !this.nextIs(expected)) {
-			throw new Error("Expected '" + expected + "', but found '" + this.tokens.slice(0, 5).join(" ") + "'");	
+			throw new Error("Line " + this.currentLine() + ": expected '" + expected + "', but found '" + this.tokens.slice(0, 5).join(" ") + "'");	
 		}
 
-		return this.tokens.shift();
+		var eaten = this.tokens.shift();
+
+		this.eaten.push(eaten);
+
+		return eaten;
 
 	}
+	
+	this.uneat = function() { 
+		
+		this.tokens.unshift(this.eaten.pop());
+		
+	}
+
+	this.eatN = function(n) {
+	
+		for(var i = 0; i < n; i++)
+			this.eat();		
+		
+	}		
+		
+	this.count = function(text) {
+
+		var index = 0;
+		while(index < this.tokens.length && this.tokens[index] === text)
+			index++;
+		return index;		
+		
+	}
+	
 	this.hasNext = function() { return this.tokens.length > 0; }
 	this.nextIs = function(string) { return this.hasNext() && this.peek() === string; }
-	this.nextMatches = function(regex) { return this.hasNext() && this.peek().matches(regex); }
 	this.peek = function() { return this.hasNext() ? this.tokens[0].toLowerCase() : null; }
+	
+	this.currentLine = function() {
+		
+		var line = 1;
+		for(var i = 0; i < this.eaten.length; ++i) {
+    		if(this.eaten[i] === "\n")
+        		line++;
+		}
+		return line;
+		
+	}
 	
 }
 
@@ -29,15 +70,20 @@ function tokenize(strategy) {
 	
 	while(index < strategy.length) {
 
-		// Eat any whitespace.
-		while(strategy.charAt(index).match(/\s/))
+		// Eat any spaces.
+		while(strategy.charAt(index).match(/ /))
 			index++;
-			
+
+		// If we've reached the end of the string, we're done.
 		if(index === strategy.length)
 			break;
 			
-		if(strategy.charAt(index) === "*") {
-			tokens.push("*");
+		if(strategy.charAt(index) === "\n") {
+			tokens.push("\n");
+			index++;
+		}
+		else if(strategy.charAt(index) === "\t") {
+			tokens.push("\t");
 			index++;
 		}
 		else if(strategy.charAt(index) === "(") {
@@ -46,14 +92,6 @@ function tokenize(strategy) {
 		}
 		else if(strategy.charAt(index) === ")") {
 			tokens.push(")");
-			index++;
-		}
-		else if(strategy.charAt(index) === ":") {
-			tokens.push(":");
-			index++;
-		}
-		else if(strategy.charAt(index) === ".") {
-			tokens.push(".");
 			index++;
 		}
 		else if(strategy.charAt(index) === "#") {
@@ -97,7 +135,7 @@ function parseApproach(name, tokens) {
 	}
 	
 	if(tokens.hasNext())
-		console.error("I'm not smart enough to handle anything other than strategies, so I got stuck on '" + tokens.peek() + "'");
+		console.error("I'm not smart enough to handle anything other than strategies, so I got stuck on '" + tokens.tokens.slice(0, 5).join(" ") + "'");
 	
 	return {
 		type: "approach",
@@ -107,7 +145,7 @@ function parseApproach(name, tokens) {
 
 }
 
-// STRATEGY :: strategy IDENTIFIER ( IDENTIFIER+ ) STATEMENTS
+// STRATEGY :: strategy IDENTIFIER ( IDENTIFIER+ ) STATEMENTS \n
 function parseStrategy(tokens) {
 	
 	tokens.eat("strategy");
@@ -121,48 +159,80 @@ function parseStrategy(tokens) {
 	tokens.eat(")"); // Consume right parenthesis
 
 	// Consume statements.
-	var statements = parseStatements(tokens);
+	var statements = parseStatements(tokens, 1);
+
+	// Consume any number of newlines.
+	while(tokens.nextIs("\n"))
+		tokens.eat("\n");
 	
 	return {
 		type: "strategy",
 		name: identifier,
 		parameters: parameters,
-		statements: statements		
+		statements: statements
 	};
 	
 }
 
 // STATEMENTS :: STATEMENT+
-function parseStatements(tokens) {
+function parseStatements(tokens, tabsExpected) {
 
 	var statements = [];
+	var comments = [];
 
-	tokens.eat(":");
+	// Block starts with a newline.
+	tokens.eat("\n");
 
-	while(!tokens.nextIs(".")) {
-		statements.push(parseStatement(tokens));
-	}
+	// Read statements until we find fewer tabs than expected.
+	do {
 
-	tokens.eat(".");
+		// How many tabs?
+		var tabsCounted = tokens.count("\t");
+
+		// If we found all the tabs we expected and more, there are extra tabs, and we should fail.
+		if(tabsCounted > tabsExpected)
+			throw new Error("I expected " + tabsExpected + " but found " + tabsCounted + "; did some extra tabs get in?");
+		// If we found the right number, eat them.
+		else if(tabsCounted === tabsExpected)
+			tokens.eatN(tabsExpected);
+		// If we found fewer, we're done eating statements.
+		else {
+			break;
+		}
+
+		// If it's a comment, read a comment.
+		if(tokens.peek().charAt(0) === "#") {
+			comments.push(tokens.eat());
+			tokens.eat("\n");
+		}
+		// Otherwise, read a statement and assign the comments.
+		else {
+			var statement = parseStatement(tokens, tabsExpected);
+			statement.comments = comments;
+			comments = [];
+			statements.push(statement);
+		}
+		
+	} while(true);
 
 	return statements;
 		
 }
 
 // STATEMENT :: * (ACTION | CALL | CONDITIONAL | FOREACH | DEFINITION | RETURN )+ [# word+]
-function parseStatement(tokens) {
-	
-	tokens.eat("*");
+function parseStatement(tokens, tabsExpected) {
 	
 	var keyword = tokens.peek();
 	var statement = null;
 	
 	if(keyword === "do")
 		statement = parseDo(tokens);
+	else if(keyword === "until")
+		statement = parseUntil(tokens, tabsExpected);
 	else if(keyword === "if")
-		statement = parseIf(tokens);
+		statement = parseIf(tokens, tabsExpected);
 	else if(keyword === "for")
-		statement = parseForEach(tokens);
+		statement = parseForEach(tokens, tabsExpected);
 	else if(keyword === "set")
 		statement = parseSet(tokens);
 	else if(keyword === "return")
@@ -170,29 +240,15 @@ function parseStatement(tokens) {
 	else
 		statement = parseAction(tokens);
 	
-	var comment = null;
-	if(tokens.peek().charAt(0) === "#") {
-		comment = tokens.eat();
-	}
-	statement.comment = comment;
-	
 	return statement;
 	
 }
 
-// ACTION :: (word | IDENTIFIER)+
+// ACTION :: WORDS \n
 function parseAction(tokens) {
 
-	var words = [];
-	while(
-		tokens.hasNext() && 
-		!tokens.nextIs("*") && 
-		!tokens.nextIs("strategy") && 
-		tokens.peek().charAt(0) !== "#" && 
-		!tokens.nextIs(":") && 
-		!tokens.nextIs(".")) {
-		words.push(tokens.eat());
-	}
+	var words = parseWords(tokens);
+	tokens.eat("\n");
 
 	return {
 		type: "action",
@@ -201,10 +257,36 @@ function parseAction(tokens) {
 	
 }
 
-// DO :: do identifier ( IDENTIFIER* )
+// WORDS :: .+
+function parseWords(tokens) {
+	
+	var words = [];
+	while(tokens.hasNext() && !tokens.nextIs("\n"))
+		words.push(tokens.eat());		
+	return words;
+
+}
+
+// DO :: do CALL
 function parseDo(tokens) {
 
 	tokens.eat("do");
+	
+	var call = parseCall(tokens);
+	
+	// Eat the trailing newline
+	tokens.eat("\n");
+
+	return {
+		type: "do",
+		call: call
+	};
+	
+}
+
+// CALL :: identifier ( IDENTIFIER* )
+function parseCall(tokens) {
+	
 	var identifier = tokens.eat(); // Consume name
 	tokens.eat("("); // Consume left paren
 	// Consume arguments
@@ -213,22 +295,38 @@ function parseDo(tokens) {
 		arguments.push(tokens.eat());
 	}
 	tokens.eat(")");
-	
+
 	return {
-		type: "do",
+		type: "call",
 		name: identifier,
 		arguments: arguments
 	};
 	
 }
 
+// UNTIL :: until QUERY STATEMENTS
+function parseUntil(tokens, tabsExpected) {
+	
+	tokens.eat("until");
+	var query = parseQuery(tokens);
+	
+	var statements = parseStatements(tokens, tabsExpected + 1);
+	
+	return {
+		type: "until",
+		query: query,
+		statements: statements
+	};
+	
+}
+
 // CONDITIONAL :: if QUERY STATEMENTS
-function parseIf(tokens) {
+function parseIf(tokens, tabsExpected) {
 	
 	tokens.eat("if");
 	var query = parseQuery(tokens);
 	
-	var statements = parseStatements(tokens);
+	var statements = parseStatements(tokens, tabsExpected + 1);
 	
 	return {
 		type: "if",
@@ -238,15 +336,16 @@ function parseIf(tokens) {
 	
 }
 
-// FOREACH :: for each IDENTIFIER IDENTIFIER STATEMENTS
-function parseForEach(tokens) {
+// FOREACH :: for each IDENTIFIER in IDENTIFIER STATEMENTS
+function parseForEach(tokens, tabsExpected) {
 
 	tokens.eat("for");
 	tokens.eat("each");
-	var list = tokens.eat();
 	var identifier = tokens.eat();
+	tokens.eat("in");
+	var list = tokens.eat();
 
-	var statements = parseStatements(tokens);
+	var statements = parseStatements(tokens, tabsExpected + 1);
 	
 	return {
 		type: "foreach",
@@ -265,6 +364,9 @@ function parseSet(tokens) {
 	tokens.eat("to");
 	var query = parseQuery(tokens);
 	
+	// Eat the trailing newline
+	tokens.eat("\n");
+
 	return {
 		type: "set",
 		identifier: identifier,
@@ -279,6 +381,9 @@ function parseReturn(tokens) {
 	tokens.eat("return");
 	var query = parseQuery(tokens);
 	
+	// Eat the trailing newline
+	tokens.eat("\n");
+
 	return {
 		type: "return",
 		query: query
@@ -286,11 +391,39 @@ function parseReturn(tokens) {
 	
 }
 
-// QUERY :: (word | IDENTIFIER)+
+// QUERY :: IDENTIFIER | CALL | NOTHING | WORDS
 function parseQuery(tokens) {
 
-	// Couldn't think of a way that querying is different from an action.
-	return parseAction(tokens);	
+	var first = tokens.eat();
+	
+	// If it's a strategy call, parse a call.
+	if(tokens.nextIs("(")) {
+
+		tokens.uneat();
+		return parseCall(tokens);
+
+	} 
+	// If it's "nothing", stop parsing
+	else if(first === "nothing") {
+		
+		return {
+			type: "nothing",
+			nothing: first
+		}
+		
+	}
+	// Otherwise, parse words
+	else {
+
+		var words = parseWords(tokens);
+		words.unshift(first);
+
+		return {
+			type: "query",
+			words: words
+		}
+		
+	}
 	
 }
 
