@@ -3,12 +3,8 @@ const db = require('./dataManagement.js');
 
 if (typeof window !== 'undefined' && window.angular) {
     let myapp = angular.module('myapp', []);
-    // for(var i =0;i<dbstrategies.length; i++){
-    //     var key = firebase.database().ref().child('strategies').push(dbstrategies[i]);
-    // }
-    // $q is a default service by angular to handle Asynchronous in order not to block threads
-    myapp.factory('StrategyService', function($q) {
 
+    myapp.factory('StrategyService', function($q) {
         let strategies= [];
         let deferred = $q.defer();
         firebase.database().ref('strategies').once('value').then(function(snapshot) {
@@ -29,30 +25,32 @@ if (typeof window !== 'undefined' && window.angular) {
 
     myapp.controller('MainCtrl', function ($scope, StrategyService) {
         "use strict";
-
         $scope.accordion = {
             current: null
         };
         let myStrat = StrategyService.getAll();
         //Asynchronous : If the records are ready from deffered.promise, then the following steps is run.
         myStrat.then(function(strategies) {
+            $scope.selectedStrategy=strategies[0].strategies[0];
             $scope.allStrategies =strategies;
             $scope.strategies = strategies[0].strategies;
-            $scope.selectedStrategy = strategies[0];
-            console.log($scope.selectedStrategy.name);
+            $scope.currentStrategy = strategies[0].strategies[0];
+            $scope.selectedStrategy=$scope.currentStrategy;
+            $scope.activeLines = [];
+            // $scope.strategyChanged = function () {
+            //     $scope.selectedStrategy = $scope.selectedStrategy;
+            //     //$scope.selectedStrategy=$scope.selectedStrategy;
+            // }
 
-            $scope.variables = $scope.selectedStrategy.strategies[0].parameters;
+            $scope.variables = $scope.currentStrategy.parameters;
 
-            // create interpreter object from model
-            //console.log(strategies);
-            let interpreter = new models.Interpreter($scope.selectedStrategy.strategies);
+            let interpreter = new models.Interpreter($scope.strategies);
+            $scope.selectedStrategy  = $scope.currentStrategy;
             // initialize the application
-            let execObj = interpreter.init($scope.selectedStrategy.strategies[0].name);
-
-
-            $scope.strategy = execObj.currentStrategy;
+            let execObj = interpreter.init($scope.currentStrategy.name);
+            $scope.currentStrategy = execObj.currentStrategy;
             $scope.currentStatement = execObj.currentStatement;
-            $scope.statements = $scope.strategy.statements;
+            $scope.activeLines = execObj.activeLines;
 
             $scope.reset= function () {
                 execObj = interpreter.reset();
@@ -66,46 +64,51 @@ if (typeof window !== 'undefined' && window.angular) {
                 });
             };
 
-
             $scope.nextStatement = function () {
                 execObj = interpreter.execute();
+                $scope.currentStatement = execObj.currentStatement;
+                $scope.activeLines = execObj.activeLines;
+               // $scope.currentStrategy = execObj.currentStrategy;
                 if (execObj === null) return;
-                if ($scope.strategy.name !== execObj.currentStrategy.name) {
+                if ($scope.currentStrategy.name !== execObj.currentStrategy.name) {
                     $('#' + execObj.currentStrategy.name).collapse('show');
-                    $('#' + $scope.strategy.name).collapse('hide');
-                    $scope.strategy = execObj.currentStrategy;
-                    $scope.statements = $scope.strategy.statements;
+                    $('#' + $scope.currentStrategy.name).collapse('hide');
+                    $scope.currentStrategy = execObj.currentStrategy;
+                    if($scope.strategy !== undefined)
+                        $scope.statements = $scope.strategy.statements;
                     //$('#' +$scope.strategy.name).collapse('show');
                 }
-
-                $scope.currentStatement = execObj.currentStatement;
             };
 
             $scope.prevStatement = function () {
                 execObj = interpreter.goBack();
                 if (execObj === null) return;
-                if ($scope.strategy.name !== execObj.currentStrategy.name) {
+                if ($scope.currentStrategy.name !== execObj.currentStrategy.name) {
                     $('#' + execObj.currentStrategy.name).collapse('show');
-                    $('#' + $scope.strategy.name).collapse('hide');
-                    $scope.strategy = execObj.currentStrategy;
-                    $scope.statements = $scope.strategy.statements;
+                    $('#' + $scope.currentStrategy.name).collapse('hide');
+                    $scope.currentStrategy = execObj.currentStrategy;
+                    $scope.statements = $scope.currentStrategy.statements;
                 }
                 $scope.currentStatement = execObj.currentStatement;
+                $scope.activeLines = execObj.activeLines;
+                $scope.currentStrategy = execObj.currentStrategy;
             };
 
             $scope.chooseNextStatement = function ($event) {
-                let currentTarget = $event.currentTarget.innerHTML;
-                if ($scope.currentStatement.activeLines.length > 1)
+                let chosenStatement = "";
+                if ($scope.activeLines.length > 1)
                 {
-                    // (currentTarget.includes("if") || currentTarget.includes("else") || currentTarget.includes("while") || currentTarget.includes("return"))
-                    let lineNum = parseInt($event.currentTarget.id);
-                    execObj = interpreter.execute(lineNum+1);
-                    if (execObj === null) return;
-                    if ($scope.strategy.name !== execObj.currentStrategy.name) {
-                        $scope.strategy = execObj.currentStrategy;
-                        $scope.statements = $scope.strategy.statements;
-                    }
-                    $scope.currentStatement = execObj.currentStatement;
+                let currentTarget = $event.currentTarget.innerHTML;
+                for (var x=0; x<$scope.activeLines.length; x++) {
+                    var line = $scope.activeLines[x];
+                    if (currentTarget.includes(line))
+                        chosenStatement = line;
+                }
+                execObj = interpreter.execute(chosenStatement);
+                if (execObj === null) return;
+                $scope.currentStrategy = execObj.currentStrategy;
+                $scope.currentStatement = execObj.currentStatement;
+                $scope.activeLines = execObj.activeLines;
                 }
             };
         });
@@ -113,3 +116,7 @@ if (typeof window !== 'undefined' && window.angular) {
     });
 
 }
+// for(var i =0;i<dbstrategies.length; i++){
+//     var key = firebase.database().ref().child('strategies').push(dbstrategies[i]);
+// }
+// $q is a default service by angular to handle Asynchronous in order not to block threads

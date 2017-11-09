@@ -14,12 +14,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
     <link rel="stylesheet" type="text/css"
           href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
-
-
     <script src="https://www.gstatic.com/firebasejs/4.3.0/firebase.js"></script>
     <script src="js/bundle.js"></script>
-
-
+    <script type="text/ng-template"  id="statement-renderer.html">
+        <div  ng-class="(activeLines.indexOf(st.text) >= 0 ) ? 'active' : 'code'">{{st.text}}</div>
+        <ul style="list-style: none">
+            <li ng-repeat=" st in st.statements" ng-include="'statement-renderer.html'"
+                ></li>
+        </ul>
+    </script>
     <title> Debugging Strategy</title>
 </head>
 <body ng-controller="MainCtrl" ng-cloak>
@@ -32,22 +35,21 @@
        </span>
 
         <h2 id="model-fault-localization" class="header-level-1">
-            <select ng-model="selectedStrategy" ng-options="strat.displayName for strat in allStrategies" ></select>
+            <select ng-model="selectedStrategy"
+                    ng-init=" selectedStrategy = allStrategies[0].name"
+                    ng-change = "strategyChanged()"
+                    ng-options="strat.displayName for strat in allStrategies" ></select>
         </h2>
         <p>
-            {{selectedStrategy.processDescription}}
-        </p>
-
-        <p>
-            {{selectedStrategy.strategyDescription}}
+             Strategy Description here ( we didnt consider it in Roboto)
         </p>
     </header>
-    <div class="row">
-        <div id="wizard" class="col-sm-12" style="margin-bottom: 50px;">
-            <div class="wizard-block well">{{selectedStrategy.displayName}}</div>
+    <!--<div class="row">-->
+        <!--<div id="wizard" class="col-sm-12" style="margin-bottom: 50px;">-->
+            <!--<div class="wizard-block well">{{selectedStrategy.strategies[0].displayName}}</div>-->
 
-        </div>
-    </div>
+        <!--</div>-->
+    <!--</div>-->
     <div class="panel-info">
         <div class=" panel-heading">
             <div id="btn-reset">
@@ -70,31 +72,36 @@
     <div id="strategy-panel" class="panel-info">
         <div class="panel-heading">
             {{selectedStrategy.displayName}}
-            <div ng-if="currentStatement.activeLines.length > 1" style="color:orangered; font-family: '.SF NS Display'; font-size: 22px; display: inline; margin-left: 3%">
-            <strong>Please Select the desired statement.</strong>
-        </div>
+
+            <div ng-if="activeLines.length > 1" style="color:orangered; font-family: '.SF NS Display';  font-size: 22px; display: inline; margin-left: 3%">
+                <strong>Please Select the desired statement.</strong>
+            </div>
         </div>
 
         <div class="panel-body">
             <div class="row">
+                <!-- Strategy statements-->
                 <div class="col-md-7">
                     <div class="panel-group" id="strategiesAccordion">
                         <div ng-attr-id="{{'strategy' + $index}}" class="panel panel-default" ng-repeat="strat in selectedStrategy.strategies track by $index">
+                            <!-- accordion headers with strategies names-->
                             <div class="panel-heading">
                                 <h4 class="panel-title">
                                     <a data-toggle="collapse" data-parent="#strategiesAccordion" ng-href="{{'#' + strat.name}}">
-                                        {{strat.displayName}}
+                                        {{strat.name}}
                                     </a>
                                 </h4>
                             </div>
                             <div ng-attr-id="{{strat.name}}" class="panel-collapse collapse" ng-class="{'in' : $index == 0}">
-                                <!--todo &&(strat.name == )-->
+
                                 <div class="panel-body" style="height: auto;">
-                                    <div ng-repeat="st in strat.statements"
-                                    ng-class="(currentStatement.activeLines.indexOf(st.lineNum) !== -1) && (strategy.name === strat.name) ? 'active' : 'code'"
-                                    ng-click="chooseNextStatement($event)"
-                                    class="{{st.class}} " ng-attr-id="{{st.lineNum}} ">
-                                        <p class="code-text">{{st.text}}</p>
+                                    <div>
+                                        <div ng-class="(activeLines.indexOf(strat.text) >= 0 ) ? 'active' : 'code'">{{strat.text}}</div>
+                                        <ul style="list-style: none">
+                                        </ul>
+                                    </div>
+                                    <div ng-repeat="st in strat.statements" ng-include="'statement-renderer.html'"
+                                          ng-click="isDisabled ||chooseNextStatement($event)">
                                     </div>
                                 </div>
                             </div>
@@ -108,7 +115,7 @@
                             Description
                         </div>
                         <div class="panel-body">
-                            {{currentStatement.description}}
+                            <p ng-repeat="comment in currentStatement.comments" class="code-text">{{comment}}</p>
                         </div>
                     </div>
                     <div class="panel-primary">
@@ -117,9 +124,10 @@
                         </div>
                         <div class="panel-body">
                             <!--ng-class="{'hidden': currentStatement.variables.indexOf(var.name) === -1}-->
-                            <div class="form-group var-div"  ng-repeat="var in variables track by $index ">
-                                <label class="col-sm-4" ng-for="var.name" style="margin-bottom: 10px">{{var.name}} </label>
-                                <input class="col-sm-8" type="text" ng-id="var.name" ng-model="var.val" style="margin-bottom: 10px">
+                            <div class="form-group var-div" >
+                                 <!--ng-repeat="var in currentStatement.identifier track by $index  ">-->
+                                <label class="col-sm-4" ng-for="var.name" style="margin-bottom: 10px">{{currentStatement.identifier}} </label>
+                                <input ng-if="currentStatement.identifier.length > 0" class="col-sm-8" type="text" ng-id="var.name" ng-model="var.val" style="margin-bottom: 10px">
                             </div>
 
                         </div>

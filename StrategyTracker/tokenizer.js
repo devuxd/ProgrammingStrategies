@@ -174,7 +174,8 @@ function parseStrategy(tokens) {
         type: "strategy",
         name: identifier,
         parameters: parameters,
-        statements: statements
+        statements: statements,
+        text : "Strategy " + identifier + "(" + parameters.join(' ') +")"
     };
 
 }
@@ -214,6 +215,7 @@ function parseStatements(tokens, tabsExpected) {
         else {
             var statement = parseStatement(tokens, tabsExpected);
             statement.comments = comments;
+            statement.text = statement.toString();
             comments = [];
             statements.push(statement);
         }
@@ -257,7 +259,10 @@ function parseAction(tokens) {
 
     return {
         type: "action",
-        words: words
+        words: words,
+        toString: function () {
+            return words.join(' ');
+        }
     }
 
 }
@@ -284,7 +289,10 @@ function parseDo(tokens) {
 
     return {
         type: "do",
-        call: call
+        call: call,
+        toString: function () {
+            return "do " + call.toString()
+        }
     };
 
 }
@@ -304,7 +312,10 @@ function parseCall(tokens) {
     return {
         type: "call",
         name: identifier,
-        arguments: args
+        arguments: args,
+        toString: function () {
+            return identifier + "(" + args.join(' ') + ")";
+        }
     };
 
 }
@@ -320,7 +331,10 @@ function parseUntil(tokens, tabsExpected) {
     return {
         type: "until",
         query: query,
-        statements: statements
+        statements: statements,
+        toString: function () {
+            return "until " + query.toString();
+        }
     };
 
 }
@@ -336,7 +350,10 @@ function parseIf(tokens, tabsExpected) {
     return {
         type: "if",
         query: query,
-        statements: statements
+        statements: statements,
+        toString: function () {
+            return "if " + query.toString();
+        }
     };
 
 }
@@ -356,7 +373,10 @@ function parseForEach(tokens, tabsExpected) {
         type: "foreach",
         list: list,
         identifier: identifier,
-        statements: statements
+        statements: statements,
+        toString: function () {
+            return "for each" + identifier + " in " + list;
+        }
     };
 
 }
@@ -375,7 +395,10 @@ function parseSet(tokens) {
     return {
         type: "set",
         identifier: identifier,
-        query: query
+        query: query,
+        toString: function () {
+            return "set " + identifier + " to " +  query.toString();
+        }
     };
 
 }
@@ -391,7 +414,10 @@ function parseReturn(tokens) {
 
     return {
         type: "return",
-        query: query
+        query: query,
+        toString: function () {
+            return "return " + query.toString();
+        }
     };
 
 }
@@ -413,7 +439,10 @@ function parseQuery(tokens) {
 
         return {
             type: "nothing",
-            nothing: first
+            nothing: first,
+            toString: function () {
+                return "nothing";
+            }
         }
 
     }
@@ -425,7 +454,10 @@ function parseQuery(tokens) {
 
         return {
             type: "query",
-            words: words
+            words: words,
+            toString: function () {
+                return  words.join(' ');
+            }
         }
 
     }
@@ -450,7 +482,8 @@ module.exports = {
 //
 //     try {
 //         var tokens = new Tokens(strategy);
-//         var ast = parseApproach(process.argv[2], tokens);
+//         //owner, name, displayName, type, tokens, robotoText
+//         var ast = parseApproach("meysam", process.argv[2], "meysam", "approach",  tokens, "");
 //         console.log(JSON.stringify(ast, null, 2));
 //     } catch(ex) {
 //         console.log(ex);

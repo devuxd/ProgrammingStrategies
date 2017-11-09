@@ -41,15 +41,27 @@ if (typeof window !== 'undefined' && window.angular) {
                     _ace.setTheme("ace/theme/twilight")
                     $scope.strategyChanged = function () {
                         _ace.setValue($scope.selectedStrategy.robotoText);
+                        $scope.newStrategyOwner=$scope.selectedStrategy.owner;
+                        $scope.newStrategyDisplayName=$scope.selectedStrategy.displayName;
+                        $scope.newStrategyName=$scope.selectedStrategy.name;
+                        $scope.newStrategyType=$scope.selectedStrategy.type;
                     }
                 }
             };
+            $scope.newStrategyOwner=$scope.selectedStrategy.owner;
+            $scope.newStrategyDisplayName=$scope.selectedStrategy.displayName;
+            $scope.newStrategyName=$scope.selectedStrategy.name;
+            $scope.newStrategyType=$scope.selectedStrategy.type;
 
             var editor = ace.edit("aceEditor");
             editor.setValue($scope.selectedStrategy ? $scope.selectedStrategy.robotoText : '');
             var ref= firebase.database().ref().child('strategies');
-            $scope.publish = function () {
 
+            $scope.publish = function () {
+                if($scope.selectedStrategy ===undefined)
+                {
+                      return;
+                }
                 var owner = $scope.selectedStrategy.owner;
                 var displayName = $scope.selectedStrategy.displayName;
                 var name = $scope.selectedStrategy.name;
@@ -78,11 +90,10 @@ if (typeof window !== 'undefined' && window.angular) {
                 $scope.newStrategyName="";
                 $scope.newStrategyDisplayName="";
                 $scope.newStrategyType="approach";
-                $("#frmStrategyCreation").css("display", "block");
-                $("#stratHeader").value="";
+                $scope.selectedStrategy=undefined;
             }
             $scope.createStrategy = function () {
-                $("#frmStrategyCreation").css("display", "block");
+                //$("#frmStrategyCreation").css("display", "block");
                 var owner = $scope.newStrategyOwner;
                 var displayName = $scope.newStrategyDisplayName;
                 var name = $scope.newStrategyName;
@@ -90,7 +101,7 @@ if (typeof window !== 'undefined' && window.angular) {
 
                 if(name=="" || owner=="" || displayName == "" || type == "")
                 {
-                    $("#frmStrategyCreation").css("display", "none");
+                    alert("please fill out the required fields");
                     return;
                 }
                 var tokens = new tokenizer.Tokens(editor.getValue());
@@ -99,14 +110,15 @@ if (typeof window !== 'undefined' && window.angular) {
                 var ast = tokenizer.parseApproach(owner, name, displayName, type, tokens, editor.getValue());
 
                 $scope.selectedStrategy = ast;
-                firebase.database().ref().child('strategies').push($scope.selectedStrategy);
+                firebase.database().ref().child('strategies').push(angular.fromJson(angular.toJson($scope.selectedStrategy)));
                 $scope.allStrategies.push($scope.selectedStrategy);
-                $("#frmStrategyCreation").css("display", "none");
+                //$("#frmStrategyCreation").css("display", "none");
                 $scope.strategyChanged();
 
             }
             $scope.cancelCreatingStrategy = function () {
-                $("#frmStrategyCreation").css("display", "none");
+                $scope.selectedStrategy = strategies[0]||null;
+                $scope.strategyChanged();
             }
         });
     });
