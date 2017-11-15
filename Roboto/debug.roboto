@@ -32,7 +32,7 @@ STRATEGY localizeWrongOutput(failure)
 		IF the program executes 'line'
 			# Out of all of the values referenced by this line, which one was wrong? Consider variables referenced
 			# return values from functions, and any other source of wrong data.
-			SET 'wrongValue' TO the value used to execute the line that produced the wrong value.
+			SET 'wrongValue' TO the value used to execute the line that produced the wrong value
 			# We'll use substrategy to figure out where this wrong value came from.
 			RETURN localizeWrongValue('failure' 'wrongValue')
 	# You only made it here if you didn't find any lines that produce the output or none of the values
@@ -54,7 +54,7 @@ STRATEGY localizeWrongValue(failure wrongValue)
 		Execute the program to 'line'
 		# Did this line execute when it shouldn't have?
 		IF 'line' shouldn't have executed
-			SET 'wrongConditional' TO the conditional that caused 'line' to execute but shouldn't have.
+			SET 'wrongConditional' TO the conditional that caused 'line' to execute but shouldn't have
 			SET 'badValue' TO the value that caused the conditional to execute incorrectly
 			IF 'badValue' isn't nothing
 				DO localizeWrongValue('failure' 'badValue')
@@ -64,7 +64,7 @@ STRATEGY localizeWrongValue(failure wrongValue)
 		IF 'line' has a defect
 			RETURN 'line' 
 		# If the line itself wasn't defective, maybe one of the values it used to execute was defective.
-		SET 'badValue' TO any incorrect value used by the line to execute.
+		SET 'badValue' TO any incorrect value used by the line to execute
 		IF 'value' isn't nothing
 			DO localizeWrongValue('failure' 'badValue')
 	RETURN nothing
@@ -93,7 +93,7 @@ STRATEGY explainUnexecutedLine(failure line)
 		IF 'line' has a defect
 			RETURN 'line'
 		# Lastly, the line itself might have been correct, but it may have used an incorrect value to execute.
-		SET 'badValue' TO any incorrect value used by the line to execute.
+		SET 'badValue' TO any incorrect value used by the line to execute
 		IF 'value' isn't nothing
 			DO localizeWrongValue('failure' 'badValue')
 	# No luck? Are you sure you did all of the above? Check your work.
