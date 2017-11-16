@@ -10,4 +10,4 @@ To design and implement your autocomplete feature, you'll use this design strate
 
 [Open the design strategy in a new tab](placeholder)
 
-**Follow the strategy using the strategy execution tool to design the autocomplete feature.** You have up to 15 minutes. Notify the experimenter when you're done.
+**Follow the strategy using the strategy execution tool to design and implement the autocomplete feature.** Your goal is to build a working implementation and to craft a clear and easy to maintain design. You have up to 15 minutes. Notify the experimenter when you're done.
