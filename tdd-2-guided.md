@@ -10,4 +10,4 @@ To desigh the chatbot, you'll use this design strategy:
 
 [Open the test-driven development strategy in a new tab](placeholder)
 
-**Follow the strategy using the strategy execution tool to design the chatbot.** You have up to 25 minutes. Notify the experimenter when you're done.
+**Follow the strategy using the strategy execution tool to design and implement the chatbot.** Your goal is to build a working implementation and to craft a clear and easy to maintain design. You have up to 25 minutes. Notify the experimenter when you're done.
