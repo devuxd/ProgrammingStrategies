@@ -6,4 +6,4 @@ In this task, you'll design and implement a simple autocomplete feature.
 
 Whenever the user begins typing a new word, your autocomplete will recommend possible completions based on the words that the user has already entered in the text area.
 
-**Design and implement the autocomplete feature.** You have up to 15 minutes. Notify the experimenter when you're done.
+**Design and implement the autocomplete feature.** Your goal is to build a working implementation and to craft a clear and easy to maintain design. You have up to 15 minutes. Notify the experimenter when you're done.
