@@ -15,4 +15,4 @@ To find and fix this defect, you'll use this debugging strategy:
 
 [Open the debugging strategy in a new tab](placeholder)
 
-**Follow the strategy using the strategy execution tool to find and fix the following failure.** You have up to 25 minutes. Notify the experimenter when you've found and fixed the defect.
+**Follow the strategy using the strategy execution tool to find and fix the following failure.** You have up to 25 minutes. When you believe you've found the best fix, tell the experimenter which text on which line of code you changed (e.g., line 27, replace "hello" with "goodbye").
