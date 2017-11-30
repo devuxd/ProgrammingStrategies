@@ -22,11 +22,10 @@ class Interpreter {
         }
     }
     reset(){
-        let wizardDiv = document.getElementById("wizard");
-        this.historyBackward.splice(0,this.historyBackward.length);
-        this.executionStack.splice(0,this.executionStack.length);
-        this.updateWizard(wizardDiv);
+        this.executionStack = [];
+        this.historyBackward = [];
     }
+
     findStatementByText(currentStrat,statementText){
 
         for(var i=0; i<currentStrat.statements.length; i++){

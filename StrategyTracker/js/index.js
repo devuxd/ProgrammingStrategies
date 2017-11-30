@@ -44,14 +44,23 @@ if (typeof window !== 'undefined' && window.angular) {
                 $scope.currentStrategy = $scope.execObj.currentStrategy;
                 $scope.currentStatement = $scope.execObj.currentStatement;
                 $scope.variables = $scope.execObj.variables;
-                // for(let i=0; i<$scope.selectedStrategy.strategies.length; i++){
-                //     $scope.extractVariables($scope.selectedStrategy.strategies[i]);
-                // }
-                $scope.extractVariables($scope.selectedStrategy.strategies[0]);
-                for(let i = 0; i<varNames.length; i++){
-                   $scope.allVariables.push({"name":varNames[i], "val": null});
+                for(let i=0; i<$scope.selectedStrategy.strategies.length; i++){
+                    $scope.extractVariables($scope.selectedStrategy.strategies[i]);
                 }
-
+                for(let i = 0; i<varNames.length; i++){
+                   $scope.allVariables.push({"name":varNames[i], "val": null, "show": false});
+                }
+                varNames = [];
+                $scope.extractVariables($scope.currentStrategy);
+                console.log("shown vars", varNames);
+                angular.forEach($scope.allVariables, function(val, key) {
+                    console.log(key, val);
+                    if(varNames.indexOf(val.name) >= 0) {
+                        val.show = true;
+                    } else {
+                        val.show = false;
+                    }
+                });
                 // this is to open the modal to input strategy parameters
                 $("#initialParams").modal({
                     backdrop: "static",
@@ -60,6 +69,19 @@ if (typeof window !== 'undefined' && window.angular) {
             };
 
             $scope.initFailure = { val: ""};
+            function showVars() {
+                varNames = [];
+                $scope.extractVariables($scope.currentStrategy);
+                angular.forEach($scope.allVariables, function(val, key) {
+                    if(varNames.indexOf(val.name) >= 0) {
+                        val.show = true;
+                    } else {
+                        val.show = false;
+                    }
+                });
+                // always show the parameter passed to first strategy
+                $scope.allVariables[0].show = true;
+            }
 
             // this is to watch any changes for setting up strategy parameters
             $scope.$watch('initFailure.val', function(newval, oldval) {
@@ -68,7 +90,7 @@ if (typeof window !== 'undefined' && window.angular) {
 
             $scope.proceedToStrategy = function() {
                 angular.forEach($scope.selectedStrategy.strategies[0].parameters, function(val, key) {
-                    $scope.allVariables.unshift({"name": val, "val": $scope.initFailure.val});
+                    $scope.allVariables.unshift({"name": val, "val": $scope.initFailure.val, "show": true});
                 });
             };
 
@@ -90,19 +112,21 @@ if (typeof window !== 'undefined' && window.angular) {
 
             $scope.reset= function () {
                 if($scope.selectedStrategy) {
+                    interpreter.reset();
                     $scope.allVariables.splice(1);
                     varNames=[];
                     $scope.execObj = interpreter.init($scope.selectedStrategy.strategies[0], $scope.selectedStrategy.strategies);
                     $scope.currentStrategy = $scope.execObj.currentStrategy;
+                    $('#' + $scope.currentStrategy.name).collapse('show');
                     $scope.currentStatement = $scope.execObj.currentStatement;
                     $scope.variables = $scope.execObj.variables;
-                    // for(let i=0; i<$scope.selectedStrategy.strategies.length; i++){
-                    //     $scope.extractVariables($scope.selectedStrategy.strategies[i]);
-                    // }
-                    $scope.extractVariables($scope.selectedStrategy.strategies[0]);
-                    for(let i = 0; i<varNames.length; i++){
-                        $scope.allVariables.push({"name":varNames[i], "val": null});
+                    for(let i=0; i<$scope.selectedStrategy.strategies.length; i++){
+                        $scope.extractVariables($scope.selectedStrategy.strategies[i]);
                     }
+                    for(let i = 0; i<varNames.length; i++){
+                        $scope.allVariables.push({"name":varNames[i], "val": null, "show": false});
+                    }
+                    showVars();
                 } else {
                     alert("please choose a strategy first");
                 }
@@ -117,12 +141,7 @@ if (typeof window !== 'undefined' && window.angular) {
                     $('#' + $scope.execObj.currentStrategy.name).collapse('show');
                     $('#' + $scope.currentStrategy.name).collapse('hide');
                     $scope.currentStrategy = $scope.execObj.currentStrategy;
-                    $scope.allVariables.splice(1);
-                    varNames=[];
-                    $scope.extractVariables($scope.currentStrategy);
-                    for(let i = 0; i<varNames.length; i++){
-                        $scope.allVariables.push({"name":varNames[i], "val": null});
-                    }
+                    showVars();
                     if($scope.strategy !== undefined)
                         $scope.statements = $scope.strategy.statements;
                     //$('#' +$scope.strategy.name).collapse('show');
@@ -138,12 +157,8 @@ if (typeof window !== 'undefined' && window.angular) {
                     $('#' + $scope.currentStrategy.name).collapse('hide');
                     $scope.currentStrategy = $scope.execObj.currentStrategy;
                     $scope.statements = $scope.currentStrategy.statements;
-                    $scope.allVariables.splice(1);
-                    varNames=[];
-                    $scope.extractVariables($scope.currentStrategy);
-                    for(let i = 0; i<varNames.length; i++){
-                        $scope.allVariables.push({"name":varNames[i], "val": null});
-                    }
+                    showVars();
+
                 }
                 $scope.currentStatement = $scope.execObj.currentStatement;
                 $scope.activeLines = $scope.execObj.activeLines;

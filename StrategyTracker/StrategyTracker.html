@@ -19,8 +19,7 @@
     <script type="text/ng-template"  id="statement-renderer.html">
         <div  ng-class="(execObj.activeLines.indexOf(st.text) >= 0 ) ? 'active' : 'code'">{{st.text}}</div>
         <ul style="list-style: none">
-            <li ng-repeat=" st in st.statements" ng-include="'statement-renderer.html'"
-                ></li>
+            <li ng-repeat=" st in st.statements" ng-include="'statement-renderer.html'"></li>
         </ul>
     </script>
     <title> Debugging Strategy</title>
@@ -167,8 +166,15 @@
                     variables
                 </div>
                 <div class="panel-body text-left">
+                    <div class="form-group var-div">
+                        <label class="col-sm-4" ng-for="var.name" style="margin-bottom: 10px">Test </label>
+                        <div id="value-view-demo">
+                            <!-- This element's contents will be replaced with your component. -->
+                        </div>
+                    </div>
+
                     <!--ng-class="{'hidden': currentStatement.variables.indexOf(var.name) === -1}-->
-                    <div class="form-group var-div" ng-repeat="var in allVariables track by $index" >
+                    <div class="form-group var-div" ng-repeat="var in allVariables track by $index" ng-show="var.show" >
 
                         <label class="col-sm-4" ng-for="var.name" style="margin-bottom: 10px">{{var.name}} </label>
                         <input class="col-sm-8" type="text" ng-id="var.name" ng-model="var.val" style="margin-bottom: 10px">
@@ -184,6 +190,7 @@
     </div>
 </div>
 </body>
+<script src="js/build.js"></script>
 </html>
 </body>
 </html>
