@@ -25,42 +25,53 @@ if (typeof window !== 'undefined' && window.angular) {
 
     myapp.controller('MainCtrl', function ($scope, StrategyService) {
         "use strict";
-        // $scope.allVariables=[ {name: 'code', val: null},
-        //     {name: 'referenceCode', val: null},
-        //     {name: 'failure', val: null},
-        //     {name: 'system', val: null},
-        //      ];
         $scope.accordion = {
             current: null
         };
         let myStrat = StrategyService.getAll();
         //Asynchronous : If the records are ready from deffered.promise, then the following steps is run.
-        myStrat.then(function(strategies) {
-            $scope.selectedStrategy=strategies[0].strategies[0];
-            $scope.allStrategies =strategies;
-            $scope.strategies = strategies[0].strategies;
-            $scope.currentStrategy = strategies[0].strategies[0];
-            $scope.selectedStrategy=$scope.currentStrategy;
+        myStrat.then(function(allStrategies) {
+            $scope.allStrategies =allStrategies;
             $scope.activeLines = [];
             $scope.allVariables=[];
-            let interpreter = new models.Interpreter($scope.strategies);
+            let interpreter = new models.Interpreter();
             let varNames=[];
 
-
-            $scope.selectedStrategy  = $scope.currentStrategy;
             $scope.strategyChanged = function () {
-
-                $scope.execObj = interpreter.init($scope.selectedStrategy.strategies[0]);
+                $scope.allVariables = [];
+                varNames=[];
+                $scope.execObj = interpreter.init($scope.selectedStrategy.strategies[0], $scope.selectedStrategy.strategies);
                 $scope.currentStrategy = $scope.execObj.currentStrategy;
                 $scope.currentStatement = $scope.execObj.currentStatement;
                 $scope.variables = $scope.execObj.variables;
-                for(var i=0; i<$scope.strategies.length; i++){
-                    $scope.extractVariables($scope.strategies[i]);
-                }
-                for(var i = 0; i<varNames.length; i++){
+                // for(let i=0; i<$scope.selectedStrategy.strategies.length; i++){
+                //     $scope.extractVariables($scope.selectedStrategy.strategies[i]);
+                // }
+                $scope.extractVariables($scope.selectedStrategy.strategies[0]);
+                for(let i = 0; i<varNames.length; i++){
                    $scope.allVariables.push({"name":varNames[i], "val": null});
                 }
-            }
+
+                // this is to open the modal to input strategy parameters
+                $("#initialParams").modal({
+                    backdrop: "static",
+                    keyboard: "false",
+                });
+            };
+
+            $scope.initFailure = { val: ""};
+
+            // this is to watch any changes for setting up strategy parameters
+            $scope.$watch('initFailure.val', function(newval, oldval) {
+                console.log(newval);
+            });
+
+            $scope.proceedToStrategy = function() {
+                angular.forEach($scope.selectedStrategy.strategies[0].parameters, function(val, key) {
+                    $scope.allVariables.unshift({"name": val, "val": $scope.initFailure.val});
+                });
+            };
+
 
             $scope.extractVariables= function(strategy){
 
@@ -78,15 +89,24 @@ if (typeof window !== 'undefined' && window.angular) {
             };
 
             $scope.reset= function () {
-                // execObj = interpreter.reset();
-                // interpreter = new models.Interpreter(strategies);
-                // execObj = interpreter.init("localizeFailure");
-                // $scope.strategy = execObj.currentStrategy;
-                // $scope.currentStatement = execObj.currentStatement;
-                // $scope.statements = $scope.strategy.statements;
-                // angular.forEach($scope.variables, function(val, key) {
-                //     val.val = null;
-                // });
+                if($scope.selectedStrategy) {
+                    $scope.allVariables.splice(1);
+                    varNames=[];
+                    $scope.execObj = interpreter.init($scope.selectedStrategy.strategies[0], $scope.selectedStrategy.strategies);
+                    $scope.currentStrategy = $scope.execObj.currentStrategy;
+                    $scope.currentStatement = $scope.execObj.currentStatement;
+                    $scope.variables = $scope.execObj.variables;
+                    // for(let i=0; i<$scope.selectedStrategy.strategies.length; i++){
+                    //     $scope.extractVariables($scope.selectedStrategy.strategies[i]);
+                    // }
+                    $scope.extractVariables($scope.selectedStrategy.strategies[0]);
+                    for(let i = 0; i<varNames.length; i++){
+                        $scope.allVariables.push({"name":varNames[i], "val": null});
+                    }
+                } else {
+                    alert("please choose a strategy first");
+                }
+
             };
 
             $scope.nextStatement = function () {
@@ -97,6 +117,12 @@ if (typeof window !== 'undefined' && window.angular) {
                     $('#' + $scope.execObj.currentStrategy.name).collapse('show');
                     $('#' + $scope.currentStrategy.name).collapse('hide');
                     $scope.currentStrategy = $scope.execObj.currentStrategy;
+                    $scope.allVariables.splice(1);
+                    varNames=[];
+                    $scope.extractVariables($scope.currentStrategy);
+                    for(let i = 0; i<varNames.length; i++){
+                        $scope.allVariables.push({"name":varNames[i], "val": null});
+                    }
                     if($scope.strategy !== undefined)
                         $scope.statements = $scope.strategy.statements;
                     //$('#' +$scope.strategy.name).collapse('show');
@@ -112,18 +138,25 @@ if (typeof window !== 'undefined' && window.angular) {
                     $('#' + $scope.currentStrategy.name).collapse('hide');
                     $scope.currentStrategy = $scope.execObj.currentStrategy;
                     $scope.statements = $scope.currentStrategy.statements;
+                    $scope.allVariables.splice(1);
+                    varNames=[];
+                    $scope.extractVariables($scope.currentStrategy);
+                    for(let i = 0; i<varNames.length; i++){
+                        $scope.allVariables.push({"name":varNames[i], "val": null});
+                    }
                 }
                 $scope.currentStatement = $scope.execObj.currentStatement;
                 $scope.activeLines = $scope.execObj.activeLines;
                 $scope.currentStrategy = $scope.execObj.currentStrategy;
             };
+
             $scope.outerStatement = function () {
                 $scope.execObj = interpreter.refreshStatement(false);
 
-            }
+            };
             $scope.innerStatement = function () {
                 $scope.execObj = interpreter.refreshStatement(true);
-            }
+            };
 
             // $scope.chooseNextStatement = function ($event) {
             //     let chosenStatement = "";

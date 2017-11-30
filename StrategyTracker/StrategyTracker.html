@@ -26,23 +26,43 @@
     <title> Debugging Strategy</title>
 </head>
 <body ng-controller="MainCtrl" ng-cloak>
+<h4 style="color: #ffffff;position: absolute; top: 27px; z-index: 1000; left: 20px;">Please select your Strategy</h4>
+<h3 id="model-fault-localization" class="header-level-1" style="position: absolute; top: 10px; z-index: 1000; left: 250px;">
+    <select ng-model="selectedStrategy"
+            style="width: 270px;"
+            ng-change = "strategyChanged()"
+            ng-options="strat.displayName for strat in allStrategies"  ></select>
+</h3>
+<!-- Modal -->
+<div class="modal fade" id="initialParams" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Please provide us with the failure to debug</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group var-div" ng-repeat="var in selectedStrategy.strategies[0].parameters track by $index" >
+                    <label class="col-sm-4" ng-for="var" style="margin-bottom: 10px">{{var}}</label>
+                    <input class="col-sm-8" type="text" ng-id="var" ng-model="initFailure.val" style="margin-bottom: 10px">
+                </div>
 
-<section class="container" style="margin-top: 50px">
-    <header class="row" style="margin-bottom: 50px;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="proceedToStrategy()">Proceed</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="selectedStrategy = null">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end Modal -->
+<nav class="container-fluid" style="margin-bottom: 10px">
+    <header class="row">
        <span class="ribbon-inner">
             <h1 style="text-align: center;">ProgrammingStrategies</h1>
             <h5 style="text-align: center;">A repository of strategies for programming</h5>
        </span>
-
-        <h2 id="model-fault-localization" class="header-level-1">
-            <select ng-model="selectedStrategy"
-                    ng-init=" selectedStrategy = allStrategies[0].name"
-                    ng-change = "strategyChanged()"
-                    ng-options="strat.displayName for strat in allStrategies" ></select>
-        </h2>
-        <p>
-             Strategy Description here ( we didnt consider it in Roboto)
-        </p>
     </header>
     <!--<div class="row">-->
         <!--<div id="wizard" class="col-sm-12" style="margin-bottom: 50px;">-->
@@ -50,112 +70,119 @@
 
         <!--</div>-->
     <!--</div>-->
-    <div class="panel-info">
-        <div class=" panel-heading">
-            <div id="btn-reset">
-                <button class="btn btn-default" id="reset" ng-click="reset()" title="Reset the strategy steps to the first step"> Reset</button>
+</nav>
+
+<div class="container-fluid text-center">
+    <div class="row content">
+        <div class="col-sm-6 text-left">
+            <div class="panel-info">
+                <div class=" panel-heading">
+                    <div id="btn-reset">
+                        <button class="btn btn-default" id="reset" ng-click="reset()" title="Reset the strategy steps to the first step"> Reset</button>
+                    </div>
+
+                    <div id="buttons" class="form-group" style="margin-bottom: 0; text-align: right">
+
+                        <button class="btn btn-default" id="prev"
+                                ng-disabled="isPrevDisabled || !selectedStrategy"
+                                ng-click="prevStatement()"> Previous
+                        </button>
+                        <button class="btn btn-primary" id="next"
+                                ng-disabled="execObj.activeLines.length > 1 || !selectedStrategy"
+                                ng-hide=execObj.selectionNeeded
+                                ng-click="nextStatement()"> Next
+                        </button>
+
+                        <button class="btn btn-primary" id="yes"
+                                ng-show=execObj.selectionNeeded
+                                ng-click="innerStatement()"> Yes
+                        </button>
+                        <button class="btn btn-primary" id="no"
+                                ng-show=execObj.selectionNeeded
+                                ng-click="outerStatement()"> No
+                        </button>
+                        <!--<p>{{variables}}</p>-->
+
+                    </div>
+                </div>
             </div>
+            <div id="strategy-panel" class="panel-info">
+                <div class="panel-heading">
+                    {{selectedStrategy.displayName}}
+                    <div ng-if="execObj.activeLines.length > 1" style="color:orangered; font-family: '.SF NS Display';  font-size: 22px; display: inline; margin-left: 3%">
+                        <strong>Please Select the desired statement.</strong>
+                    </div>
+                </div>
 
-            <div id="buttons" class="form-group" style="margin-bottom: 0; text-align: right">
-
-                <button class="btn btn-default" id="prev"
-                        ng-disabled="isPrevDisabled"
-                        ng-click="prevStatement()"> Previous
-                </button>
-                <button class="btn btn-primary" id="next"
-                        ng-disabled="execObj.activeLines.length > 1"
-                        ng-hide=execObj.selectionNeeded
-                        ng-click="nextStatement()"> Next
-                </button>
-
-                <button class="btn btn-primary" id="yes"
-                        ng-show=execObj.selectionNeeded
-                        ng-click="innerStatement()"> Yes
-                </button>
-                <button class="btn btn-primary" id="no"
-                        ng-show=execObj.selectionNeeded
-                        ng-click="outerStatement()"> No
-            </button>
-                <!--<p>{{variables}}</p>-->
-
-            </div>
-        </div>
-    </div>
-    <div id="strategy-panel" class="panel-info">
-        <div class="panel-heading">
-            {{selectedStrategy.displayName}}
-
-            <div ng-if="execObj.activeLines.length > 1" style="color:orangered; font-family: '.SF NS Display';  font-size: 22px; display: inline; margin-left: 3%">
-                <strong>Please Select the desired statement.</strong>
-            </div>
-        </div>
-
-        <div class="panel-body">
-            <div class="row">
-                <!-- Strategy statements-->
-                <div class="col-md-7">
-                    <div class="panel-group" id="strategiesAccordion">
-                        <div ng-attr-id="{{'strategy' + $index}}" class="panel panel-default" ng-repeat="strat in selectedStrategy.strategies track by $index">
-                            <!-- accordion headers with strategies names-->
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a data-toggle="collapse" data-parent="#strategiesAccordion" ng-href="{{'#' + strat.name}}">
-                                        {{strat.name}}
-                                    </a>
-                                </h4>
-                            </div>
-                            <div ng-attr-id="{{strat.name}}" class="panel-collapse collapse" ng-class="{'in' : $index == 0}">
-
-                                <div class="panel-body" style="height: auto;">
-                                    <div>
-                                        <div ng-class="(execObj.activeLines.indexOf(strat.text) >= 0 ) ? 'active' : 'code'">{{strat.text}}</div>
-                                        <ul style="list-style: none">
-                                        </ul>
+                <div class="panel-body">
+                    <div class="row">
+                        <!-- Strategy statements-->
+                        <div class="col-xs-12">
+                            <div class="panel-group" id="strategiesAccordion">
+                                <div ng-attr-id="{{'strategy' + $index}}" class="panel panel-default" ng-repeat="strat in selectedStrategy.strategies track by $index">
+                                    <!-- accordion headers with strategies names-->
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#strategiesAccordion" ng-href="{{'#' + strat.name}}">
+                                                {{strat.name}}
+                                            </a>
+                                        </h4>
                                     </div>
-                                    <div ng-repeat="st in strat.statements" ng-include="'statement-renderer.html'"
-                                          ng-click="isDisabled ||chooseNextStatement($event)">
+                                    <div ng-attr-id="{{strat.name}}" class="panel-collapse collapse" ng-class="{'in' : $index == 0}">
+
+                                        <div class="panel-body" style="height: auto;">
+                                            <div>
+                                                <div ng-class="(execObj.activeLines.indexOf(strat.text) >= 0 ) ? 'active' : 'code'">{{strat.text}}</div>
+                                                <ul style="list-style: none">
+                                                </ul>
+                                            </div>
+                                            <div ng-repeat="st in strat.statements" ng-include="'statement-renderer.html'"
+                                                 ng-click="isDisabled ||chooseNextStatement($event)">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
-
                     </div>
                 </div>
-                <div class="desc-div col-md-5">
-                    <div class="panel-primary">
-                        <div class="panel-heading">
-                            Description
-                        </div>
-                        <div class="panel-body">
-                            <p ng-repeat="comment in execObj.currentStatement.comments" class="code-text">{{comment}}</p>
-                        </div>
-                    </div>
-                    <div class="panel-primary">
-                        <div class="panel-heading">
-                            variables
-                        </div>
-                        <div class="panel-body">
-                            <!--ng-class="{'hidden': currentStatement.variables.indexOf(var.name) === -1}-->
-                            <div class="form-group var-div" ng-repeat="var in allVariables track by $index" >
 
-                                <label class="col-sm-4" ng-for="var.name" style="margin-bottom: 10px">{{var.name}} </label>
-                                <input class="col-sm-8" type="text" ng-id="var.name" ng-model="var.val" style="margin-bottom: 10px">
-                                 <!--ng-repeat="var in currentStatement.identifier track by $index  ">-->
-                                <!--<label class="col-sm-4" ng-for="var.name" style="margin-bottom: 10px">{{variables}} </label>-->
-                                <!--<input ng-if="currentStatement.identifier.length > 0" class="col-sm-8" type="text" ng-id="var.name" ng-model="var.val" style="margin-bottom: 10px">-->
-                            </div>
+            </div>
 
-                        </div>
-
-                    </div>
+        </div>
+        <div class="col-sm-3 sidenav">
+            <div class="panel-primary">
+                <div class="panel-heading">
+                    Description
+                </div>
+                <div class="panel-body text-left">
+                    <p ng-repeat="comment in execObj.currentStatement.comments" class="code-text">{{comment}}</p>
                 </div>
             </div>
         </div>
+        <div class="col-sm-3 sidenav">
+            <div class="panel-primary">
+                <div class="panel-heading">
+                    variables
+                </div>
+                <div class="panel-body text-left">
+                    <!--ng-class="{'hidden': currentStatement.variables.indexOf(var.name) === -1}-->
+                    <div class="form-group var-div" ng-repeat="var in allVariables track by $index" >
 
+                        <label class="col-sm-4" ng-for="var.name" style="margin-bottom: 10px">{{var.name}} </label>
+                        <input class="col-sm-8" type="text" ng-id="var.name" ng-model="var.val" style="margin-bottom: 10px">
+                        <!--ng-repeat="var in currentStatement.identifier track by $index  ">-->
+                        <!--<label class="col-sm-4" ng-for="var.name" style="margin-bottom: 10px">{{variables}} </label>-->
+                        <!--<input ng-if="currentStatement.identifier.length > 0" class="col-sm-8" type="text" ng-id="var.name" ng-model="var.val" style="margin-bottom: 10px">-->
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
     </div>
-
-
-</section>ß
+</div>
 </body>
 </html>
 </body>

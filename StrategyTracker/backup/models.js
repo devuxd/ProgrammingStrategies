@@ -4,14 +4,15 @@ var clone = require('clone');
 
 class Interpreter {
 
-    constructor() {
+    constructor(strategies) {
         this.executionStack = [];
         this.historyBackward = [];
+        this.strategies = strategies;
     }
 
-    init(currentStrategy, strategies) {
+    init(currentStrategy) {
 
-        let initExecutionContext = new FunctionExecContext(currentStrategy.name, strategies);
+        let initExecutionContext = new FunctionExecContext(currentStrategy.name, this.strategies);
         //initExecutionContext.activeLines[0] = initExecutionContext.strategy.text;
         this.executionStack.push(initExecutionContext);
 
@@ -28,28 +29,22 @@ class Interpreter {
         this.updateWizard(wizardDiv);
     }
     findStatementByText(currentStrat,statementText){
-
         for(var i=0; i<currentStrat.statements.length; i++){
             if( currentStrat.statements[i].text == statementText)
             {
                 return currentStrat.statements[i];
             }
-            else if(currentStrat.statements[i].statements !== undefined)
+            else if(currentStrat.statements[i].statements !== undefined && currentStrat.statements[i].statements[0].text == statementText)
             {
-                let innerStatements = currentStrat.statements[i].statements;
-                for(var j=0; j<innerStatements.length; j++) {
-                    if (innerStatements[j].text == statementText) {
-                        return innerStatements[j];
-                    }
-                }
+                return currentStrat.statements[i].statements[0];
             }
         }
     }
 
-    execute(currentStatementText, takeBackup) {
+    execute(currentStatementText) {
         //let wizardDiv = document.getElementById("wizard");
 
-        if(this.executionStack.length && takeBackup === undefined) {
+        if(this.executionStack.length) {
             this.historyBackward.push(clone(this.executionStack)); // take a snapshot from our current executionStack to our history
         }
         let currentExecutionContext = this.executionStack.pop();
@@ -82,23 +77,20 @@ class Interpreter {
         };
     }
     refreshStatement(isTrue){
-        if(this.executionStack.length) {
-            this.historyBackward.push(clone(this.executionStack)); // take a snapshot from our current executionStack to our history
-        }
         if(!isTrue){
             let currentExecObj = clone(this.executionStack.pop());
             currentExecObj.selectionNeeded= false;
             this.executionStack.push(currentExecObj);
-            currentExecObj = currentExecObj.blocks.shift();
-            return this.execute(currentExecObj.text, false);
+            currentExecObj = currentExecObj.blocks[0].shift();
+            return this.execute(currentExecObj.text);
         }
         else if (isTrue)
         {
             let currentExecObj = clone(this.executionStack.pop());
-            currentExecObj.blocks.unshift(currentExecObj.pc.statements);
+            currentExecObj.blocks[0].unshift(currentExecObj.pc.statements);
             this.executionStack.push(currentExecObj);
-            currentExecObj = currentExecObj.blocks.shift();
-            return this.execute(currentExecObj.text, false);
+            currentExecObj = currentExecObj.blocks[0].shift();
+            return this.execute(currentExecObj.text);
         }
     }
 
@@ -115,10 +107,21 @@ class Interpreter {
     }
 
     goBack() {
+        let tempExecObj = this.executionStack[this.executionStack.length - 1];
         let stack = this.historyBackward.pop();
-        if(stack === undefined) return null;
+
+        if(stack === undefined)
+            return null;
         this.executionStack = stack;
+        console.log(this.executionStack[this.executionStack.length - 1].blocks[0]);
+        if(this.executionStack[0].blocks.length===0)
+            this.executionStack[this.executionStack.length - 1].blocks.push(tempExecObj.prevTemp);
+        else
+            this.executionStack[this.executionStack.length - 1].blocks[0].unshift(tempExecObj.prevTemp);
         let currentExecutionContext = this.executionStack[this.executionStack.length - 1];
+        // let wizardDiv = document.getElementById("wizard");
+        // if(executionContext.strategy.displayName != wizardDiv.lastElementChild.lastChild.data)
+        //     this.updateWizard(wizardDiv)
         if(currentExecutionContext.pc.type =="if" )
             currentExecutionContext.selectionNeeded = true;
         else
@@ -143,7 +146,7 @@ class FunctionExecContext {
         this.activeLines = [];
         this.activeLines.push(this.strategy.text);
         this.blocks = [];
-        this.blocks = clone(this.strategy.statements);
+        this.blocks.unshift(clone(this.strategy.statements));
         this.variables=[];
         this.selectionNeeded= false;
         this.prevTemp=this.strategy;
@@ -160,15 +163,15 @@ class FunctionExecContext {
         //||currentStatement.type == "foreach" || currentStatement.type == "until"
         if (currentStatement.type == "strategy" ){
             // this.blocks.unshift(clone(currentStatement.statements));
-            this.pc = this.blocks.shift();
+            this.pc = this.blocks[0].shift();
             this.activeLines.push(this.pc.text);
         }
         else if(currentStatement.type == "if"  ) {
             if(currentStatement.statements !== undefined && currentStatement.statements.length>0)
                 for(var i=currentStatement.statements.length-1; i>=0; i--){
-                    this.blocks.unshift(clone(currentStatement.statements[i]));
+                    this.blocks[0].unshift(clone(currentStatement.statements[i]));
                 }
-            this.pc = this.blocks.shift();
+            this.pc = this.blocks[0].shift();
             this.activeLines.push(this.pc.text);
 
         }
@@ -187,17 +190,17 @@ class FunctionExecContext {
         else if(currentStatement.type =="foreach"){
             if(currentStatement.statements !== undefined && currentStatement.statements.length>0)
                 for(var i=currentStatement.statements.length-1; i>=0; i--){
-                    this.blocks.unshift(clone(currentStatement.statements[i]));
+                    this.blocks[0].unshift(clone(currentStatement.statements[i]));
                 }
 
-            this.pc = this.blocks.shift();
+            this.pc = this.blocks[0].shift();
             this.activeLines.push(this.pc.text);
         }
         else{
             if(currentStatement.statements !== undefined)
-                this.blocks.unshift(clone(currentStatement.statements[0]));
-            this.pc = this.blocks.shift();
-            this.activeLines.push(this.pc.text);
+                this.blocks[0].unshift(clone(currentStatement.statements[0]));
+            this.pc = this.blocks[0].shift();
+            this.activeLines.push(this.pc.text)
         }
         if(this.pc.identifier !== undefined)
             this.variables.push({"name" :this.pc.identifier , "val":null});
