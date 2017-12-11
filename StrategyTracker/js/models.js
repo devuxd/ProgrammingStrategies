@@ -18,7 +18,8 @@ class Interpreter {
         return {
             executionStack: this.executionStack,
             activeLines : initExecutionContext.activeLines,
-            currentStrategy:initExecutionContext.strategy
+            currentStrategy:initExecutionContext.strategy,
+            variables: initExecutionContext.variables
         }
     }
     reset(){
@@ -101,18 +102,6 @@ class Interpreter {
         }
     }
 
-    updateWizard( wizardDiv) {
-        while (wizardDiv.firstChild) {
-            wizardDiv.removeChild(wizardDiv.firstChild);
-        }
-        for(var i=0; i<this.executionStack.length; i++){
-            var innerDiv = document.createElement('div');
-            innerDiv.className = 'wizard-block well';
-            innerDiv.append(this.executionStack[i].strategy.displayName);
-            wizardDiv.appendChild(innerDiv);
-        }
-    }
-
     goBack() {
         let stack = this.historyBackward.pop();
         if(stack === undefined) return null;
@@ -133,7 +122,7 @@ class Interpreter {
     }
 }
 
-
+var globalCounter = { count: 0};
 class FunctionExecContext {
     constructor(currentStrategy, strategies) {
         this.strategies = strategies;
@@ -144,8 +133,48 @@ class FunctionExecContext {
         this.blocks = [];
         this.blocks = clone(this.strategy.statements);
         this.variables=[];
+        this.strategy.parameters.forEach(function (currentVal, index, arr) {
+            currentVal = currentVal.replace(/'/g, '');
+            this.variables.push({"id": globalCounter.count++, "name": currentVal, "val": null, "type": "parameter"});
+        }, this);
+        this.extractVariables(this.strategy.statements, globalCounter, this);
+        //console.log(this.variables);
         this.selectionNeeded= false;
         this.prevTemp=this.strategy;
+    }
+    extractVariables(statements, counter, argThis) {
+        statements.forEach(function (currentVal, index, arr) {
+            if(currentVal.identifier) {
+                let identifier = currentVal.identifier.replace(/'/g, '');
+                argThis.variables.push({"id": counter.count++, "name": identifier, "val": null, "type": "identifier"});
+            }
+            if(currentVal.type == 'do') {
+                if(currentVal.call.arguments) {
+                    currentVal.call.arguments.forEach(function(val, ind, array) {
+                        val = val.replace(/'/g, '');
+                        argThis.variables.push({"id": counter.count++, "name": val, "val": null, "type": "argument"});
+                    }, argThis);
+                }
+            }
+            if(currentVal.type == 'return') {
+                if (currentVal.query.arguments) {
+                    currentVal.query.arguments.forEach(function(val, ind, array) {
+                        val = val.replace(/'/g, '');
+                        argThis.variables.push({"id": counter.count++, "name": val, "val": null, "type": "argument"});
+                    }, argThis);
+                }
+            }
+            if(currentVal.type =="foreach"){
+                argThis.variables.forEach(function (val) {
+                    if(val.name == (currentVal.list.replace(/'/g,''))) {
+                        val.val = [];
+                    }
+                });
+            }
+            if(currentVal.statements) {
+                this.extractVariables(currentVal.statements, counter, argThis);
+            }
+        }, argThis);
     }
     findStrategy(strategyname) {
         return this.strategies.find(function(strategy) {
@@ -184,11 +213,16 @@ class FunctionExecContext {
             }
         }
         else if(currentStatement.type =="foreach"){
-            if(currentStatement.statements !== undefined && currentStatement.statements.length>0)
-                for(var i=currentStatement.statements.length-1; i>=0; i--){
-                    this.blocks.unshift(clone(currentStatement.statements[i]));
+            if(currentStatement.statements !== undefined && currentStatement.statements.length>0) {
+                let loopCountVar = this.variables.filter(function (val) {
+                    return val.name === currentStatement.list.replace(/'/g, '');
+                })[0];
+                for(let num = 0; num < loopCountVar.val.length; num++) {
+                    for(var i=currentStatement.statements.length-1; i>=0; i--){
+                        this.blocks.unshift(clone(currentStatement.statements[i]));
+                    }
                 }
-
+            }
             this.pc = this.blocks.shift();
             this.activeLines.push(this.pc.text);
         }
@@ -198,8 +232,9 @@ class FunctionExecContext {
             this.pc = this.blocks.shift();
             this.activeLines.push(this.pc.text);
         }
-        if(this.pc.identifier !== undefined)
-            this.variables.push({"name" :this.pc.identifier , "val":null});
+
+        // if(this.pc.identifier !== undefined)
+        //     this.variables.push({"name" :this.pc.identifier , "val":null});
 
         return this;
     }

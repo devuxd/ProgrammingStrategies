@@ -25,8 +25,8 @@
     <title> Debugging Strategy</title>
 </head>
 <body ng-controller="MainCtrl" ng-cloak>
-<h4 style="color: #ffffff;position: absolute; top: 27px; z-index: 1000; left: 20px;">Please select your Strategy</h4>
-<h3 id="model-fault-localization" class="header-level-1" style="position: absolute; top: 10px; z-index: 1000; left: 250px;">
+<h4 class="strategy-select">Please select your Strategy</h4>
+<h3 id="model-fault-localization" class="header-level-1">
     <select ng-model="selectedStrategy"
             style="width: 270px;"
             ng-change = "strategyChanged()"
@@ -42,9 +42,9 @@
                 <h4 class="modal-title">Please provide us with the failure to debug</h4>
             </div>
             <div class="modal-body">
-                <div class="form-group var-div" ng-repeat="var in selectedStrategy.strategies[0].parameters track by $index" >
-                    <label class="col-sm-4" ng-for="var" style="margin-bottom: 10px">{{var}}</label>
-                    <input class="col-sm-8" type="text" ng-id="var" ng-model="initFailure.val" style="margin-bottom: 10px">
+                <div class="form-group var-div" ng-repeat="var in parameters track by var.id" >
+                    <label class="col-sm-4" ng-for="var" style="margin-bottom: 10px">{{var.name}}</label>
+                    <input class="col-sm-8" type="text" ng-id="var" ng-model="var.val" style="margin-bottom: 10px">
                 </div>
 
             </div>
@@ -56,7 +56,7 @@
     </div>
 </div>
 <!-- end Modal -->
-<nav class="container-fluid" style="margin-bottom: 10px">
+<nav class="container-fluid" id="header-title">
     <header class="row">
        <span class="ribbon-inner">
             <h1 style="text-align: center;">ProgrammingStrategies</h1>
@@ -166,18 +166,12 @@
                     variables
                 </div>
                 <div class="panel-body text-left">
-                    <div class="form-group var-div">
-                        <label class="col-sm-4" ng-for="var.name" style="margin-bottom: 10px">Test </label>
-                        <div id="value-view-demo">
-                            <!-- This element's contents will be replaced with your component. -->
-                        </div>
-                    </div>
-
                     <!--ng-class="{'hidden': currentStatement.variables.indexOf(var.name) === -1}-->
-                    <div class="form-group var-div" ng-repeat="var in allVariables track by $index" ng-show="var.show" >
+                    <div class="form-group var-div" ng-repeat="var in variables track by var.id" ng-hide="var.type == 'argument'">
 
-                        <label class="col-sm-4" ng-for="var.name" style="margin-bottom: 10px">{{var.name}} </label>
-                        <input class="col-sm-8" type="text" ng-id="var.name" ng-model="var.val" style="margin-bottom: 10px">
+                        <label class="col-sm-4" ng-for="var.name" style="position: relative;top: 14px;">{{var.name}} </label>
+                        <variable-value is-array="isArray(var.val)" model="var.val"></variable-value>
+                        <!--<input class="col-sm-8" type="text" ng-id="var.name" ng-model="var.val" style="margin-bottom: 10px">-->
                         <!--ng-repeat="var in currentStatement.identifier track by $index  ">-->
                         <!--<label class="col-sm-4" ng-for="var.name" style="margin-bottom: 10px">{{variables}} </label>-->
                         <!--<input ng-if="currentStatement.identifier.length > 0" class="col-sm-8" type="text" ng-id="var.name" ng-model="var.val" style="margin-bottom: 10px">-->
@@ -189,8 +183,5 @@
         </div>
     </div>
 </div>
-</body>
-<script src="js/build.js"></script>
-</html>
 </body>
 </html>

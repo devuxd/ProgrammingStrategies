@@ -4,6 +4,12 @@ const db = require('./dataManagement.js');
 if (typeof window !== 'undefined' && window.angular) {
     let myapp = angular.module('myapp', []);
 
+    myapp.run(function($rootScope) {
+        ['isArray', 'isDate', 'isDefined', 'isFunction', 'isNumber', 'isObject', 'isString', 'isUndefined'].forEach(function(name) {
+            $rootScope[name] = angular[name];
+        });
+    });
+
     myapp.factory('StrategyService', function($q) {
         let strategies= [];
         let deferred = $q.defer();
@@ -25,42 +31,22 @@ if (typeof window !== 'undefined' && window.angular) {
 
     myapp.controller('MainCtrl', function ($scope, StrategyService) {
         "use strict";
-        $scope.accordion = {
-            current: null
-        };
         let myStrat = StrategyService.getAll();
         //Asynchronous : If the records are ready from deffered.promise, then the following steps is run.
         myStrat.then(function(allStrategies) {
             $scope.allStrategies =allStrategies;
             $scope.activeLines = [];
-            $scope.allVariables=[];
             let interpreter = new models.Interpreter();
-            let varNames=[];
 
             $scope.strategyChanged = function () {
-                $scope.allVariables = [];
-                varNames=[];
                 $scope.execObj = interpreter.init($scope.selectedStrategy.strategies[0], $scope.selectedStrategy.strategies);
                 $scope.currentStrategy = $scope.execObj.currentStrategy;
                 $scope.currentStatement = $scope.execObj.currentStatement;
                 $scope.variables = $scope.execObj.variables;
-                for(let i=0; i<$scope.selectedStrategy.strategies.length; i++){
-                    $scope.extractVariables($scope.selectedStrategy.strategies[i]);
-                }
-                for(let i = 0; i<varNames.length; i++){
-                   $scope.allVariables.push({"name":varNames[i], "val": null, "show": false});
-                }
-                varNames = [];
-                $scope.extractVariables($scope.currentStrategy);
-                console.log("shown vars", varNames);
-                angular.forEach($scope.allVariables, function(val, key) {
-                    console.log(key, val);
-                    if(varNames.indexOf(val.name) >= 0) {
-                        val.show = true;
-                    } else {
-                        val.show = false;
-                    }
+                $scope.parameters = $scope.variables.filter(function (val) {
+                    return val.type == 'parameter';
                 });
+                //console.log($scope.parameters);
                 // this is to open the modal to input strategy parameters
                 $("#initialParams").modal({
                     backdrop: "static",
@@ -68,65 +54,21 @@ if (typeof window !== 'undefined' && window.angular) {
                 });
             };
 
-            $scope.initFailure = { val: ""};
-            function showVars() {
-                varNames = [];
-                $scope.extractVariables($scope.currentStrategy);
-                angular.forEach($scope.allVariables, function(val, key) {
-                    if(varNames.indexOf(val.name) >= 0) {
-                        val.show = true;
-                    } else {
-                        val.show = false;
-                    }
-                });
-                // always show the parameter passed to first strategy
-                $scope.allVariables[0].show = true;
-            }
-
-            // this is to watch any changes for setting up strategy parameters
-            $scope.$watch('initFailure.val', function(newval, oldval) {
-                console.log(newval);
-            });
-
             $scope.proceedToStrategy = function() {
-                angular.forEach($scope.selectedStrategy.strategies[0].parameters, function(val, key) {
-                    $scope.allVariables.unshift({"name": val, "val": $scope.initFailure.val, "show": true});
+                angular.forEach($scope.parameters, function(val, key) {
+                    // $scope.allVariables.unshift({"id": $scope.counter++, "name": val, "val": [$scope.initFailure.val], "show": true});
+                    //console.log(val);
                 });
-            };
-
-
-            $scope.extractVariables= function(strategy){
-
-                for(var i= 0 ; i<strategy.statements.length; i++) {
-                    if (strategy.identifier !== undefined && varNames.indexOf(strategy.identifier.replace (/'/g, "")) === -1)
-                        varNames.push(strategy.identifier.replace (/'/g, ""))
-                    let x = strategy.statements[i];
-                    if (x.identifier !== undefined && varNames.indexOf( x.identifier.replace (/'/g, "")) === -1)
-                        varNames.push( x.identifier.replace (/'/g, ""));
-                    if (x.statements !== undefined) {
-                        $scope.extractVariables(x);
-                    }
-                }
-
             };
 
             $scope.reset= function () {
                 if($scope.selectedStrategy) {
                     interpreter.reset();
-                    $scope.allVariables.splice(1);
-                    varNames=[];
                     $scope.execObj = interpreter.init($scope.selectedStrategy.strategies[0], $scope.selectedStrategy.strategies);
                     $scope.currentStrategy = $scope.execObj.currentStrategy;
-                    $('#' + $scope.currentStrategy.name).collapse('show');
                     $scope.currentStatement = $scope.execObj.currentStatement;
+                    $('#' + $scope.currentStrategy.name).collapse('show');
                     $scope.variables = $scope.execObj.variables;
-                    for(let i=0; i<$scope.selectedStrategy.strategies.length; i++){
-                        $scope.extractVariables($scope.selectedStrategy.strategies[i]);
-                    }
-                    for(let i = 0; i<varNames.length; i++){
-                        $scope.allVariables.push({"name":varNames[i], "val": null, "show": false});
-                    }
-                    showVars();
                 } else {
                     alert("please choose a strategy first");
                 }
@@ -141,7 +83,6 @@ if (typeof window !== 'undefined' && window.angular) {
                     $('#' + $scope.execObj.currentStrategy.name).collapse('show');
                     $('#' + $scope.currentStrategy.name).collapse('hide');
                     $scope.currentStrategy = $scope.execObj.currentStrategy;
-                    showVars();
                     if($scope.strategy !== undefined)
                         $scope.statements = $scope.strategy.statements;
                     //$('#' +$scope.strategy.name).collapse('show');
@@ -157,8 +98,6 @@ if (typeof window !== 'undefined' && window.angular) {
                     $('#' + $scope.currentStrategy.name).collapse('hide');
                     $scope.currentStrategy = $scope.execObj.currentStrategy;
                     $scope.statements = $scope.currentStrategy.statements;
-                    showVars();
-
                 }
                 $scope.currentStatement = $scope.execObj.currentStatement;
                 $scope.activeLines = $scope.execObj.activeLines;
@@ -172,30 +111,60 @@ if (typeof window !== 'undefined' && window.angular) {
             $scope.innerStatement = function () {
                 $scope.execObj = interpreter.refreshStatement(true);
             };
-
-            // $scope.chooseNextStatement = function ($event) {
-            //     let chosenStatement = "";
-            //     if ($scope.activeLines.length > 1)
-            //     {
-            //     let currentTarget = $event.currentTarget.innerHTML;
-            //     for (var x=0; x<$scope.activeLines.length; x++) {
-            //         var line = $scope.activeLines[x];
-            //         if (currentTarget.includes(line))
-            //             chosenStatement = line;
-            //     }
-            //     execObj = interpreter.execute(chosenStatement);
-            //     if (execObj === null) return;
-            //     $scope.currentStrategy = execObj.currentStrategy;
-            //     $scope.currentStatement = execObj.currentStatement;
-            //     $scope.activeLines = execObj.activeLines;
-            //     }
-            // };
         });
 
     });
 
+    myapp.directive('variableValue', function ($parse, $timeout) {
+        return {
+            template:
+            '<span ng-show="edit">' +
+            '<textarea ng-show="isArray" ng-blur="updateModel()" ng-model="var"></textarea>' +
+            '<input type="text" ng-show="!isArray" ng-blur="updateModel()" ng-model="model">' +
+            '</span>' +
+            '<div class="var-outer-border" ng-show="!edit">' +
+            '<span class="showvars" ng-show="isArray && allvar.length" ng-click="changeEdit()" ng-repeat="myvar in allvar track by $index">{{myvar}}</span>' +
+            '<span class="showvars" ng-show="isArray && !allvar.length" ng-click="changeEdit()">nothing</span>' +
+            '<span class="showvars" ng-show="!isArray && model.length" ng-click="changeEdit()">{{model}}</span>' +
+            '<span class="showvars" ng-show="!isArray && !model.length" ng-click="changeEdit()">nothing</span>' +
+            '</div>',
+            restrict: 'E',
+            scope: {
+                model: '=',
+                isArray: '='
+            },
+            link: function(scope, element, attrs) {
+                scope.edit = false;
+                scope.var = '';
+                if(scope.isArray) {
+                    scope.allvar = scope.model;
+                }
+                scope.changeEdit = function () {
+                    scope.edit = !scope.edit;
+                    if (scope.isArray) {
+                        scope.var = scope.allvar.join(',');
+                        $timeout( function(){
+                            element[0].firstChild.firstChild.focus();
+                        }, 10);
+                    } else {
+                        $timeout( function(){
+                            element[0].firstChild.lastChild.focus();
+                        }, 10);
+                    }
+                };
+                scope.updateModel = function () {
+                    scope.edit = !scope.edit;
+                    if (scope.isArray) {
+                        let arr = scope.var.split(',');
+                        scope.allvar = [];
+                        angular.forEach(arr, function (val, key) {
+                            val.trim().length ? scope.allvar.push(val.trim()) : null;
+                        });
+                        $parse(attrs.model).assign(scope.$parent, scope.allvar);
+                    }
+                };
+            }
+        }
+    });
+
 }
-// for(var i =0;i<dbstrategies.length; i++){
-//     var key = firebase.database().ref().child('strategies').push(dbstrategies[i]);
-// }
-// $q is a default service by angular to handle Asynchronous in order not to block threads
