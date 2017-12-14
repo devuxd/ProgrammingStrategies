@@ -130,6 +130,17 @@ function tokenize(strategy) {
 function parseApproach(owner, name, displayName, type, tokens, robotoText) {
 
     var strategies = [];
+    var descriptions = [];
+
+    // If it's a comment, read a comment.
+    while(tokens.peek().charAt(0) === "#") {
+        descriptions.push(tokens.eat());
+        tokens.eat("\n");
+    }
+    // Parse one or more strategies.
+    while(tokens.nextIs("strategy")) {
+        strategies.push(parseStrategy(tokens));
+    }
 
     // Parse one or more strategies.
     while(tokens.nextIs("strategy")) {
@@ -142,6 +153,7 @@ function parseApproach(owner, name, displayName, type, tokens, robotoText) {
     return {
         owner:owner,
         name: name,
+        description: descriptions,
         displayName: displayName,
         type: type,
         robotoText: robotoText,
@@ -470,24 +482,24 @@ module.exports = {
 
 };
 
-fs = require('fs')
-//console.log(process.argv[2]);
-
-fs.readFile(process.argv[2], 'utf8', function (err,data) {
-    if (err) {
-        return console.log(err);
-    }
-    //console.log("data = ", data);
-    var strategy = data;
-
-    try {
-        var tokens = new Tokens(strategy);
-        //owner, name, displayName, type, tokens, robotoText
-        var ast = parseApproach("meysam", process.argv[2], "meysam", "approach",  tokens, "");
-        console.log(JSON.stringify(ast, null, 2));
-    } catch(ex) {
-        console.log(ex);
-    }
-
-});
+// fs = require('fs')
+// //console.log(process.argv[2]);
+//
+// fs.readFile(process.argv[2], 'utf8', function (err,data) {
+//     if (err) {
+//         return console.log(err);
+//     }
+//     //console.log("data = ", data);
+//     var strategy = data;
+//
+//     try {
+//         var tokens = new Tokens(strategy);
+//         //owner, name, displayName, type, tokens, robotoText
+//         var ast = parseApproach("meysam", process.argv[2], "meysam", "approach",  tokens, "");
+//         console.log(JSON.stringify(ast, null, 2));
+//     } catch(ex) {
+//         console.log(ex);
+//     }
+//
+// });
 
