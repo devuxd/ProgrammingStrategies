@@ -230,7 +230,7 @@ class FunctionExecContext {
         else if (currentStatement.type == "do") {
             if (currentStatement.call !== undefined) {
                 let newExec = new FunctionExecContext(currentStatement.call.name, this.strategies);
-                let myArgs = currentStatement.call.arguments.map(function (val) {
+                let myArgs = currentStatement.query.arguments.map(function (val) {
                     return val.replace(/'/g,'');
                 });
                 let args = this.variables.filter(function (val, index, arr) {
