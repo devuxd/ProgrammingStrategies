@@ -3,7 +3,7 @@ Here are two questions that assess knowledge of JavaScript semantics (specifical
 # JavaScript 1
 What does the following JavaScript program print to the console?
 
-```
+```javascript
 function greet(name, time) {
   var greeting = "Good " + time + " " + name;
   if(name === "Alice")
