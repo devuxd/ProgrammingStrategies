@@ -29,20 +29,24 @@ if (typeof window !== 'undefined' && window.angular) {
         };
     });
 
-    myapp.controller('MainCtrl', function ($scope, StrategyService) {
+    myapp.controller('MainCtrl', function ($scope, StrategyService, $window, $timeout) {
         "use strict";
+        let vm = this;
         let myStrat = StrategyService.getAll();
-        $scope.setNeeded = false;
-        $scope.selectionNeeded = false;
         //Asynchronous : If the records are ready from deffered.promise, then the following steps is run.
         myStrat.then(function (allStrategies) {
-            $scope.allStrategies = allStrategies;
-            let interpreter = new models.Interpreter();
-
-            $scope.strategyChanged = function () {
-                $scope.execObj = interpreter.init($scope.selectedStrategy.strategies[0], $scope.selectedStrategy.strategies);
-                $scope.currentStrategy = $scope.execObj.currentStrategy;
-                $scope.parameters = $scope.execObj.variables.filter(function (val) {
+            vm.allStrategies = allStrategies;
+            let interpreter = null;
+            // get the strategy from URL
+            let keyval = $window.location.search.replace('?', '').split('=');
+            if(keyval[0] == 'strategy') {
+                vm.selectedStrategy = allStrategies.filter(function (value) {
+                    return value.name == keyval[1];
+                })[0];
+                interpreter = new models.Interpreter(vm.selectedStrategy.strategies);
+                vm.execObj = interpreter.init(vm.selectedStrategy.strategies[0]);
+                vm.currentStrategy = vm.execObj.currentStrategy;
+                vm.parameters = vm.execObj.variables.filter(function (val) {
                     return val.type == 'parameter';
                 });
                 // open the modal to input strategy parameters
@@ -50,83 +54,112 @@ if (typeof window !== 'undefined' && window.angular) {
                     backdrop: "static",
                     keyboard: "false",
                 });
+                vm.myStrategy = vm.selectedStrategy;
+            }
+            vm.strategyChanged = function () {
+                $window.location = $window.location.origin + $window.location.pathname + '?strategy=' + vm.myStrategy.name;
             };
 
-            $scope.proceedToStrategy = function () {
-                angular.forEach($scope.parameters, function (val, key) {
-                    // $scope.allVariables.unshift({"id": $scope.counter++, "name": val, "val": [$scope.initFailure.val], "show": true});
+            vm.proceedToStrategy = function () {
+                let flag = true;
+                angular.forEach(vm.parameters, function (val, key) {
+                    if(val.val == null || val.val.trim() == '') {
+                        flag = false;
+                    }
                 });
+                if(flag == true) $("#initialParams").modal('hide');
             };
 
-            $scope.reset = function () {
-                if ($scope.selectedStrategy) {
+            vm.reset = function () {
+                if (vm.selectedStrategy) {
                     interpreter.reset();
-                    $scope.execObj = interpreter.init($scope.selectedStrategy.strategies[0], $scope.selectedStrategy.strategies);
-                    $scope.currentStrategy = $scope.execObj.currentStrategy;
-                    $('#' + $scope.currentStrategy.name).collapse('show');
+                    vm.execObj = interpreter.init(vm.selectedStrategy.strategies[0]);
+                    vm.currentStrategy = vm.execObj.currentStrategy;
+                    $('#' + vm.currentStrategy.name).collapse('show');
+                    vm.selectedStrategy.strategies.forEach(function (strat) {
+                        if(vm.currentStrategy.name !== strat.name) $('#' + strat.name).collapse('hide');
+                    });
+                    // open the modal to input strategy parameters
+                    vm.parameters = vm.execObj.variables.filter(function (val) {
+                        return val.type == 'parameter';
+                    });
+                    // open the modal to input strategy parameters
+                    $("#initialParams").modal({
+                        backdrop: "static",
+                        keyboard: "false",
+                    });
                 } else {
                     alert("please choose a strategy first");
                 }
 
             };
             function checkType() {
-                if ($scope.execObj.currentStatement.type == 'set') {
-                    let id = $scope.execObj.currentStatement.identifier.replace(/'/g, '');
-                    let variable = $scope.execObj.variables.filter(function (val, index, arr) {
+                if (vm.execObj.currentStatement.type == 'set') {
+                    let id = vm.execObj.currentStatement.identifier.replace(/'/g, '');
+                    let variable = vm.execObj.variables.filter(function (val, index, arr) {
                         return val.name == id;
                     })[0];
                     if (variable.val == null || variable.val.length == 0) {
-                        $scope.setNeeded = true;
+                        vm.execObj.setNeeded = true;
                         $scope.$broadcast("EditMe", id);
                     }
                 }
-                if ($scope.execObj.currentStatement.type == 'foreach' || $scope.execObj.currentStatement.type == 'loop') {
-                    let list = $scope.execObj.variables.filter(function (val) {
-                        return val.name === $scope.execObj.currentStatement.list.replace(/'/g, '');
+                if (vm.execObj.currentStatement.type == 'foreach' || vm.execObj.currentStatement.type == 'loop') {
+                    let list = vm.execObj.variables.filter(function (val) {
+                        return val.name === vm.execObj.currentStatement.list.replace(/'/g, '');
                     })[0];
-                    let identifier = $scope.execObj.variables.filter(function (val) {
-                        return val.name === $scope.execObj.currentStatement.identifier.replace(/'/g, '');
+                    let identifier = vm.execObj.variables.filter(function (val) {
+                        return val.name === vm.execObj.currentStatement.identifier.replace(/'/g, '');
                     })[0];
-                    identifier.val = list.val[$scope.execObj.currentStatement.counter ? $scope.execObj.currentStatement.counter : 0];
+                    identifier.val = list.val[vm.execObj.currentStatement.counter ? vm.execObj.currentStatement.counter : 0];
                 }
             }
 
-            $scope.nextStatement = function () {
-                $scope.execObj = interpreter.execute();
-                if ($scope.execObj === null) return;
+            vm.nextStatement = function () {
+                vm.execObj = interpreter.execute();
+                if (vm.execObj === null) {
+                    $timeout(function() {
+                        alert("End of Strategy");
+                    }, 100);
+                    return;
+                }
                 checkType();
-                if ($scope.currentStrategy.name !== $scope.execObj.currentStrategy.name) {
-                    $('#' + $scope.execObj.currentStrategy.name).collapse('show');
-                    $('#' + $scope.currentStrategy.name).collapse('hide');
-                    $scope.parameters = $scope.execObj.variables.filter(function (val) {
+                if (vm.currentStrategy.name !== vm.execObj.currentStrategy.name) {
+                    $('#' + vm.execObj.currentStrategy.name).collapse('show');
+                    $('#' + vm.currentStrategy.name).collapse('hide');
+                    vm.parameters = vm.execObj.variables.filter(function (val) {
                         return val.type == 'parameter';
                     });
-                    $scope.currentStrategy = $scope.execObj.currentStrategy;
+                    vm.currentStrategy = vm.execObj.currentStrategy;
                 }
             };
 
-            $scope.prevStatement = function () {
-                $scope.execObj = interpreter.goBack();
-                if ($scope.execObj === null) return;
-                if ($scope.currentStrategy.name !== $scope.execObj.currentStrategy.name) {
-                    $('#' + $scope.execObj.currentStrategy.name).collapse('show');
-                    $('#' + $scope.currentStrategy.name).collapse('hide');
-                    $scope.currentStrategy = $scope.execObj.currentStrategy;
+            vm.prevStatement = function () {
+                vm.execObj = interpreter.goBack();
+                if (vm.execObj === null) return;
+                if (vm.currentStrategy.name !== vm.execObj.currentStrategy.name) {
+                    $('#' + vm.execObj.currentStrategy.name).collapse('show');
+                    $('#' + vm.currentStrategy.name).collapse('hide');
+                    vm.currentStrategy = vm.execObj.currentStrategy;
                 }
             };
 
-            $scope.outerStatement = function () {
-                $scope.execObj = interpreter.refreshStatement(false);
+            vm.outerStatement = function () {
+                vm.execObj = interpreter.execute(false);
                 checkType();
 
             };
-            $scope.innerStatement = function () {
-                $scope.execObj = interpreter.refreshStatement(true);
+            vm.innerStatement = function () {
+                vm.execObj = interpreter.execute(true);
                 checkType();
             };
 
             $scope.$on("setNeededFalse", function (args) {
-                $scope.setNeeded = false;
+                if(!args.targetScope.model) {
+                    vm.execObj.setNeeded = true;
+                } else {
+                    vm.execObj.setNeeded = false;
+                }
             })
         });
 
@@ -155,6 +188,7 @@ if (typeof window !== 'undefined' && window.angular) {
                 scope.edit = false;
                 scope.var = '';
                 scope.id = null;
+                var listener = null;
                 scope.$on('EditMe', function (event, data) {
                     if (scope.modelId == data) {
                         scope.id = data;
@@ -165,6 +199,9 @@ if (typeof window !== 'undefined' && window.angular) {
                     scope.allvar = scope.model;
                 }
                 scope.changeEdit = function () {
+                    listener = scope.$watch('model', function (newval, oldval) {
+                        scope.$emit("setNeededFalse");
+                    });
                     scope.edit = !scope.edit;
                     if (scope.isArray) {
                         scope.var = scope.allvar.join(',');
@@ -178,6 +215,7 @@ if (typeof window !== 'undefined' && window.angular) {
                     }
                 };
                 scope.updateModel = function () {
+                    listener();
                     scope.edit = !scope.edit;
                     if (scope.isArray) {
                         let arr = scope.var.split(',');

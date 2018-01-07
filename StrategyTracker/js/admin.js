@@ -2,7 +2,7 @@
 
 
 const db = require('./dataManagement.js');
-const tokenizer = require('../tokenizer.js');
+const tokenizer = require('./tokenizer.js');
 
 if (typeof window !== 'undefined' && window.angular) {
     let myAdmin = angular.module('myAdmin',['ui.ace']);
@@ -44,14 +44,13 @@ if (typeof window !== 'undefined' && window.angular) {
                         $scope.newStrategyOwner=$scope.selectedStrategy.owner;
                         $scope.newStrategyDisplayName=$scope.selectedStrategy.displayName;
                         $scope.newStrategyName=$scope.selectedStrategy.name;
-                        $scope.newStrategyType=$scope.selectedStrategy.type;
                     }
                 }
             };
             $scope.newStrategyOwner=$scope.selectedStrategy.owner;
             $scope.newStrategyDisplayName=$scope.selectedStrategy.displayName;
             $scope.newStrategyName=$scope.selectedStrategy.name;
-            $scope.newStrategyType=$scope.selectedStrategy.type;
+
 
             var editor = ace.edit("aceEditor");
             editor.setValue($scope.selectedStrategy ? $scope.selectedStrategy.robotoText : '');
@@ -62,19 +61,18 @@ if (typeof window !== 'undefined' && window.angular) {
                 {
                       return;
                 }
-                var owner = $scope.selectedStrategy.owner;
-                var displayName = $scope.selectedStrategy.displayName;
-                var name = $scope.selectedStrategy.name;
-                var type = $scope.selectedStrategy.type;
+                var owner = $scope.newStrategyOwner;
+                var displayName = $scope.newStrategyDisplayName;
+                var name = $scope.newStrategyName;
 
 
                 var tokens = new tokenizer.Tokens(editor.getValue());
                 if(tokens[tokens.length-1] != "\n")
                     tokens.tokens.push("\n");
-                var ast = tokenizer.parseApproach(owner, name, displayName, type, tokens,editor.getValue() );
-
-                var x= ref.orderByChild("name").equalTo($scope.selectedStrategy.name);
+                var ast = tokenizer.parseApproach(owner, name, displayName, 'approach', tokens,editor.getValue() );
                 $scope.selectedStrategy = ast;
+                var x= ref.orderByChild("name").equalTo($scope.selectedStrategy.name);
+
                 x.on("child_added", function(snapshot) {
                 var key = snapshot.key;
                     //first argument contains an invalid key ($$hashKey) in property.... this is an error happens when we want to push , update or set
@@ -83,13 +81,15 @@ if (typeof window !== 'undefined' && window.angular) {
                     // myRef.push(angular.fromJson(angular.toJson(myAngularObject))).
                     firebase.database().ref().child('strategies/'+key).set(angular.fromJson(angular.toJson($scope.selectedStrategy)));
                 });
+
+
+
             }
             $scope.addNewStrategy = function () {
                 editor.setValue("");
                 $scope.newStrategyOwner = "";
                 $scope.newStrategyName="";
                 $scope.newStrategyDisplayName="";
-                $scope.newStrategyType="approach";
                 $scope.selectedStrategy=undefined;
             }
             $scope.createStrategy = function () {
@@ -107,7 +107,7 @@ if (typeof window !== 'undefined' && window.angular) {
                 var tokens = new tokenizer.Tokens(editor.getValue());
                 if(tokens[tokens.length-1] != "\n")
                     tokens.tokens.push("\n");
-                var ast = tokenizer.parseApproach(owner, name, displayName, type, tokens, editor.getValue());
+                var ast = tokenizer.parseApproach(owner, name, displayName, 'approach', tokens, editor.getValue());
 
                 $scope.selectedStrategy = ast;
                 firebase.database().ref().child('strategies').push(angular.fromJson(angular.toJson($scope.selectedStrategy)));

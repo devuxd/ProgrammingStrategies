@@ -131,21 +131,25 @@ function parseApproach(owner, name, displayName, type, tokens, robotoText) {
 
     var strategies = [];
     var descriptions = [];
+    var index=0;
 
     // If it's a comment, read a comment.
     while(tokens.peek().charAt(0) === "#") {
         descriptions.push(tokens.eat());
         tokens.eat("\n");
     }
-    // Parse one or more strategies.
-    while(tokens.nextIs("strategy")) {
-        strategies.push(parseStrategy(tokens));
-    }
 
     // Parse one or more strategies.
     while(tokens.nextIs("strategy")) {
-        strategies.push(parseStrategy(tokens));
+        strategies.push(parseStrategy(index,tokens));
+        index++;
     }
+    // Parse one or more strategies.
+    while(tokens.nextIs("strategy")) {
+        strategies.push(parseStrategy(index,tokens));
+        index++;
+    }
+
 
     if(tokens.hasNext())
         console.error("I'm not smart enough to handle anything other than strategies, so I got stuck on '" + tokens.tokens.slice(0, 5).join(" ") + "'");
@@ -155,7 +159,6 @@ function parseApproach(owner, name, displayName, type, tokens, robotoText) {
         name: name,
         description: descriptions,
         displayName: displayName,
-        type: type,
         robotoText: robotoText,
         strategies: strategies
     };
@@ -163,7 +166,7 @@ function parseApproach(owner, name, displayName, type, tokens, robotoText) {
 }
 
 // STRATEGY :: strategy IDENTIFIER ( IDENTIFIER+ ) STATEMENTS \n
-function parseStrategy(tokens) {
+function parseStrategy(index, tokens) {
 
     tokens.eat("strategy");
     var identifier = tokens.eat();
@@ -174,9 +177,9 @@ function parseStrategy(tokens) {
         parameters.push(tokens.eat()); // Consume arguments
     }
     tokens.eat(")"); // Consume right parenthesis
-
+    var strategyId = identifier+index.toString()
     // Consume statements.
-    var statements = parseStatements(tokens, 1);
+    var statements = parseStatements(strategyId,tokens, 1);
 
     // Consume any number of newlines.
     while(tokens.nextIs("\n"))
@@ -185,6 +188,7 @@ function parseStrategy(tokens) {
     return {
         type: "strategy",
         name: identifier,
+        id:strategyId,
         parameters: parameters,
         statements: statements,
         text : "Strategy " + identifier + "(" + parameters.join(' ') +")"
@@ -193,11 +197,11 @@ function parseStrategy(tokens) {
 }
 
 // STATEMENTS :: STATEMENT+
-function parseStatements(tokens, tabsExpected) {
+function parseStatements(strategyId, tokens, tabsExpected) {
 
     var statements = [];
     var comments = [];
-
+    var index=0;
     // Block starts with a newline.
     tokens.eat("\n");
 
@@ -225,11 +229,14 @@ function parseStatements(tokens, tabsExpected) {
         }
         // Otherwise, read a statement and assign the comments.
         else {
-            var statement = parseStatement(tokens, tabsExpected);
+            var statement = parseStatement(strategyId+"-"+index.toString(), tokens, tabsExpected);
+
             statement.comments = comments;
+            statement.id=strategyId+"-"+index.toString();
             statement.text = statement.toString();
             comments = [];
             statements.push(statement);
+            index++;
         }
 
     } while(true);
@@ -239,19 +246,20 @@ function parseStatements(tokens, tabsExpected) {
 }
 
 // STATEMENT :: * (ACTION | CALL | CONDITIONAL | FOREACH | DEFINITION | RETURN )+ [# word+]
-function parseStatement(tokens, tabsExpected) {
+function parseStatement(strategyId, tokens, tabsExpected) {
 
     var keyword = tokens.peek();
     var statement = null;
 
+
     if(keyword === "do")
         statement = parseDo(tokens);
     else if(keyword === "until")
-        statement = parseUntil(tokens, tabsExpected);
+        statement = parseUntil(strategyId,tokens, tabsExpected);
     else if(keyword === "if")
-        statement = parseIf(tokens, tabsExpected);
+        statement = parseIf(strategyId,tokens, tabsExpected);
     else if(keyword === "for")
-        statement = parseForEach(tokens, tabsExpected);
+        statement = parseForEach(strategyId, tokens, tabsExpected);
     else if(keyword === "set")
         statement = parseSet(tokens);
     else if(keyword === "return")
@@ -333,12 +341,12 @@ function parseCall(tokens) {
 }
 
 // UNTIL :: until QUERY STATEMENTS
-function parseUntil(tokens, tabsExpected) {
+function parseUntil(strategyId,tokens, tabsExpected) {
 
     tokens.eat("until");
     var query = parseQuery(tokens);
 
-    var statements = parseStatements(tokens, tabsExpected + 1);
+    var statements = parseStatements(strategyId,tokens, tabsExpected + 1);
 
     return {
         type: "until",
@@ -352,16 +360,20 @@ function parseUntil(tokens, tabsExpected) {
 }
 
 // CONDITIONAL :: if QUERY STATEMENTS
-function parseIf(tokens, tabsExpected) {
-
+function parseIf(strategyId, tokens, tabsExpected) {
+    miniSteps=[];
     tokens.eat("if");
     var query = parseQuery(tokens);
 
-    var statements = parseStatements(tokens, tabsExpected + 1);
+    var statements = parseStatements(strategyId, tokens, tabsExpected + 1);
+    miniSteps.push({role: "User", text: "Step 1-Find the value of the variable using the variables pane on the right."})
+    miniSteps.push({role: "User", text: "Step 2-Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."})
+    miniSteps.push({role: "Computer", text: "Step 3-The computer will go to the next statement."})
 
     return {
         type: "if",
         query: query,
+        miniSteps: miniSteps,
         statements: statements,
         toString: function () {
             return "if " + query.toString();
@@ -371,7 +383,7 @@ function parseIf(tokens, tabsExpected) {
 }
 
 // FOREACH :: for each IDENTIFIER in IDENTIFIER STATEMENTS
-function parseForEach(tokens, tabsExpected) {
+function parseForEach(strategyId,tokens, tabsExpected) {
 
     tokens.eat("for");
     tokens.eat("each");
@@ -379,7 +391,7 @@ function parseForEach(tokens, tabsExpected) {
     tokens.eat("in");
     var list = tokens.eat();
 
-    var statements = parseStatements(tokens, tabsExpected + 1);
+    var statements = parseStatements(strategyId,tokens, tabsExpected + 1);
 
     return {
         type: "foreach",
@@ -395,7 +407,7 @@ function parseForEach(tokens, tabsExpected) {
 
 // SET :: set IDENTIFIER to QUERY
 function parseSet(tokens) {
-
+    miniSteps=[];
     tokens.eat("set");
     var identifier = tokens.eat();
     tokens.eat("to");
@@ -403,9 +415,11 @@ function parseSet(tokens) {
 
     // Eat the trailing newline
     tokens.eat("\n");
-
+    miniSteps.push({role: "User", text: "set a value for "+identifier + " in the Variable panel."});
+    miniSteps.push({role: "Computer", text: "The computer will go to the next statement by clicking next button."})
     return {
         type: "set",
+        miniSteps:miniSteps,
         identifier: identifier,
         query: query,
         toString: function () {
@@ -502,4 +516,3 @@ module.exports = {
 //     }
 //
 // });
-

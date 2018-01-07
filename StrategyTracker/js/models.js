@@ -4,23 +4,24 @@ var clone = require('clone');
 
 class Interpreter {
 
-    constructor() {
+    constructor(strategies) {
         this.executionStack = [];
         this.historyBackward = [];
+        this.strategies = strategies;
     }
 
-    init(currentStrategy, strategies) {
-
-        let initExecutionContext = new FunctionExecContext(currentStrategy.name, strategies);
-        //initExecutionContext.activeLines[0] = initExecutionContext.strategy.text;
-        this.executionStack.push(initExecutionContext);
+    init(currentStrategy) {
+        let currentExecutionContext = new FunctionExecContext(currentStrategy);
+        this.executionStack.push(currentExecutionContext);
 
         return {
+            currentStatement: currentExecutionContext.pc,
+            currentStrategy: currentExecutionContext.strategy,
             executionStack: this.executionStack,
-            activeLines: initExecutionContext.activeLines,
-            currentStrategy: initExecutionContext.strategy,
-            variables: initExecutionContext.variables,
-            currentStatement: initExecutionContext.pc
+            activeLines: currentExecutionContext.activeLines,
+            //selectionNeeded: currentExecutionContext.pc.type === "if",
+            //setNeeded: currentExecutionContext.pc.type === 'set',
+            variables: currentExecutionContext.variables,
         }
     }
 
@@ -29,42 +30,54 @@ class Interpreter {
         this.historyBackward = [];
     }
 
-    findStatementByText(currentStrat, statementText) {
+    findStrategy(strategyname) {
+        return this.strategies.find(function (strategy) {
+            return strategy.name === strategyname;
+        })
+    }
 
-        for (var i = 0; i < currentStrat.statements.length; i++) {
-            if (currentStrat.statements[i].text == statementText) {
-                return currentStrat.statements[i];
+    execute(branchTaken) {
+        if (this.executionStack.length) {
+            this.historyBackward.push(clone(this.executionStack)); // take a snapshot from our current executionStack to our history
+        } else {
+            return null;
+        }
+        let currentExecutionContext = this.executionStack.pop();
+        let nextType = currentExecutionContext.getNextStatement(currentExecutionContext.pc, branchTaken);
+        if(nextType === 'nothing' || nextType === 'return') return this.execute();
+        else if (nextType === 'new') {
+            this.executionStack.push(currentExecutionContext);
+            let myArgs = null;
+            if(currentExecutionContext.pc.type === 'do') {
+                 myArgs = currentExecutionContext.pc.call.arguments.map(function (val) {
+                    return val.replace(/'/g,'');
+                });
+            } else {
+                myArgs = currentExecutionContext.pc.query.arguments.map(function (val) {
+                    return val.replace(/'/g,'');
+                });
             }
-            else if (currentStrat.statements[i].statements !== undefined) {
-                let innerStatements = currentStrat.statements[i].statements;
-                for (var j = 0; j < innerStatements.length; j++) {
-                    if (innerStatements[j].text == statementText) {
-                        return innerStatements[j];
-                    }
+            let args = [];
+            myArgs.forEach(function (value, index, array) {
+                console.log(value);
+                let myvar = currentExecutionContext.variables.find(function (val) {
+                    console.log(val);
+                    return val.name === value;
+                });
+                args.push(myvar);
+            });
+            console.log("ARGS", args);
+
+            let strategy = this.findStrategy(currentExecutionContext.pc.type === 'do' ? currentExecutionContext.pc.call.name : currentExecutionContext.pc.query.name);
+            currentExecutionContext = new FunctionExecContext(strategy);
+            currentExecutionContext.variables.forEach(function (value, index, array) {
+                if(value.type == 'parameter') {
+                    value.val = args[index].val;
                 }
-            }
+            });
+        } else {
+            currentExecutionContext = nextType;
         }
-    }
-
-    execute() {
-        //let wizardDiv = document.getElementById("wizard");
-
-        if (this.executionStack.length) {
-            this.historyBackward.push(clone(this.executionStack)); // take a snapshot from our current executionStack to our history
-        }
-        let currentExecutionContext = this.executionStack.pop();
-        if (currentExecutionContext === undefined) return null;
-        let nextExec = currentExecutionContext.getNextStatement(currentExecutionContext.pc);
-        if(nextExec.strategy.name !== currentExecutionContext.strategy.name) {
-            console.log("New strategy", nextExec.strategy.name);
-            console.log("old strategy", currentExecutionContext.strategy.name);
-        }
-        currentExecutionContext = nextExec;
-
-        if (currentExecutionContext.pc.type == "if")
-            currentExecutionContext.selectionNeeded = true;
-        else
-            currentExecutionContext.selectionNeeded = false;
 
         this.executionStack.push(currentExecutionContext);
         return {
@@ -72,38 +85,8 @@ class Interpreter {
             currentStrategy: currentExecutionContext.strategy,
             executionStack: this.executionStack,
             activeLines: currentExecutionContext.activeLines,
-            selectionNeeded: currentExecutionContext.selectionNeeded,
-            variables: currentExecutionContext.variables,
-        };
-    }
-
-    refreshStatement(isTrue) {
-        if (this.executionStack.length) {
-            this.historyBackward.push(clone(this.executionStack)); // take a snapshot from our current executionStack to our history
-        }
-        let currentExecutionContext = this.executionStack.pop();
-        if (!isTrue) {
-            currentExecutionContext.selectionNeeded = false;
-
-        } else if (isTrue) {
-            for (let i = currentExecutionContext.pc.statements.length - 1; i >= 0; i--) {
-                currentExecutionContext.blocks.unshift(currentExecutionContext.pc.statements[i]);
-            }
-        }
-        currentExecutionContext.pc = currentExecutionContext.blocks.shift();
-        currentExecutionContext.activeLines = [];
-        currentExecutionContext.activeLines.push(currentExecutionContext.pc.text);
-        if (currentExecutionContext.pc.type == "if")
-            currentExecutionContext.selectionNeeded = true;
-        else
-            currentExecutionContext.selectionNeeded = false;
-        this.executionStack.push(currentExecutionContext);
-        return {
-            currentStatement: currentExecutionContext.pc,
-            currentStrategy: currentExecutionContext.strategy,
-            executionStack: this.executionStack,
-            activeLines: currentExecutionContext.activeLines,
-            selectionNeeded: currentExecutionContext.selectionNeeded,
+            selectionNeeded: currentExecutionContext.pc.type === "if",
+            setNeeded: currentExecutionContext.pc.type === 'set',
             variables: currentExecutionContext.variables,
         };
     }
@@ -113,16 +96,13 @@ class Interpreter {
         if (stack === undefined) return null;
         this.executionStack = stack;
         let currentExecutionContext = this.executionStack[this.executionStack.length - 1];
-        if (currentExecutionContext.pc.type == "if")
-            currentExecutionContext.selectionNeeded = true;
-        else
-            currentExecutionContext.selectionNeeded = false;
         return {
             currentStatement: currentExecutionContext.pc,
             currentStrategy: currentExecutionContext.strategy,
             executionStack: this.executionStack,
             activeLines: currentExecutionContext.activeLines,
-            selectionNeeded: currentExecutionContext.selectionNeeded,
+            selectionNeeded: currentExecutionContext.pc.type === "if",
+            setNeeded: currentExecutionContext.pc.type === 'set',
             variables: currentExecutionContext.variables,
         };
     }
@@ -131,12 +111,11 @@ class Interpreter {
 var globalCounter = {count: 0};
 
 class FunctionExecContext {
-    constructor(currentStrategy, strategies) {
-        this.strategies = strategies;
-        this.strategy = this.findStrategy(currentStrategy);
+    constructor(currentStrategy) {
+        this.strategy = currentStrategy;
         this.pc = this.strategy;
         this.activeLines = [];
-        this.activeLines.push(this.strategy.text);
+        this.activeLines.push(this.strategy.id);
         this.blocks = [];
         this.blocks = clone(this.strategy.statements);
         this.variables = [];
@@ -145,7 +124,7 @@ class FunctionExecContext {
             this.variables.push({"id": globalCounter.count++, "name": currentVal, "val": null, "type": "parameter"});
         }, this);
         this.extractVariables(this.strategy.statements, globalCounter, this);
-        this.selectionNeeded = false;
+        this.callStack = [];
     }
 
     extractVariables(statements, counter, argThis) {
@@ -154,7 +133,7 @@ class FunctionExecContext {
                 let identifier = currentVal.identifier.replace(/'/g, '');
                 argThis.variables.push({"id": counter.count++, "name": identifier, "val": null, "type": "identifier"});
             }
-            if (currentVal.type == 'do') {
+            if (currentVal.type === 'do') {
                 if (currentVal.call.arguments) {
                     currentVal.call.arguments.forEach(function (val, ind, array) {
                         val = val.replace(/'/g, '');
@@ -162,7 +141,7 @@ class FunctionExecContext {
                     }, argThis);
                 }
             }
-            if (currentVal.type == 'return') {
+            if (currentVal.type === 'return') {
                 if (currentVal.query.arguments) {
                     currentVal.query.arguments.forEach(function (val, ind, array) {
                         val = val.replace(/'/g, '');
@@ -170,9 +149,9 @@ class FunctionExecContext {
                     }, argThis);
                 }
             }
-            if (currentVal.type == "foreach") {
+            if (currentVal.type === "foreach") {
                 argThis.variables.forEach(function (val) {
-                    if (val.name == (currentVal.list.replace(/'/g, ''))) {
+                    if (val.name === (currentVal.list.replace(/'/g, ''))) {
                         val.val = [];
                     }
                 });
@@ -183,103 +162,60 @@ class FunctionExecContext {
         }, argThis);
     }
 
-    findStrategy(strategyname) {
-        return this.strategies.find(function (strategy) {
-            return strategy.name === strategyname;
-        })
-    }
-
-    getNextStatement(currentStatement) {
+    getNextStatement(currentStatement, branchTaken) {
         this.activeLines = [];
-        //||currentStatement.type == "foreach" || currentStatement.type == "until"
-        if (currentStatement.type == "strategy") {
-            // this.blocks.unshift(clone(currentStatement.statements));
+        if(this.callStack.length) {
+            this.pc = this.callStack.pop();
             this.pc = this.blocks.shift();
-            this.activeLines.push(this.pc.text);
-        }
-        else if (currentStatement.type == "if") {
-            if (currentStatement.statements !== undefined && currentStatement.statements.length > 0)
-                for (var i = currentStatement.statements.length - 1; i >= 0; i--) {
-                    this.blocks.unshift(clone(currentStatement.statements[i]));
-                }
-            this.pc = this.blocks.shift();
-            this.activeLines.push(this.pc.text);
-
-        }
-        else if (currentStatement.type == "return") {
-            if (currentStatement.query.type == "call") {
-                let newExec = new FunctionExecContext(currentStatement.query.name, this.strategies);
-                let myArgs = currentStatement.query.arguments.map(function (val) {
-                    return val.replace(/'/g,'');
-                });
-                let args = this.variables.filter(function (val, index, arr) {
-                    return myArgs.indexOf(val.name) >=0 && val.type != 'argument';
-                });
-                newExec.variables.forEach(function (value, index, array) {
-                    if(value.type == 'parameter') {
-                        args.forEach(function (myval, ind, arr) {
-                            if(myval.name == value.name) {
-                                value.val = myval.val;
-                            }
-                        })
-                    }
-                });
-                return newExec;
-            }
-        }
-        else if (currentStatement.type == "do") {
-            if (currentStatement.call !== undefined) {
-                let newExec = new FunctionExecContext(currentStatement.call.name, this.strategies);
-                let myArgs = currentStatement.call.arguments.map(function (val) {
-                    return val.replace(/'/g,'');
-                });
-                let args = this.variables.filter(function (val, index, arr) {
-                    return myArgs.indexOf(val.name) >=0 && val.type != 'argument';
-                });
-                newExec.variables.forEach(function (value, index, array) {
-                    if(value.type == 'parameter') {
-                        args.forEach(function (myval, ind, arr) {
-                            if(myval.name == value.name) {
-                                value.val = myval.val;
-                            }
-                        })
-                    }
-                });
-                return newExec;
-            }
-        }
-        else if (currentStatement.type == "foreach") {
-            if (currentStatement.statements !== undefined && currentStatement.statements.length > 0) {
-                let loopCountVar = this.variables.filter(function (val) {
-                    return val.name === currentStatement.list.replace(/'/g, '');
-                })[0];
-                for (let num = 0, count = loopCountVar.val.length; num < loopCountVar.val.length; num++, count--) {
-                    for (var i = currentStatement.statements.length - 1; i >= 0; i--) {
+            this.activeLines.push(this.pc.id);
+            return this;
+        } else {
+            if (currentStatement.type === "if" && branchTaken) {
+                if (currentStatement.statements !== undefined && currentStatement.statements.length > 0) {
+                    for (let i = currentStatement.statements.length - 1; i >= 0; i--) {
                         this.blocks.unshift(clone(currentStatement.statements[i]));
                     }
-                    // put the foreach statement length minus 1 times
-                    if(num < loopCountVar.val.length-1) {
-                        let tempStatement = clone(currentStatement);
-                        tempStatement.type = "loop";
-                        tempStatement.counter = count-1;
-                        this.blocks.unshift(tempStatement);
+                }
+            } else if (currentStatement.type === "return") {
+                if (currentStatement.query.type === "call") {
+                    this.callStack.push(this.pc);
+                    return 'new';
+                } else if (currentStatement.query.type === 'nothing') {
+                    return 'nothing';
+                } else {
+                    return 'return';
+                }
+            } else if (currentStatement.type === "do") {
+                if (currentStatement.call !== undefined) {
+                    this.callStack.push(this.pc);
+                    return 'new';
+                }
+            } else if (currentStatement.type === "foreach") {
+                if (currentStatement.statements !== undefined && currentStatement.statements.length > 0) {
+                    let loopCountVar = this.variables.filter(function (val) {
+                        return val.name === currentStatement.list.replace(/'/g, '');
+                    })[0];
+                    for (let num = 0, count = loopCountVar.val.length; num < loopCountVar.val.length; num++, count--) {
+                        for (let i = currentStatement.statements.length - 1; i >= 0; i--) {
+                            this.blocks.unshift(clone(currentStatement.statements[i]));
+                        }
+                        // put the foreach statement length minus 1 times
+                        if(num < loopCountVar.val.length-1) {
+                            let tempStatement = clone(currentStatement);
+                            tempStatement.type = "loop";
+                            tempStatement.counter = count-1;
+                            this.blocks.unshift(tempStatement);
+                        }
                     }
                 }
+            } else {
+                // if (currentStatement.statements !== undefined && currentStatement.type != "loop")
+                //     this.blocks.unshift(clone(currentStatement.statements[0]));
             }
             this.pc = this.blocks.shift();
-            this.activeLines.push(this.pc.text);
+            this.activeLines.push(this.pc.id);
+            return this;
         }
-        else {
-            if (currentStatement.statements !== undefined && currentStatement.type != "loop")
-                this.blocks.unshift(clone(currentStatement.statements[0]));
-            this.pc = this.blocks.shift();
-            this.activeLines.push(this.pc.text);
-        }
-
-        // if(this.pc.identifier !== undefined)
-        //     this.variables.push({"name" :this.pc.identifier , "val":null});
-
-        return this;
     }
 }
 
