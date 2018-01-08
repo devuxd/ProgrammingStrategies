@@ -273,12 +273,13 @@ function parseStatement(strategyId, tokens, tabsExpected) {
 
 // ACTION :: WORDS \n
 function parseAction(tokens) {
-
+    var miniSteps = [];
     var words = parseWords(tokens);
     tokens.eat("\n");
-
+    miniSteps.push({role: "User", text: "Perform the action described in the statement, returning to the StrategyTracker when you are done."});
     return {
         type: "action",
+        miniSteps: miniSteps,
         words: words,
         toString: function () {
             return words.join(' ');
@@ -299,7 +300,7 @@ function parseWords(tokens) {
 
 // DO :: do CALL
 function parseDo(tokens) {
-    miniSteps=[];
+    var miniSteps=[];
     tokens.eat("do");
 
     var call = parseCall(tokens);
