@@ -102,6 +102,8 @@ if (typeof window !== 'undefined' && window.angular) {
                     if (variable.val == null || variable.val.length == 0) {
                         vm.execObj.setNeeded = true;
                         $scope.$broadcast("EditMe", id);
+                    } else {
+                        vm.execObj.setNeeded = false;
                     }
                 }
                 if (vm.execObj.currentStatement.type == 'foreach' || vm.execObj.currentStatement.type == 'loop') {
@@ -137,6 +139,7 @@ if (typeof window !== 'undefined' && window.angular) {
             vm.prevStatement = function () {
                 vm.execObj = interpreter.goBack();
                 if (vm.execObj === null) return;
+                checkType();
                 if (vm.currentStrategy.name !== vm.execObj.currentStrategy.name) {
                     $('#' + vm.execObj.currentStrategy.name).collapse('show');
                     $('#' + vm.currentStrategy.name).collapse('hide');

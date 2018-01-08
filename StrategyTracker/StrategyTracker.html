@@ -165,15 +165,16 @@
                     Description
                 </div>
                 <div class="panel-body text-left">
-                    <p ng-repeat="comment in main.execObj.currentStatement.comments" class="code-text">{{comment}}</p>
+                    <p ng-repeat="comment in main.execObj.currentStatement.comments" class="code-text">{{comment.replace('#','')}}</p>
                 </div>
             </div>
-            <div class="panel-primary">
+            <div class="panel-primary" ng-class="(main.execObj.currentStatement.miniSteps.length>0 ) ? 'unhidden' : 'hidden'">
                 <div class="panel-heading">
-                    Steps
+                    {{main.execObj.currentStatement.type.toUpperCase()}} Statement Steps
                 </div>
                 <div class="panel-body text-left">
-                    <p ng-repeat="step in main.execObj.currentStatement.miniSteps" class="code-text"><span  ng-class="step.role == 'User' ? 'glyphicon glyphicon-user' : 'glyphicon glyphicon-modal-window'"></span>{{step.text}}</p>
+                    <p ng-repeat="step in main.execObj.currentStatement.miniSteps" class="code-text"><span
+                            style="margin-right: 20px;" ng-class="step.role == 'User' ? 'glyphicon glyphicon-user' : 'glyphicon glyphicon-modal-window'"></span>{{step.text}}</p>
                 </div>
             </div>
         </div>
@@ -197,5 +198,7 @@
         </div>
     </div>
 </div>
+
+
 </body>
 </html>

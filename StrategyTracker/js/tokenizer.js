@@ -299,16 +299,17 @@ function parseWords(tokens) {
 
 // DO :: do CALL
 function parseDo(tokens) {
-
+    miniSteps=[];
     tokens.eat("do");
 
     var call = parseCall(tokens);
-
+    miniSteps.push({role: "Computer", text: "Step 1. The computer will invoke the specified strategy, passing the specified variable values to the strategy."});
     // Eat the trailing newline
     tokens.eat("\n");
 
     return {
         type: "do",
+        miniSteps:miniSteps,
         call: call,
         toString: function () {
             return "do " + call.toString()
@@ -342,15 +343,19 @@ function parseCall(tokens) {
 
 // UNTIL :: until QUERY STATEMENTS
 function parseUntil(strategyId,tokens, tabsExpected) {
-
+    var miniSteps=[];
     tokens.eat("until");
     var query = parseQuery(tokens);
 
     var statements = parseStatements(strategyId,tokens, tabsExpected + 1);
+    miniSteps.push({role: "User", text: "Step 1. Find the value of the variable using the variables pane on the right."});
+    miniSteps.push({role: "User", text: "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."});
+    miniSteps.push({role: "Computer", text: "Step 3-The computer will go to the next statement, returning to the until statement after control has reached the end of the section."});
 
     return {
         type: "until",
         query: query,
+        miniSteps: miniSteps,
         statements: statements,
         toString: function () {
             return "until " + query.toString();
@@ -361,14 +366,14 @@ function parseUntil(strategyId,tokens, tabsExpected) {
 
 // CONDITIONAL :: if QUERY STATEMENTS
 function parseIf(strategyId, tokens, tabsExpected) {
-    miniSteps=[];
+    var miniSteps=[];
     tokens.eat("if");
     var query = parseQuery(tokens);
 
     var statements = parseStatements(strategyId, tokens, tabsExpected + 1);
-    miniSteps.push({role: "User", text: "Step 1-Find the value of the variable using the variables pane on the right."})
-    miniSteps.push({role: "User", text: "Step 2-Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."})
-    miniSteps.push({role: "Computer", text: "Step 3-The computer will go to the next statement."})
+    miniSteps.push({role: "User", text: "Step 1. Find the value of the variable using the variables pane on the right."});
+    miniSteps.push({role: "User", text: "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."});
+    miniSteps.push({role: "Computer", text: "Step 3. The computer will go to the next statement."});
 
     return {
         type: "if",
@@ -384,7 +389,7 @@ function parseIf(strategyId, tokens, tabsExpected) {
 
 // FOREACH :: for each IDENTIFIER in IDENTIFIER STATEMENTS
 function parseForEach(strategyId,tokens, tabsExpected) {
-
+    var miniSteps=[];
     tokens.eat("for");
     tokens.eat("each");
     var identifier = tokens.eat();
@@ -392,10 +397,13 @@ function parseForEach(strategyId,tokens, tabsExpected) {
     var list = tokens.eat();
 
     var statements = parseStatements(strategyId,tokens, tabsExpected + 1);
-
+    miniSteps.push({role: "Computer", text: "Step 1. The computer will iterate over the elements in the collection and select the next element in the collection."});
+    miniSteps.push({role: "Computer", text: "Step 2. The computer will record the value of the current element in the specified variable.\n"});
+    miniSteps.push({role: "Computer", text: "Step 3. The computer will go to the next statement, returning to the for each statement after control has reached the end of the section."});
     return {
         type: "foreach",
         list: list,
+        miniSteps:miniSteps,
         identifier: identifier,
         statements: statements,
         toString: function () {
@@ -407,7 +415,7 @@ function parseForEach(strategyId,tokens, tabsExpected) {
 
 // SET :: set IDENTIFIER to QUERY
 function parseSet(tokens) {
-    miniSteps=[];
+    var miniSteps=[];
     tokens.eat("set");
     var identifier = tokens.eat();
     tokens.eat("to");
@@ -415,8 +423,8 @@ function parseSet(tokens) {
 
     // Eat the trailing newline
     tokens.eat("\n");
-    miniSteps.push({role: "User", text: "set a value for "+identifier + " in the Variable panel."});
-    miniSteps.push({role: "Computer", text: "The computer will go to the next statement by clicking next button."})
+    miniSteps.push({role: "User", text: "Step 1. Gather the information described and record the value for the variable in the Variables pane at right."});
+    miniSteps.push({role: "Computer", text: "Step 2. The computer will record the value you specify for the variable."});
     return {
         type: "set",
         miniSteps:miniSteps,
@@ -431,15 +439,17 @@ function parseSet(tokens) {
 
 // RETURN :: return QUERY
 function parseReturn(tokens) {
-
+    var miniSteps=[];
     tokens.eat("return");
     var query = parseQuery(tokens);
 
     // Eat the trailing newline
     tokens.eat("\n");
-
+    miniSteps.push({role: "Computer", text: "Step 1. The computer will return the specified value to the caller of the current strategy."});
+    miniSteps.push({role: "Computer", text: "Step 2. The computer will continue executing statements in the strategy's caller."});
     return {
         type: "return",
+        miniSteps:miniSteps,
         query: query,
         toString: function () {
             return "return " + query.toString();
