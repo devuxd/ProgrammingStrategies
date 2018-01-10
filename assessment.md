@@ -60,3 +60,25 @@ Choose one of the following:
 * I know what _test-driven development_ is, but have not tried it.
 * I have tried _test-driven development_ once or twice.
 * I have used _test-driven development_ extensively.
+
+# Debugging assessment
+
+_Select your level of agreement with the following statements_
+
+When I debug, I work backwards from the failure to the cause
+* Strongly disagree
+* Disagree
+* Agree
+* Strongly agree
+
+When I debug, I start by finding the source of the incorrect output, then find the cause of that output.
+* Strongly disagree
+* Disagree
+* Agree
+* Strongly agree
+
+When I debug, I only change the program once I have a complete understanding of the cause of the failure.
+* Strongly disagree
+* Disagree
+* Agree
+* Strongly agree
