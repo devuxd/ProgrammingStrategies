@@ -129,9 +129,12 @@ if (typeof window !== 'undefined' && window.angular) {
                 if (vm.currentStrategy.name !== vm.execObj.currentStrategy.name) {
                     $('#' + vm.execObj.currentStrategy.name).collapse('show');
                     $('#' + vm.currentStrategy.name).collapse('hide');
-                    vm.parameters = vm.execObj.variables.filter(function (val) {
-                        return val.type == 'parameter';
-                    });
+                    if (vm.execObj.variables !== null){
+                        vm.parameters = vm.execObj.variables.filter(function (val) {
+                            return val.type == 'parameter';
+                        });
+                    }
+
                     vm.currentStrategy = vm.execObj.currentStrategy;
                 }
             };

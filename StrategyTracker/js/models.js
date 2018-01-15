@@ -119,10 +119,12 @@ class FunctionExecContext {
         this.blocks = [];
         this.blocks = clone(this.strategy.statements);
         this.variables = [];
-        this.strategy.parameters.forEach(function (currentVal, index, arr) {
-            currentVal = currentVal.replace(/'/g, '');
-            this.variables.push({"id": globalCounter.count++, "name": currentVal, "val": null, "type": "parameter"});
-        }, this);
+        if(this.strategy.parameters !== undefined){
+            this.strategy.parameters.forEach(function (currentVal, index, arr) {
+                currentVal = currentVal.replace(/'/g, '');
+                this.variables.push({"id": globalCounter.count++, "name": currentVal, "val": null, "type": "parameter"});
+            }, this);
+        }
         this.extractVariables(this.strategy.statements, globalCounter, this);
         this.callStack = [];
     }

@@ -1,0 +1,104 @@
+# this is a desc for debug
+# Debug strategy helps you find the failure in the system
+# please remove any empty line after comments
+STRATEGY debug(failure)
+	# The first step in debugging this failure is deciding what kind of failure it is.
+	# You'll then use one of two different substrategies depending on the type.
+	# The first kind is some missing output or some wrong output.
+	# Wrong output might be something like an incorrect number, or some feedback that shouldn't have appeared.
+	SET 'inputs' to the sequence of inputs that reproduces the failure reliably
+	IF 'failure' is output that should not have occurred but did
+		RETURN localizeWrongOutput(failure)
+	# If it's not wrong output, you're probably debugging missing output that should have appeared but didn't.
+	# For example, perhaps you clicked something and nothing happened.
+	IF the failure is output that should have occurred but did not
+		RETURN localizeMissingOutput(failure)
+	# Are you sure neither of the above apply? Most failures are one of the two above.
+	# If you're right, then this strategy can't help you debug your failure.
+	RETURN nothing
+
+STRATEGY localizeWrongOutput(failure)
+	# The goal of this strategy is to work backwards from the wrong output to the source of the wrong output.
+	# That requires figuring out what line of code caused the wrong output. For example, if the wrong output
+	# was some console output, you'd want to find the code that printed that output. If the wrong output was something
+	# graphical, this might be a line of code that renders something.
+	# If you're having trouble finding the lines that could have produced the output,
+	# find a unique feature in the output such as a string constant and do a global search in the code for that string.
+	SET 'outputLines' to a list of line numbers that could have produced the incorrect output
+	# Now that we have some lines that could have produced the output, we're going to check each
+	# line, see if it executed, and then find the origin of the wrong value. If you're lucky, you only have one
+	# output line to check.
+	FOR EACH 'line' IN 'outputLines'
+		# Your goal is to see if this output line executed. Use breakpoints or a time-travel debugger
+		# run the program to this line.
+		Execute the program to 'line' using the reproduction steps described in 'failure'
+		# If the line executes, let's find out what values were wrong in it.
+		IF the program executes 'line'
+			# Out of all of the values referenced by this line, which one was wrong? Consider variables referenced
+			# return values from functions, and any other source of wrong data.
+			SET 'wrongValue' TO the value used to execute the line that produced the wrong value
+			# We'll use substrategy to figure out where this wrong value came from.
+			RETURN localizeWrongValue('failure' 'wrongValue')
+	# You only made it here if you didn't find any lines that produce the output or none of the values
+	# used to produce that output were wrong. Is it possible you made a mistake above? If so, reverse and
+	# check your work.
+	RETURN nothing
+
+STRATEGY localizeWrongValue(failure wrongValue)
+	# The goal of this strategy is to recursively search backwards for the cause of the wrong value.
+	# We begin by finding all of the lines of code that could have produced the wrong value.
+	# For example, if it's a valuable stored in a variable, find all of the assignments to that variable
+	# that could have defined the variables current value. If it was a function's return value,
+	# find the return statements that could have produced the wrong value.
+	SET 'lines' to all of the lines of the the program that could have produced 'wrongValue'
+	# We'll check to see if each line executed, and if so, what might be wrong with the line.
+	FOR EACH 'line' in 'lines'
+		# Execute the program to this line using the reproduction steps in 'failure'.
+		# Use breakpoints or a time-travel debugger.
+		Execute the program to 'line'
+		# Did this line execute when it shouldn't have?
+		IF 'line' shouldn't have executed
+			SET 'wrongConditional' TO the conditional that caused 'line' to execute but shouldn't have
+			SET 'badValue' TO the value that caused the conditional to execute incorrectly
+			IF 'badValue' isn't nothing
+				DO localizeWrongValue('failure' 'badValue')
+		# Carefully inspect the line itself for faults. Does it call a wrong function, use a wrong operator,
+		# or have a missing argument? If so, you found the bug! If you're unfamiliar with the code,
+		# you may have to interpret the larger role of this line of code, clarifying it's intended behavior.
+		IF 'line' has a defect
+			RETURN 'line'
+		# If the line itself wasn't defective, maybe one of the values it used to execute was defective.
+		SET 'badValue' TO any incorrect value used by the line to execute
+		IF 'value' isn't nothing
+			DO localizeWrongValue('failure' 'badValue')
+	RETURN nothing
+
+STRATEGY localizeMissingOutput(failure)
+	# The goal of this strategy is to find the line of could that should have executed
+	# and then find out why it didn't. Carefully read the program and find the line
+	# that would have DIRECTLY resulted in the output you expected. Use a unique feature of the output
+	# to search the program for this line. For example, if debugging a web application, you
+	# might search for an HTML class or id unique to the output. Don't settle for some "upstream"
+	# line of code that indirectly causes the output; you might miss the defect.
+	SET 'line' TO the line of code that would have produced the output you expected
+	DO explainUnexecutedLine('failure' 'line')
+
+STRATEGY explainUnexecutedLine(failure line)
+	# This strategy explains an unexecuted line by recursively inspecting the conditions that
+	# should have been true to execute this line, but were not. Find all lines that would have directly
+	# caused this line to execute. These may be an if-statements, switch-statements, or function calls.
+	SET 'lines' TO all statements that would have caused 'line' to execute
+	FOR EACH 'line' IN 'lines'
+		Execute the program to line using the reproduction steps in 'failure'
+		# If it didn't execute, let's find out why.
+		IF 'line' did not execute
+			DO explainUnexecutedLine('line')
+		# If the line did execute, does it have a defect (wrong operator, calls the wrong function, etc.)?
+		IF 'line' has a defect
+			RETURN 'line'
+		# Lastly, the line itself might have been correct, but it may have used an incorrect value to execute.
+		SET 'badValue' TO any incorrect value used by the line to execute
+		IF 'value' isn't nothing
+			DO localizeWrongValue('failure' 'badValue')
+	# No luck? Are you sure you did all of the above? Check your work.
+	RETURN nothing

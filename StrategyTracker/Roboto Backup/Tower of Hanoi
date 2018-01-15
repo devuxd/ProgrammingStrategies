@@ -1,0 +1,13 @@
+# Enter text for the following variables below.
+# Let 'level' be the number of discs, 'source' be A, the
+# leftmost peg, 'target' be C, the rightmost peg, and
+# 'auxiliary' be B, the center peg
+STRATEGY towerOfHanoi(level source target auxiliary)
+	SET 'topDiscs' TO 'level' minus one
+	IF 'level' is greater than one
+		# Move the level-1 discs from source to auxilery, so they are out of the way
+		DO towerOfHanoi('topDiscs' 'source' 'auxiliary' 'target')
+	Move the disc at 'source' to 'target'
+	IF 'level' is greater than one
+		# Move the level-1 discs left on the auxilery back
+		DO towerOfHanoi('topDiscs' 'auxiliary' 'target' 'source')
