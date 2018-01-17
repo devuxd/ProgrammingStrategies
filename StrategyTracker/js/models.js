@@ -85,7 +85,7 @@ class Interpreter {
             currentStrategy: currentExecutionContext.strategy,
             executionStack: this.executionStack,
             activeLines: currentExecutionContext.activeLines,
-            selectionNeeded: currentExecutionContext.pc.type === "if",
+            selectionNeeded: (currentExecutionContext.pc.type === "if" || currentExecutionContext.pc.type === "until"),
             setNeeded: currentExecutionContext.pc.type === 'set',
             variables: currentExecutionContext.variables,
         };
@@ -101,7 +101,7 @@ class Interpreter {
             currentStrategy: currentExecutionContext.strategy,
             executionStack: this.executionStack,
             activeLines: currentExecutionContext.activeLines,
-            selectionNeeded: currentExecutionContext.pc.type === "if",
+            selectionNeeded: (currentExecutionContext.pc.type === "if" || currentExecutionContext.pc.type === "until"),
             setNeeded: currentExecutionContext.pc.type === 'set',
             variables: currentExecutionContext.variables,
         };
@@ -178,6 +178,13 @@ class FunctionExecContext {
                         this.blocks.unshift(clone(currentStatement.statements[i]));
                     }
                 }
+            } else if (currentStatement.type === "until" && branchTaken) {
+                if (currentStatement.statements !== undefined && currentStatement.statements.length > 0) {
+                    this.blocks.unshift(currentStatement)
+                    for (let i = currentStatement.statements.length - 1; i >= 0; i--) {
+                        this.blocks.unshift(clone(currentStatement.statements[i]));
+                    }
+                }
             } else if (currentStatement.type === "return") {
                 if (currentStatement.query.type === "call") {
                     this.callStack.push(this.pc);
@@ -187,7 +194,7 @@ class FunctionExecContext {
                 } else {
                     return 'return';
                 }
-            } else if (currentStatement.type === "do") {
+            } else if (currentStatement.type === "do" || currentStatement.type === "action") {
                 if (currentStatement.call !== undefined) {
                     this.callStack.push(this.pc);
                     return 'new';

@@ -20,7 +20,11 @@
     <script type="text/ng-template" id="statement-renderer.html">
         <div ng-class="(main.execObj.activeLines.indexOf(st.id) >= 0 ) ? 'active' : 'code'">
             {{st.text}}
-            <span ng-if="st.type == 'if' && (main.execObj.activeLines.indexOf(st.id) >= 0 )">
+            <span ng-if="st.type == 'if'  && (main.execObj.activeLines.indexOf(st.id) >= 0 )">
+                <input class="btn btn-success btn-sm" type="button" value="True" ng-click="main.innerStatement()" />
+                <input class="btn btn-warning btn-sm" type="button" value="False" ng-click="main.outerStatement()" />
+            </span>
+            <span ng-if="st.type == 'until'  && (main.execObj.activeLines.indexOf(st.id) >= 0 )">
                 <input class="btn btn-success btn-sm" type="button" value="True" ng-click="main.innerStatement()" />
                 <input class="btn btn-warning btn-sm" type="button" value="False" ng-click="main.outerStatement()" />
             </span>
