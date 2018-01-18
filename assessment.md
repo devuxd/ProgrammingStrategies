@@ -65,19 +65,19 @@ Choose one of the following:
 
 _Select your level of agreement with the following statements_
 
-When I debug, I work backwards from the failure to the cause
+When I debug, I start by guessing a possible cause, then gather data to test whether it is true.
 * Strongly disagree
 * Disagree
 * Agree
 * Strongly agree
 
-When I debug, I start by finding the source of the incorrect output, then find the cause of that output.
+When I debug, I start by finding the line of code that directly produced the faulty output, then work backwards from there.
 * Strongly disagree
 * Disagree
 * Agree
 * Strongly agree
 
-When I debug, I only change the program once I have a complete understanding of the cause of the failure.
+When I debug, I only change the program once I understand the cause of the failure.
 * Strongly disagree
 * Disagree
 * Agree
