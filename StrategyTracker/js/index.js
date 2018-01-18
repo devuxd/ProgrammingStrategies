@@ -119,6 +119,7 @@ if (typeof window !== 'undefined' && window.angular) {
 
             vm.nextStatement = function () {
                 vm.execObj = interpreter.execute();
+                console.log("Variables:   "+vm.execObj.variables);
                 if (vm.execObj === null) {
                     $timeout(function() {
                         alert("End of Strategy");
@@ -168,7 +169,6 @@ if (typeof window !== 'undefined' && window.angular) {
                 }
             })
         });
-
     });
 
     myapp.directive('variableValue', function ($parse, $timeout) {

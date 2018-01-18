@@ -25,8 +25,8 @@
                 <input class="btn btn-warning btn-sm" type="button" value="False" ng-click="main.outerStatement()" />
             </span>
             <span ng-if="st.type == 'until'  && (main.execObj.activeLines.indexOf(st.id) >= 0 )">
-                <input class="btn btn-success btn-sm" type="button" value="True" ng-click="main.innerStatement()" />
-                <input class="btn btn-warning btn-sm" type="button" value="False" ng-click="main.outerStatement()" />
+                <input class="btn btn-success btn-sm" type="button" value="True" ng-click="main.outerStatement()" />
+                <input class="btn btn-warning btn-sm" type="button" value="Not Yet" ng-click="main.innerStatement()" />
             </span>
         </div>
         <ul style="list-style: none">

@@ -424,7 +424,7 @@ function parseSet(tokens) {
 
     // Eat the trailing newline
     tokens.eat("\n");
-    miniSteps.push({role: "User", text: "Step 1. Gather the information described and record the value for the variable in the Variables pane at right."});
+    miniSteps.push({role: "User", text: "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."});
     miniSteps.push({role: "Computer", text: "Step 2. The computer will record the value you specify for the variable."});
     return {
         type: "set",
