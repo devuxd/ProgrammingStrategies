@@ -126,20 +126,41 @@ class FunctionExecContext {
             }, this);
         }
         this.extractVariables(this.strategy.statements, globalCounter, this);
+        var uniq = [...new Set(this.variables)];
+        uniq.forEach(function (variable) {
+            console.log("var:   " + variable.name);
+        });
         this.callStack = [];
     }
+
+
 
     extractVariables(statements, counter, argThis) {
         statements.forEach(function (currentVal, index, arr) {
             if (currentVal.identifier) {
                 let identifier = currentVal.identifier.replace(/'/g, '');
-                argThis.variables.push({"id": counter.count++, "name": identifier, "val": null, "type": "identifier"});
+                var found = argThis.variables.some(function (el) {
+                    return el.name === identifier;
+                });
+                if (!found) {
+                    argThis.variables.push({
+                        "id": counter.count++,
+                        "name": identifier,
+                        "val": null,
+                        "type": "identifier"
+                    });
+                }
             }
             if (currentVal.type === 'do') {
                 if (currentVal.call.arguments) {
                     currentVal.call.arguments.forEach(function (val, ind, array) {
                         val = val.replace(/'/g, '');
-                        argThis.variables.push({"id": counter.count++, "name": val, "val": null, "type": "argument"});
+                        var found = argThis.variables.some(function (el) {
+                            return el.name === val;
+                        });
+                        if (!found){
+                            argThis.variables.push({"id": counter.count++, "name": val, "val": null, "type": "argument"});
+                        }
                     }, argThis);
                 }
             }
@@ -147,7 +168,13 @@ class FunctionExecContext {
                 if (currentVal.query.arguments) {
                     currentVal.query.arguments.forEach(function (val, ind, array) {
                         val = val.replace(/'/g, '');
-                        argThis.variables.push({"id": counter.count++, "name": val, "val": null, "type": "argument"});
+                        var found = argThis.variables.some(function (el) {
+                            return el.name === val;
+                        });
+                        if (!found){
+                            argThis.variables.push({"id": counter.count++, "name": val, "val": null, "type": "argument"});
+
+                        }
                     }, argThis);
                 }
             }
