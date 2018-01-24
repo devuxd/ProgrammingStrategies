@@ -63,10 +63,13 @@ if (typeof window !== 'undefined' && window.angular) {
             vm.proceedToStrategy = function () {
                 let flag = true;
                 angular.forEach(vm.parameters, function (val, key) {
+                    val.visible=true;
                     if(val.val == null || val.val.trim() == '') {
+
                         flag = false;
                     }
                 });
+
                 if(flag == true) $("#initialParams").modal('hide');
             };
 
