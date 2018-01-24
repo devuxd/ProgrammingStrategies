@@ -100,6 +100,7 @@ if (typeof window !== 'undefined' && window.angular) {
                         return val.name == id;
                     })[0];
                     if (variable.val == null || variable.val.length == 0) {
+                        variable.visible = true;
                         vm.execObj.setNeeded = true;
                         $scope.$broadcast("EditMe", id);
                     } else {
@@ -110,9 +111,11 @@ if (typeof window !== 'undefined' && window.angular) {
                     let list = vm.execObj.variables.filter(function (val) {
                         return val.name === vm.execObj.currentStatement.list.replace(/'/g, '');
                     })[0];
+
                     let identifier = vm.execObj.variables.filter(function (val) {
                         return val.name === vm.execObj.currentStatement.identifier.replace(/'/g, '');
                     })[0];
+                    identifier.visible = true;
                     identifier.val = list.val[vm.execObj.currentStatement.counter ? vm.execObj.currentStatement.counter : 0];
                 }
             }
@@ -177,14 +180,14 @@ if (typeof window !== 'undefined' && window.angular) {
         return {
             template:
             '<span ng-show="edit">' +
-            '<textarea ng-show="isArray" ng-blur="updateModel()" ng-model="var"></textarea>' +
-            '<input type="text" ng-show="!isArray" ng-blur="updateModel()" ng-model="model">' +
+            '<textarea ng-show="isArray " ng-blur="updateModel()" ng-model="var"></textarea>' +
+            '<input type="text" ng-show="!isArray " ng-blur="updateModel()" ng-model="model">' +
             '</span>' +
             '<div class="var-outer-border" ng-show="!edit" ng-attr-id="{{modelId}}">' +
-            '<span class="showvars" ng-show="isArray && allvar.length" ng-click="changeEdit()" ng-repeat="myvar in allvar track by $index">{{myvar}}</span>' +
-            '<span class="showvars" ng-show="isArray && !allvar.length" ng-click="changeEdit()">nothing</span>' +
-            '<span class="showvars" ng-show="!isArray && model.length" ng-click="changeEdit()">{{model}}</span>' +
-            '<span class="showvars" ng-show="!isArray && !model.length" ng-click="changeEdit()">nothing</span>' +
+            '<span class="showvars" ng-show="isArray && allvar.length " ng-click="changeEdit()" ng-repeat="myvar in allvar track by $index">{{myvar}}</span>' +
+            '<span class="showvars" ng-show="isArray && !allvar.length " ng-click="changeEdit()">nothing</span>' +
+            '<span class="showvars" ng-show="!isArray && model.length " ng-click="changeEdit()">{{model}}</span>' +
+            '<span class="showvars" ng-show="!isArray && !model.length " ng-click="changeEdit()">nothing</span>' +
             '</div>',
             restrict: 'E',
             scope: {

@@ -73,6 +73,7 @@ class Interpreter {
             currentExecutionContext.variables.forEach(function (value, index, array) {
                 if(value.type == 'parameter') {
                     value.val = args[index].val;
+                    value.visible = true;
                 }
             });
         } else {
@@ -122,7 +123,7 @@ class FunctionExecContext {
         if(this.strategy.parameters !== undefined){
             this.strategy.parameters.forEach(function (currentVal, index, arr) {
                 currentVal = currentVal.replace(/'/g, '');
-                this.variables.push({"id": globalCounter.count++, "name": currentVal, "val": null, "type": "parameter"});
+                this.variables.push({"id": globalCounter.count++, "name": currentVal, "val": null, "type": "parameter", "visible": false});
             }, this);
         }
         this.extractVariables(this.strategy.statements, globalCounter, this);
@@ -147,7 +148,8 @@ class FunctionExecContext {
                         "id": counter.count++,
                         "name": identifier,
                         "val": null,
-                        "type": "identifier"
+                        "type": "identifier",
+                        "visible": false
                     });
                 }
             }
@@ -159,7 +161,7 @@ class FunctionExecContext {
                             return el.name === val;
                         });
                         if (!found){
-                            argThis.variables.push({"id": counter.count++, "name": val, "val": null, "type": "argument"});
+                            argThis.variables.push({"id": counter.count++, "name": val, "val": null, "type": "argument", "visible": false});
                         }
                     }, argThis);
                 }
@@ -172,8 +174,7 @@ class FunctionExecContext {
                             return el.name === val;
                         });
                         if (!found){
-                            argThis.variables.push({"id": counter.count++, "name": val, "val": null, "type": "argument"});
-
+                            argThis.variables.push({"id": counter.count++, "name": val, "val": null, "type": "argument" , "visible": false});
                         }
                     }, argThis);
                 }
@@ -220,6 +221,7 @@ class FunctionExecContext {
                     return 'nothing';
                 } else {
                     return 'return';
+                    
                 }
             } else if (currentStatement.type === "do" || currentStatement.type === "action") {
                 if (currentStatement.call !== undefined) {
