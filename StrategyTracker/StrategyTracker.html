@@ -190,7 +190,7 @@
                     <div class="form-group var-div" ng-repeat="var in main.execObj.variables track by var.id"
                          ng-show="var.visible == true && var.type !== 'argument'">
                         <label class="col-md-6" ng-for="var.name"
-                               style="position: relative;top: 14px;">{{var.name}} - {{!var.visible}} </label>
+                               style="position: relative;top: 14px;">{{var.name}}</label>
                         <variable-value class="col-md-6" model-id="var.name" is-array="isArray(var.val)"
                                         model="var.val"></variable-value>
                     </div>
