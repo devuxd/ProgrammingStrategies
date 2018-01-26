@@ -1,36 +1,41 @@
-# This debugging strategy that helps you work backwards from faulty program output to its cause.
-# The overall approach is find the code that caused the faulty output, then recursively find the code that code to run.
-# You inspect each line of code for defects.
+# If you've spent a lot of time debugging unfamiliar code, the way that you probably debug is to first look at the failure, then look at the code to understand how it's architected, and then look for possible reasons for why the program failed. Once you have a guess, you probably then check it with things like breakpoints and logging. This strategy often works if you can make sense of a program's architecture and have a lot of experience guessing and inspecting program state. But if you don't, or you happen to guess wrong, it can lead to a lot of dead ends.
+#
+# This strategy is different. Instead of guessing and checking, this strategy involves systematically working backwards from the code that caused the failed output to all of the code that led to that failed output executing. As you work backwords, you check each of those lines for defects. If you work backwards like this, and carefully inspect each line that ultimately caused the wrong output, this strategy will reliably identify the defect.
 STRATEGY debug()
-	# The first step in this strategy is to familiarize yourself with the program. If you haven't seen this code before, this knowledge will help you execute future steps in this strategy.
-	Familiarize yourself with the program by reading the names of all of the variables and functions in the code
-	# The next step in this strategy is finding the code that caused the faulty output. If it was graphical output, look for lines of code that rendered graphics. If it was textual output, look for lines of code that rendered to the console. You can find these lines by searching for keywords from API calls that render output, such as "draw", "print", or "log".
-	Find lines of code that may have rendered the faulty output
-	# Record the lines you found so you can refer to them later.
-	SET 'outputLines' to a list of line numbers that could have produced the incorrect output
+	# This first step will give you enough familiarity to find everywhere in the program that causes output.
+	Read the names of all of the functions and variables in the program
+	# The next step in this strategy is to find code in the program that caused the faulty output.
+	IF the faulty output is in the console
+		Search the program for calls to 'log'
+		SET outputLines TO the line numbers of all of the lines you found
+	IF the faulty output is graphical
+		Search the program for calls to a Canvas 'draw' or 'fill' function that could have produced the faulty output
+		SET outputLines TO the line numbers of all of the lines you found
 	# Now that you have some lines that could have produced the output, you're going to check each
-	# line, see if it executed, and then find the origin of the wrong value. If you're lucky, you only have one
+	# line, see if it executed, and then find the cause of it executing. If you're lucky, you only have one
 	# output line to check.
 	FOR EACH 'line' IN 'outputLines'
-		# The first step is see if this output line executed. Insert a logging statement before the line to check.
-		# run the program to this line.
-		Insert a log statement before 'line' to check if the output executed
-		# Reproduce the failure again and check of the log statement printed to the console
-		Reproduce the failure and check the console for the string you printed
-		# This cleanup will ensure the logging statement doesn't affect the program later
-		Remove the log statement you inserted
-		# If the line executed, we'll check to see if something was wrong with it
+		# First, let's make sure the line executed. You want to be sure that this is actually the source of the wrong output.
 		IF the program executed 'line'
-			# Based on your understanding of the program's requirements, does the line do what it is supposed to do? If not, you may have found the defect!
+			# Next, is anything about it wrong based on what the program is supposed to do? If so, you found the bug
 			IF 'line' is defective
 				RETURN 'line'
-			# Inspect the values used to execute the line. Are any of the values wrong?
+			# If the line itself is not wrong, perhaps the line was not supposed to execute at all?
+			IF 'line' was not supposed to execute at all
+				# Find the conditional that led this line to being executed.
+				IF the line executed because of a conditional
+					# Some value in the conditional's boolean expression must have been wrong. Which value was it?
+					SET 'wrongValue' to the data caused the conditional to evaluate to the wrong value
+					# We'll use another strategy to find the cause of the incorrect value.
+					DO localizeWrongValue('wrongValue')
+				IF the line executed because of a function call
+					Find why this function was called
+			# If the line was supposed to execute, but it executed incorrectly, then it executed with bad data
 			IF 'line' executed with an incorrect value
-				# Make note of this so we can use it later
 				SET 'wrongValue' TO the incorrect value
-				# We'll use substrategy to figure out where this wrong value came from.
+				# We'll use another strategy to find the cause of the incorrect value.
 				RETURN localizeWrongValue('wrongValue')
-	# If you made it to this line, that means you either didn't find any lines that produced faulty output. Is it possible you made a mistake above? If so, check your work and start over, because something caused the faulty output.
+	# If you made it to this line, then you must have missed something. Is it possible you made a mistake above? If so, go back and verify your work, because something caused the faulty output.
 	RETURN nothing
 
 STRATEGY localizeWrongValue(wrongValue)
