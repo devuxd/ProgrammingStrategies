@@ -408,7 +408,7 @@ function parseForEach(strategyId,tokens, tabsExpected) {
         identifier: identifier,
         statements: statements,
         toString: function () {
-            return "for each" + identifier + " in " + list;
+            return "for each " + identifier + " in " + list;
         }
     };
 
