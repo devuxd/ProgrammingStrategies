@@ -1,36 +1,34 @@
-# If you've spent a lot of time debugging unfamiliar code, the way that you probably debug is to first look at the failure, then look at the code to understand how it's architected, and then look for possible reasons for why the program failed. Once you have a guess, you probably then check it with things like breakpoints and logging. This strategy often works if you can make sense of a program's architecture and have a lot of experience guessing and inspecting program state. But if you don't, or you happen to guess wrong, it can lead to a lot of dead ends.
+# If you've spent a lot of time debugging unfamiliar code, the way that you probably debug is to first look at the failure, then look at the code to understand how it's architected, and then look for possible reasons for why the program failed. Once you have a guess, you probably then check it with things like breakpoints and logging. This strategy often works if you can have a lot of prior experience with debugging and inspecting program state. But if you don't have that experience, or you happen to guess wrong, this approach can lead to a lot of dead ends.
 #
-# This strategy is different. Instead of guessing and checking, this strategy involves systematically working backwards from the code that caused the failed output to all of the code that led to that failed output executing. As you work backwords, you check each of those lines for defects. If you work backwards like this, and carefully inspect each line that ultimately caused the wrong output, this strategy will reliably identify the defect.
+# The strategy you're about to use is different. Instead of guessing and checking, this strategy involves systematically working backwards from the code that directly caused the failed output to all of the code that caused that failed output to occur. As you work backwards, you'll check each statement for defects. If you work backwards like this, following the chain of causality from failure to cause, you will almost certainly find the bug.
 STRATEGY debug()
 	# This first step will give you enough familiarity to find everywhere in the program that causes output.
 	Read the names of all of the functions and variables in the program
 	# The next step in this strategy is to find code in the program that caused the faulty output.
 	IF the faulty output is in the console
-		Search the program for calls to 'log'
-		SET outputLines TO the line numbers of all of the lines you found
+		# To find these lines, try searching for keywords related to logging
+		SET outputLines TO the line numbers of calls to console logging functions
 	IF the faulty output is graphical
-		Search the program for calls to a Canvas 'draw' or 'fill' function that could have produced the faulty output
-		SET outputLines TO the line numbers of all of the lines you found
-	# Now that you have some lines that could have produced the output, you're going to check each
+		# To find these lines, try searching for keywords related to graphical output, like 'draw' or 'fill'
+		SET outputLines TO the line numbers of calls to graphical output functions that could have produced the faulty output
+	# Now that you have some lines that could have produced the faulty output, you're going to check each
 	# line, see if it executed, and then find the cause of it executing. If you're lucky, you only have one
 	# output line to check.
 	FOR EACH 'line' IN 'outputLines'
-		# First, let's make sure the line executed. You want to be sure that this is actually the source of the wrong output.
+		# First, let's make sure the line executed. You want to be sure that this is actually the source of the wrong output. You can check this by inserting a logging statement, or setting a breakpoint on the line.
 		IF the program executed 'line'
-			# Next, is anything about it wrong based on what the program is supposed to do? If so, you found the bug
+			# Next, is anything about the output statement itself wrong? If so, you found the bug!
 			IF 'line' is defective
 				RETURN 'line'
-			# If the line itself is not wrong, perhaps the line was not supposed to execute at all?
+			# If the output statement is not wrong, perhaps the line was not supposed to execute at all?
 			IF 'line' was not supposed to execute at all
-				# Find the conditional that led this line to being executed.
-				IF the line executed because of a conditional
-					# Some value in the conditional's boolean expression must have been wrong. Which value was it?
-					SET 'wrongValue' to the data caused the conditional to evaluate to the wrong value
-					# We'll use another strategy to find the cause of the incorrect value.
-					DO localizeWrongValue('wrongValue')
-				IF the line executed because of a function call
-					Find why this function was called
-			# If the line was supposed to execute, but it executed incorrectly, then it executed with bad data
+				# The conditional might be in the same function as the output statement, or it might have been a conditional in a function that called this function. Check the call stack if necessary by setting a breakpoint.
+				Find the conditional that led this line to being executed
+				# Some value in the conditional's boolean expression must have been wrong. Which value was it?
+				SET 'wrongValue' to the value in the conditional's boolean expression that ultimately allowed the faulty output to execute
+				# We'll use another strategy to find the source of the incorrect value.
+				RETURN  localizeWrongValue('wrongValue')
+			# If the line was supposed to execute, but it executed with an incorrect value, find that value.
 			IF 'line' executed with an incorrect value
 				SET 'wrongValue' TO the incorrect value
 				# We'll use another strategy to find the cause of the incorrect value.
@@ -39,29 +37,23 @@ STRATEGY debug()
 	RETURN nothing
 
 STRATEGY localizeWrongValue(wrongValue)
-	# The goal of this strategy is to recursively search backwards for the cause of the wrong value.
+	# The approach of this strategy is to recursively search backwards for the source of a value.
 	# We begin by finding all of the lines of code that could have produced the wrong value.
-	# For example, if it's a valuable stored in a variable, find all of the assignments to that variable
+	# For example, if a value was stored in a variable, we would find all of the assignments to that variable
 	# that could have defined the variables current value. If it was a function's return value,
-	# find the return statements that could have produced the wrong value.
+	# find the return statements that returned that wrong value.
 	# These lines include expressions that computed the wrong value, a value passed in through a parameter, or a function call that returned a value. Inspect the code to find the source of the incorrect value.
 	SET 'lines' to all of the lines of the the program that could have produced 'wrongValue'
 	# We'll check each line for errors, or for faulty values.
 	FOR EACH 'line' in 'lines'
-		# The first step is see if this output line executed. Insert a logging statement before the line to check.
-		# run the program to this line.
-		Insert a log statement before 'line' to check if the output executed
-		# Reproduce the failure again and check of the log statement printed to the console.
-		Reproduce the failure and check the console for the string you printed
-		# This cleanup will ensure the logging statement doesn't affect the program later.
-		Remove the log statement you inserted
+		# Use a logging statement or a breakpoint to verify that this line actually executed.
 		IF 'line' executed
-			# Does the line do what it is supposed to do? If not, you may have found the defect!
+			# Does the line incorrectly compute the value? If so, you found the defect!
 			IF 'line' is defective
 				RETURN 'line'
 			# If the line itself wasn't defective, maybe one of the values it used to execute was defective.
 			SET 'badValue' TO any incorrect value used by the line to execute
 			IF 'value' isn't nothing
-				DO localizeWrongValue('badValue')
+				RETURN localizeWrongValue('badValue')
 	# If you made it to this line, then you didn't find the cause of the wrong value. Is it possible you made a mistake above? If so, check your work and start over.
 	RETURN nothing
