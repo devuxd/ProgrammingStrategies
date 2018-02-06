@@ -96,6 +96,19 @@ if (typeof window !== 'undefined' && window.angular) {
                 }
 
             };
+            function checkPrevType() {
+                if (vm.execObj.currentStatement.identifier == undefined)
+                    return;
+                let id = vm.execObj.currentStatement.identifier.replace(/'/g, '');
+                // if (vm.execObj.currentStatement.type == 'set') {
+                //     let variable = vm.execObj.variables.filter(function (val, index, arr) {
+                //         return val.name == id;
+                //     })[0];
+                //     vm.execObj.setNeeded = true;
+                //     $scope.$broadcast("EditMe", id);
+                // }
+                $scope.$broadcast("valViewUpdate", id);
+            }
             function checkType() {
                 if (vm.execObj.currentStatement.type == 'set') {
                     let id = vm.execObj.currentStatement.identifier.replace(/'/g, '');
@@ -106,6 +119,7 @@ if (typeof window !== 'undefined' && window.angular) {
                         variable.visible = true;
                         vm.execObj.setNeeded = true;
                         $scope.$broadcast("EditMe", id);
+                        // return;
                     } else {
                         vm.execObj.setNeeded = false;
                     }
@@ -120,17 +134,17 @@ if (typeof window !== 'undefined' && window.angular) {
                     })[0];
                     identifier.visible = true;
                     identifier.val = list.val[vm.execObj.currentStatement.counter ? vm.execObj.currentStatement.counter : 0];
+                    identifier.isDirty = true;
+                    //$scope.$apply();
+
                 }
             }
 
             vm.nextStatement = function () {
                 vm.execObj = interpreter.execute();
-                vm.execObj.variables.forEach(function (variable) {
-                    console.log("Variables:   " + variable.name);
-                });
-                if (vm.execObj === null) {
+                if (vm.execObj == null) {
                     $timeout(function() {
-                        alert("End of Strategy");
+                        alert("You reach end of strategy! If you think you did not finish the task, reset the strategy and start over again. ");
                     }, 100);
                     return;
                 }
@@ -143,15 +157,15 @@ if (typeof window !== 'undefined' && window.angular) {
                             return val.type == 'parameter';
                         });
                     }
-
                     vm.currentStrategy = vm.execObj.currentStrategy;
                 }
             };
 
             vm.prevStatement = function () {
+                checkPrevType();
                 vm.execObj = interpreter.goBack();
                 if (vm.execObj === null) return;
-                checkType();
+
                 if (vm.currentStrategy.name !== vm.execObj.currentStrategy.name) {
                     $('#' + vm.execObj.currentStrategy.name).collapse('show');
                     $('#' + vm.currentStrategy.name).collapse('hide');
@@ -161,6 +175,7 @@ if (typeof window !== 'undefined' && window.angular) {
 
             vm.outerStatement = function () {
                 vm.execObj = interpreter.execute(false);
+
                 checkType();
 
             };
@@ -175,6 +190,11 @@ if (typeof window !== 'undefined' && window.angular) {
                 } else {
                     vm.execObj.setNeeded = false;
                 }
+            });
+
+            $scope.$on("blockAdd", function (args, data) {
+                interpreter.addLoopBlocks(data.id, data.data);
+
             })
         });
     });
@@ -187,32 +207,55 @@ if (typeof window !== 'undefined' && window.angular) {
             '<input type="text" ng-show="!isArray " ng-blur="updateModel()" ng-model="model">' +
             '</span>' +
             '<div class="var-outer-border" ng-show="!edit" ng-attr-id="{{modelId}}">' +
-            '<span class="showvars" ng-show="isArray && allvar.length " ng-click="changeEdit()" ng-repeat="myvar in allvar track by $index">{{myvar}}</span>' +
+            '<span class="showvars" ng-show="isArray && allvar.length" title=" Add more items" href="#" ng-click="changeEdit()" ng-repeat="myvar in allvar track by $index">{{myvar}}</span>' +
             '<span class="showvars" ng-show="isArray && !allvar.length " ng-click="changeEdit()">nothing</span>' +
-            '<span class="showvars" ng-show="!isArray && model.length " ng-click="changeEdit()">{{model}}</span>' +
+            '<span class="showvars" ng-show="!isArray && model.length "  ng-click="changeEdit()">{{model}}</span>' +
             '<span class="showvars" ng-show="!isArray && !model.length " ng-click="changeEdit()">nothing</span>' +
+            '<button style="margin-left:5px;" ng-show="isArray && allvar.length " title=" Add more items" href="#" ng-click="changeEdit()"><i class="glyphicon glyphicon-plus"></i></button>' +
             '</div>',
             restrict: 'E',
             scope: {
                 model: '=',
                 isArray: '=',
-                modelId: '='
+                modelId: '=',
+                isDirty: '=',
+                parentId: '='
             },
             link: function (scope, element, attrs, controller) {
                 scope.edit = false;
                 scope.var = '';
                 scope.id = null;
                 var listener = null;
+                scope.prevVar = [];
                 scope.$on('EditMe', function (event, data) {
-                    if (scope.modelId == data) {
+                    if (scope.modelId == data && scope.isArray) {
                         scope.id = data;
                         scope.changeEdit();
+                    }
+                });
+                scope.$on('valViewUpdate', function (event, data) {
+                    if (scope.modelId == data)
+                    {
+
+                        if(!scope.isArray){
+                            scope.model = "";
+                            scope.prevVar = "";
+                            scope.var = "";
+                        }
+                        else{
+                            scope.model = [];
+                            scope.allvar = [];
+                            scope.prevVar = [];
+
+                        }
                     }
                 });
                 if (scope.isArray) {
                     scope.allvar = scope.model;
                 }
+
                 scope.changeEdit = function () {
+
                     listener = scope.$watch('model', function (newval, oldval) {
                         scope.$emit("setNeededFalse");
                     });
@@ -222,7 +265,8 @@ if (typeof window !== 'undefined' && window.angular) {
                         $timeout(function () {
                             element[0].firstChild.firstChild.focus();
                         }, 10);
-                    } else {
+                    }
+                    else {
                         $timeout(function () {
                             element[0].firstChild.lastChild.focus();
                         }, 10);
@@ -237,12 +281,30 @@ if (typeof window !== 'undefined' && window.angular) {
                         angular.forEach(arr, function (val, key) {
                             val.trim().length ? scope.allvar.push(val.trim()) : null;
                         });
+
                         $parse(attrs.model).assign(scope.$parent, scope.allvar);
+                        if(scope.prevVar.length > 0 && !scope.isArray) {
+                            for(var i = 0; i< scope.prevVar.length; i++)
+                            {
+                                if(scope.prevVar[i] !== scope.allvar[i]){
+                                    scope.allvar= scope.prevVar;
+                                    alert(" You are currently executing a loop. Adding elements are just allowed to the end of collection.  ");
+                                    return;
+                                }
+                            }
+                        }
+                        if(scope.prevVar.length != 0 && scope.prevVar.length < scope.allvar.length) {
+                            scope.$emit("blockAdd", {"data": scope.allvar.slice(scope.prevVar.length, scope.allvar.length), "id": scope.parentId});
+                        }
+                        //console.log(scope.allvar.length);
+
+                        scope.prevVar= scope.allvar;
                     }
                     if (scope.id) {
                         scope.$emit("setNeededFalse");
                     }
                 };
+
             }
         }
     });

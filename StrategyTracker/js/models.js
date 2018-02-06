@@ -36,6 +36,36 @@ class Interpreter {
         })
     }
 
+    addLoopBlocks(id, arr) {
+        let tempBlock = [];
+        let currentExecutionContext = this.executionStack[this.executionStack.length - 1];
+        let forEachStatements = currentExecutionContext.blocks.filter(function (val) {
+            return val.id === id
+        });
+        if(forEachStatements.length == 0) return;
+        let loopStatement = forEachStatements[forEachStatements.length-1];
+        let counter = loopStatement.counter;
+        for (let num = 0, count = arr.length + counter+1; num < arr.length; num++, count--) {
+            for (let i = loopStatement.statements.length - 1; i >= 0; i--) {
+                tempBlock.unshift(clone(loopStatement.statements[i]));
+            }
+            // put the foreach statement length minus 1 times
+            if(num <= arr.length-1) {
+                let tempStatement = clone(loopStatement);
+                tempStatement.type = "loop";
+                tempStatement.counter = count-1;
+                tempBlock.unshift(clone(tempStatement));
+            }
+        }
+        let index = currentExecutionContext.blocks.findIndex(function (val) {
+            return val.type === 'loop' && val.counter === counter;
+        });
+        index = index + loopStatement.statements.length;
+        let endingPart = currentExecutionContext.blocks.splice(index+1);
+        currentExecutionContext.blocks = currentExecutionContext.blocks.concat(tempBlock);
+        currentExecutionContext.blocks = currentExecutionContext.blocks.concat(endingPart);
+    }
+
     execute(branchTaken) {
         if (this.executionStack.length) {
             this.historyBackward.push(clone(this.executionStack)); // take a snapshot from our current executionStack to our history
@@ -45,11 +75,12 @@ class Interpreter {
         let currentExecutionContext = this.executionStack.pop();
         let nextType = currentExecutionContext.getNextStatement(currentExecutionContext.pc, branchTaken);
         if(nextType === 'nothing' || nextType === 'return') return this.execute();
+        else if(nextType === null) return null;
         else if (nextType === 'new') {
             this.executionStack.push(currentExecutionContext);
             let myArgs = null;
             if(currentExecutionContext.pc.type === 'do') {
-                 myArgs = currentExecutionContext.pc.call.arguments.map(function (val) {
+                myArgs = currentExecutionContext.pc.call.arguments.map(function (val) {
                     return val.replace(/'/g,'');
                 });
             } else {
@@ -80,6 +111,7 @@ class Interpreter {
             currentExecutionContext = nextType;
         }
 
+
         this.executionStack.push(currentExecutionContext);
         return {
             currentStatement: currentExecutionContext.pc,
@@ -90,6 +122,7 @@ class Interpreter {
             setNeeded: currentExecutionContext.pc.type === 'set',
             variables: currentExecutionContext.variables,
         };
+
     }
 
     goBack() {
@@ -103,7 +136,7 @@ class Interpreter {
             executionStack: this.executionStack,
             activeLines: currentExecutionContext.activeLines,
             selectionNeeded: (currentExecutionContext.pc.type === "if" || currentExecutionContext.pc.type === "until"),
-            setNeeded: currentExecutionContext.pc.type === 'set',
+            // setNeeded: currentExecutionContext.pc.type === 'set',
             variables: currentExecutionContext.variables,
         };
     }
@@ -123,7 +156,7 @@ class FunctionExecContext {
         if(this.strategy.parameters !== undefined){
             this.strategy.parameters.forEach(function (currentVal, index, arr) {
                 currentVal = currentVal.replace(/'/g, '');
-                this.variables.push({"id": globalCounter.count++, "name": currentVal, "val": null, "type": "parameter", "visible": false});
+                this.variables.push({"id": globalCounter.count++, "name": currentVal, "val": null, "type": "parameter", "visible": false, "isDirty": false});
             }, this);
         }
         this.extractVariables(this.strategy.statements, globalCounter, this);
@@ -149,7 +182,8 @@ class FunctionExecContext {
                         "name": identifier,
                         "val": null,
                         "type": "identifier",
-                        "visible": false
+                        "visible": false,
+                        "isDirty": false
                     });
                 }
             }
@@ -161,7 +195,7 @@ class FunctionExecContext {
                             return el.name === val;
                         });
                         if (!found){
-                            argThis.variables.push({"id": counter.count++, "name": val, "val": null, "type": "argument", "visible": false});
+                            argThis.variables.push({"id": counter.count++, "name": val, "val": null, "type": "argument", "visible": false, "isDirty": false});
                         }
                     }, argThis);
                 }
@@ -174,7 +208,7 @@ class FunctionExecContext {
                             return el.name === val;
                         });
                         if (!found){
-                            argThis.variables.push({"id": counter.count++, "name": val, "val": null, "type": "argument" , "visible": false});
+                            argThis.variables.push({"id": counter.count++, "name": val, "val": null, "type": "argument" , "visible": false, "isDirty": false});
                         }
                     }, argThis);
                 }
@@ -183,6 +217,7 @@ class FunctionExecContext {
                 argThis.variables.forEach(function (val) {
                     if (val.name === (currentVal.list.replace(/'/g, ''))) {
                         val.val = [];
+                        val.parentId = currentVal.id;
                     }
                 });
             }
@@ -221,7 +256,7 @@ class FunctionExecContext {
                     return 'nothing';
                 } else {
                     return 'return';
-                    
+
                 }
             } else if (currentStatement.type === "do" || currentStatement.type === "action") {
                 if (currentStatement.call !== undefined) {
@@ -250,9 +285,15 @@ class FunctionExecContext {
                 // if (currentStatement.statements !== undefined && currentStatement.type != "loop")
                 //     this.blocks.unshift(clone(currentStatement.statements[0]));
             }
-            this.pc = this.blocks.shift();
-            this.activeLines.push(this.pc.id);
-            return this;
+
+            if(this.blocks.length === 0)
+                return 'nothing';
+            else{
+                this.pc = this.blocks.shift();
+                this.activeLines.push(this.pc.id);
+                return this;
+            }
+
         }
     }
 }
