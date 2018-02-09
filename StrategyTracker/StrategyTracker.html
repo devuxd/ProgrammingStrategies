@@ -13,13 +13,14 @@
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-sanitize.js"></script>
     <link rel="stylesheet" type="text/css"
           href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
     <script src="https://www.gstatic.com/firebasejs/4.3.0/firebase.js"></script>
     <script src="js/bundle.js"></script>
     <script type="text/ng-template" id="statement-renderer.html">
         <div ng-class="(main.execObj.activeLines.indexOf(st.id) >= 0 ) ? 'active' : 'code'">
-            {{st.text}}
+            <span ng-bind-html="st.text"></span>
             <span ng-if="st.type == 'if'  && (main.execObj.activeLines.indexOf(st.id) >= 0 )">
                 <input class="btn btn-success btn-sm" type="button" value="True" ng-click="main.innerStatement()" />
                 <input class="btn btn-warning btn-sm" type="button" value="False" ng-click="main.outerStatement()" />

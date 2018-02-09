@@ -2,7 +2,7 @@ const models = require('./models.js');
 const db = require('./dataManagement.js');
 
 if (typeof window !== 'undefined' && window.angular) {
-    let myapp = angular.module('myapp', []);
+    let myapp = angular.module('myapp', ['ngSanitize']);
 
     myapp.run(function ($rootScope) {
         ['isArray', 'isDate', 'isDefined', 'isFunction', 'isNumber', 'isObject', 'isString', 'isUndefined'].forEach(function (name) {
@@ -96,19 +96,6 @@ if (typeof window !== 'undefined' && window.angular) {
                 }
 
             };
-            function checkPrevType() {
-                if (vm.execObj.currentStatement.identifier == undefined)
-                    return;
-                let id = vm.execObj.currentStatement.identifier.replace(/'/g, '');
-                // if (vm.execObj.currentStatement.type == 'set') {
-                //     let variable = vm.execObj.variables.filter(function (val, index, arr) {
-                //         return val.name == id;
-                //     })[0];
-                //     vm.execObj.setNeeded = true;
-                //     $scope.$broadcast("EditMe", id);
-                // }
-                $scope.$broadcast("valViewUpdate", id);
-            }
             function checkType() {
                 if (vm.execObj.currentStatement.type == 'set') {
                     let id = vm.execObj.currentStatement.identifier.replace(/'/g, '');
@@ -119,7 +106,6 @@ if (typeof window !== 'undefined' && window.angular) {
                         variable.visible = true;
                         vm.execObj.setNeeded = true;
                         $scope.$broadcast("EditMe", id);
-                        // return;
                     } else {
                         vm.execObj.setNeeded = false;
                     }
@@ -142,6 +128,9 @@ if (typeof window !== 'undefined' && window.angular) {
 
             vm.nextStatement = function () {
                 vm.execObj = interpreter.execute();
+                // vm.execObj.variables.forEach(function (variable) {
+                //     console.log("Variables:   " + variable.name);
+                // });
                 if (vm.execObj == null) {
                     $timeout(function() {
                         alert("You reach end of strategy! If you think you did not finish the task, reset the strategy and start over again. ");
@@ -157,15 +146,15 @@ if (typeof window !== 'undefined' && window.angular) {
                             return val.type == 'parameter';
                         });
                     }
+
                     vm.currentStrategy = vm.execObj.currentStrategy;
                 }
             };
 
             vm.prevStatement = function () {
-                checkPrevType();
                 vm.execObj = interpreter.goBack();
                 if (vm.execObj === null) return;
-
+                checkType();
                 if (vm.currentStrategy.name !== vm.execObj.currentStrategy.name) {
                     $('#' + vm.execObj.currentStrategy.name).collapse('show');
                     $('#' + vm.currentStrategy.name).collapse('hide');
@@ -207,7 +196,7 @@ if (typeof window !== 'undefined' && window.angular) {
             '<input type="text" ng-show="!isArray " ng-blur="updateModel()" ng-model="model">' +
             '</span>' +
             '<div class="var-outer-border" ng-show="!edit" ng-attr-id="{{modelId}}">' +
-            '<span class="showvars" ng-show="isArray && allvar.length" title=" Add more items" href="#" ng-click="changeEdit()" ng-repeat="myvar in allvar track by $index">{{myvar}}</span>' +
+            '<span class="showvars" ng-show="isArray && allvar.length " ng-repeat="myvar in allvar track by $index">{{myvar}}</span>' +
             '<span class="showvars" ng-show="isArray && !allvar.length " ng-click="changeEdit()">nothing</span>' +
             '<span class="showvars" ng-show="!isArray && model.length "  ng-click="changeEdit()">{{model}}</span>' +
             '<span class="showvars" ng-show="!isArray && !model.length " ng-click="changeEdit()">nothing</span>' +
@@ -228,26 +217,9 @@ if (typeof window !== 'undefined' && window.angular) {
                 var listener = null;
                 scope.prevVar = [];
                 scope.$on('EditMe', function (event, data) {
-                    if (scope.modelId == data && scope.isArray) {
+                    if (scope.modelId == data) {
                         scope.id = data;
                         scope.changeEdit();
-                    }
-                });
-                scope.$on('valViewUpdate', function (event, data) {
-                    if (scope.modelId == data)
-                    {
-
-                        if(!scope.isArray){
-                            scope.model = "";
-                            scope.prevVar = "";
-                            scope.var = "";
-                        }
-                        else{
-                            scope.model = [];
-                            scope.allvar = [];
-                            scope.prevVar = [];
-
-                        }
                     }
                 });
                 if (scope.isArray) {
@@ -283,7 +255,7 @@ if (typeof window !== 'undefined' && window.angular) {
                         });
 
                         $parse(attrs.model).assign(scope.$parent, scope.allvar);
-                        if(scope.prevVar.length > 0 && !scope.isArray) {
+                        if(scope.prevVar.length > 0) {
                             for(var i = 0; i< scope.prevVar.length; i++)
                             {
                                 if(scope.prevVar[i] !== scope.allvar[i]){
