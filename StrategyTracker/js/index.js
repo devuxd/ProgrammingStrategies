@@ -99,9 +99,9 @@ if (typeof window !== 'undefined' && window.angular) {
             function checkType() {
                 if (vm.execObj.currentStatement.type == 'set') {
                     let id = vm.execObj.currentStatement.identifier.replace(/'/g, '');
-                    let variable = vm.execObj.variables.filter(function (val, index, arr) {
+                    let variable = vm.execObj.variables.find(function (val, index, arr) {
                         return val.name == id;
-                    })[0];
+                    });
                     if (variable.val == null || variable.val.length == 0) {
                         variable.visible = true;
                         vm.execObj.setNeeded = true;
@@ -111,16 +111,16 @@ if (typeof window !== 'undefined' && window.angular) {
                     }
                 }
                 if (vm.execObj.currentStatement.type == 'foreach' || vm.execObj.currentStatement.type == 'loop') {
-                    let list = vm.execObj.variables.filter(function (val) {
+                    let list = vm.execObj.variables.find(function (val) {
                         return val.name === vm.execObj.currentStatement.list.replace(/'/g, '');
-                    })[0];
+                    });
 
-                    let identifier = vm.execObj.variables.filter(function (val) {
+                    let identifier = vm.execObj.variables.find(function (val) {
                         return val.name === vm.execObj.currentStatement.identifier.replace(/'/g, '');
-                    })[0];
+                    });
                     identifier.visible = true;
                     identifier.val = list.val[vm.execObj.currentStatement.counter ? vm.execObj.currentStatement.counter : 0];
-                    identifier.isDirty = true;
+                    list.dirtyArray.push(list.val[vm.execObj.currentStatement.counter ? vm.execObj.currentStatement.counter : 0]);
                     //$scope.$apply();
 
                 }
@@ -154,6 +154,14 @@ if (typeof window !== 'undefined' && window.angular) {
             vm.prevStatement = function () {
                 vm.execObj = interpreter.goBack();
                 if (vm.execObj === null) return;
+                if(vm.execObj.currentStatement.type === 'set') {
+                    let id = vm.execObj.currentStatement.identifier.replace(/'/g, '');
+                    let variable = vm.execObj.variables.find(function (val, index, arr) {
+                        return val.name == id;
+                    });
+                    console.log(variable);
+                    if(variable.dirtyArray !== undefined) variable.dirtyArray = [];
+                }
                 checkType();
                 if (vm.currentStrategy.name !== vm.execObj.currentStrategy.name) {
                     $('#' + vm.execObj.currentStrategy.name).collapse('show');
@@ -196,7 +204,7 @@ if (typeof window !== 'undefined' && window.angular) {
             '<input type="text" ng-show="!isArray " ng-blur="updateModel()" ng-model="model">' +
             '</span>' +
             '<div class="var-outer-border" ng-show="!edit" ng-attr-id="{{modelId}}">' +
-            '<span class="showvars" ng-show="isArray && allvar.length " ng-repeat="myvar in allvar track by $index">{{myvar}}</span>' +
+            '<span class="showvars" ng-show="isArray && allvar.length " ng-class="dirtyArray.indexOf(myvar) >= 0 ? \'dirty\' : \'\'" ng-repeat="myvar in allvar track by $index">{{myvar}}</span>' +
             '<span class="showvars" ng-show="isArray && !allvar.length " ng-click="changeEdit()">nothing</span>' +
             '<span class="showvars" ng-show="!isArray && model.length "  ng-click="changeEdit()">{{model}}</span>' +
             '<span class="showvars" ng-show="!isArray && !model.length " ng-click="changeEdit()">nothing</span>' +
@@ -207,15 +215,15 @@ if (typeof window !== 'undefined' && window.angular) {
                 model: '=',
                 isArray: '=',
                 modelId: '=',
-                isDirty: '=',
-                parentId: '='
+                parentId: '=',
+                dirtyArray: '=',
+                prevVar: '='
             },
             link: function (scope, element, attrs, controller) {
                 scope.edit = false;
                 scope.var = '';
                 scope.id = null;
                 var listener = null;
-                scope.prevVar = [];
                 scope.$on('EditMe', function (event, data) {
                     if (scope.modelId == data) {
                         scope.id = data;
@@ -248,29 +256,31 @@ if (typeof window !== 'undefined' && window.angular) {
                     listener();
                     scope.edit = !scope.edit;
                     if (scope.isArray) {
-                        let arr = scope.var.split(',');
+                        let arr = new Set(scope.var.split(','));
+
                         scope.allvar = [];
                         angular.forEach(arr, function (val, key) {
                             val.trim().length ? scope.allvar.push(val.trim()) : null;
                         });
 
-                        $parse(attrs.model).assign(scope.$parent, scope.allvar);
-                        if(scope.prevVar.length > 0) {
-                            for(var i = 0; i< scope.prevVar.length; i++)
+                        if(scope.dirtyArray.length > 0) {
+                            for(let i = 0; i< scope.dirtyArray.length; i++)
                             {
-                                if(scope.prevVar[i] !== scope.allvar[i]){
-                                    scope.allvar= scope.prevVar;
+                                if(scope.dirtyArray[i] !== scope.allvar[i]){
+                                    scope.allvar = scope.prevVar;
                                     alert(" You are currently executing a loop. Adding elements are just allowed to the end of collection.  ");
                                     return;
                                 }
                             }
                         }
-                        if(scope.prevVar.length != 0 && scope.prevVar.length < scope.allvar.length) {
+
+                        $parse(attrs.model).assign(scope.$parent, scope.allvar);
+                        if(scope.prevVar.length !== 0 && scope.prevVar.length < scope.allvar.length) {
                             scope.$emit("blockAdd", {"data": scope.allvar.slice(scope.prevVar.length, scope.allvar.length), "id": scope.parentId});
                         }
                         //console.log(scope.allvar.length);
 
-                        scope.prevVar= scope.allvar;
+                        scope.prevVar = scope.allvar;
                     }
                     if (scope.id) {
                         scope.$emit("setNeededFalse");

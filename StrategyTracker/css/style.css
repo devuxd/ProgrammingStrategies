@@ -301,3 +301,7 @@ footer {
         top: 85px;
     }
 }
+
+.dirty {
+    background-color: goldenrod;
+}
