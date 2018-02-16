@@ -1,5 +1,15 @@
 const models = require('./models.js');
-const db = require('./dataManagement.js');
+// require('./dataManagement.js');
+
+var config = {
+    apiKey: "AIzaSyAXjL6f739BVqLDknymCN2H36-NBDS8LvY",
+    authDomain: "strategytracker.firebaseapp.com",
+    databaseURL: "https://strategytracker.firebaseio.com",
+    projectId: "strategytracker",
+    storageBucket: "strategytracker.appspot.com",
+    messagingSenderId: "261249836518"
+};
+firebase.initializeApp(config);
 
 if (typeof window !== 'undefined' && window.angular) {
     let myapp = angular.module('myapp', ['ngSanitize']);
@@ -63,14 +73,17 @@ if (typeof window !== 'undefined' && window.angular) {
             vm.proceedToStrategy = function () {
                 let flag = true;
                 angular.forEach(vm.parameters, function (val, key) {
-                    val.visible=true;
                     if(val.val == null || val.val.trim() == '') {
-
                         flag = false;
                     }
                 });
 
-                if(flag == true) $("#initialParams").modal('hide');
+                if(flag == true) {
+                    angular.forEach(vm.parameters, function (val, key) {
+                        val.visible=true;
+                    });
+                    $("#initialParams").modal('hide');
+                }
             };
 
             vm.reset = function () {
@@ -133,11 +146,20 @@ if (typeof window !== 'undefined' && window.angular) {
                 // });
                 if (vm.execObj == null) {
                     $timeout(function() {
-                        alert("You reach end of strategy! If you think you did not finish the task, reset the strategy and start over again. ");
+                        alert("Congratulation!You have reached end of strategy! If you think you did not finish the task, reset the strategy and start over again. ");
                     }, 100);
                     return;
                 }
                 checkType();
+                if(vm.execObj.strategyChanged) {
+                    $timeout(function () {
+                        angular.forEach(vm.execObj.variables, function (val, key) {
+                            if(val.type == 'parameter') {
+                                val.visible = true;
+                            }
+                        });
+                    }, 100);
+                }
                 if (vm.currentStrategy.name !== vm.execObj.currentStrategy.name) {
                     $('#' + vm.execObj.currentStrategy.name).collapse('show');
                     $('#' + vm.currentStrategy.name).collapse('hide');
@@ -217,7 +239,8 @@ if (typeof window !== 'undefined' && window.angular) {
                 modelId: '=',
                 parentId: '=',
                 dirtyArray: '=',
-                prevVar: '='
+                prevVar: '=',
+                fadeIn: '='
             },
             link: function (scope, element, attrs, controller) {
                 scope.edit = false;
@@ -230,9 +253,20 @@ if (typeof window !== 'undefined' && window.angular) {
                         scope.changeEdit();
                     }
                 });
+                if(scope.fadeIn !== undefined) {
+                    scope.$watch('fadeIn', function(value) {
+                        if(value) {
+                            $(element).fadeIn(500)
+                        } else {
+                            $(element).fadeOut(100);
+                        }
+                    });
+                }
+
                 if (scope.isArray) {
                     scope.allvar = scope.model;
                 }
+
 
                 scope.changeEdit = function () {
 

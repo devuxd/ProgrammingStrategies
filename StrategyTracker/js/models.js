@@ -2,6 +2,7 @@
 
 var clone = require('clone');
 
+// https://stackoverflow.com/questions/586182/how-to-insert-an-item-into-an-array-at-a-specific-index
 Array.prototype.insert = function (index) {
     index = Math.min(index, this.length);
     arguments.length > 1
@@ -139,7 +140,7 @@ class Interpreter {
             currentExecutionContext.variables.forEach(function (value, index, array) {
                 if (value.type === 'parameter') {
                     value.val = args[index].val;
-                    value.visible = true;
+                    //value.visible = true;
                 }
             });
         } else {
@@ -155,6 +156,7 @@ class Interpreter {
             selectionNeeded: (currentExecutionContext.pc.type === "if" || currentExecutionContext.pc.type === "until"),
             setNeeded: currentExecutionContext.pc.type === 'set',
             variables: currentExecutionContext.variables,
+            strategyChanged: nextType == 'new'
         };
 
     }

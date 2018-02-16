@@ -145,11 +145,6 @@ function parseApproach(owner, name, displayName, type, tokens, robotoText) {
         index++;
     }
     // Parse one or more strategies.
-    while(tokens.nextIs("strategy")) {
-        strategies.push(parseStrategy(index,tokens));
-        index++;
-    }
-
 
     if(tokens.hasNext())
         console.error("I'm not smart enough to handle anything other than strategies, so I got stuck on '" + tokens.tokens.slice(0, 5).join(" ") + "'");
