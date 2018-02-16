@@ -26,7 +26,6 @@ The correct answer is:
 banner
 Good night
 Good night Bob!
-Good night
 ```
 
 # DOM manipulation

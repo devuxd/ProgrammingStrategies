@@ -11,6 +11,9 @@ STRATEGY debug()
 	IF the faulty output is graphical
 		# To find these lines, try searching for keywords related to graphical output, like 'draw' or 'fill'
 		SET outputLines TO the line numbers of calls to graphical output functions that could have produced the faulty output
+	IF the faulty output is not in the console or in graphics
+	    # Are you sure its neither? Most computer output is one or the other.
+	    RETURN nothing
 	# Now that you have some lines that could have produced the faulty output, you're going to check each
 	# line, see if it executed, and then find the cause of it executing. If you're lucky, you only have one
 	# output line to check.
