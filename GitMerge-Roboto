@@ -1,0 +1,34 @@
+# This Strategy helps you merge 2 branches in githup and resolve conflicts
+STRATEGY GitMerge()
+	# Open the teminal, and use cd(change directory) command to move to the local git project directory 
+	Run the terminal and navigate to your git project directory
+	IF you are not in Master branch
+		# Run the command git checkout master
+		checkout to master branch
+	IF you are in master branch
+		# To merge the second branch with master branch run the command "git merge secondBranch", which secondBranch is the name of your git second branch
+		Merge two branches
+		IF the merge has confilict
+			SET confilictedFile TO the files in project that have confilict
+			FOR EACH 'file' IN 'confilictedFile'
+				DO fixConfilict('file')
+		# Run GIT STATUS to see the latest changes
+		# Run GIT ADD 
+		# Run GIT PUSH
+		Commit and push the changes
+	# If you made it to this line, then you must have missed something. Is it possible you made a mistake above? If so, go back and verify your work, because something caused the faulty output.
+	RETURN nothing
+
+STRATEGY fixConfilict(conflictedFile)
+	Open the conflictedFile with your favorite text editor
+	# To find a line with conflict in your file, search the file for the conflict marker <<<<<<< HEAD
+	SET 'line' TO a line number that has conflict
+	# until there is no line with <<<<<<< HEAD tag in the file
+	UNTIL the file has no lines of conflict
+		# You'll see the changes from the master branch after the line <<<<<<< HEAD
+		# Next youll see ======= which divides 2 merged lines followed by >>>>>>> SECOND branch name
+		# Decide if you want to keep only your branch's changes, keep only the other branch's changes, or make a brand new change, and edit the file by removing unwanted lines
+		# Also remove >>>>>>Head & ====== from the lines and make sure that the file has proper code syntax.
+		Edit the line
+		SET 'line' TO a line number that has conflict
+	Return nothing

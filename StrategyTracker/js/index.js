@@ -256,9 +256,11 @@ if (typeof window !== 'undefined' && window.angular) {
                 if(scope.fadeIn !== undefined) {
                     scope.$watch('fadeIn', function(value) {
                         if(value) {
-                            $(element).fadeIn(500)
+                            $(element).fadeIn(1500);
+
                         } else {
-                            $(element).fadeOut(100);
+                            $(element).fadeOut(1000);
+
                         }
                     });
                 }
