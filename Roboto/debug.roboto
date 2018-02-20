@@ -2,26 +2,24 @@
 #
 # The strategy you're about to use is different. Instead of guessing and checking, this strategy involves systematically working backwards from the code that directly caused the failed output to all of the code that caused that failed output to occur. As you work backwards, you'll check each statement for defects. If you work backwards like this, following the chain of causality from failure to cause, you will almost certainly find the bug.
 STRATEGY debug()
-	# This first step will give you enough familiarity to find everywhere in the program that causes output.
+	# This first step will give you enough familiarity to find lines in the program that create the program's output.
 	Read the names of all of the functions and variables in the program
-	# The next step in this strategy is to find code in the program that caused the faulty output.
-	IF the faulty output is in the console
-		# To find these lines, try searching for keywords related to logging
+	# Some programs produce command line output with print statemeents. Is the faulty output you're investigating printed to a command line?
+	IF the faulty output is logged to a command line
+		# To find print statements, try searching for keywords related to 'log' or 'print'
 		SET outputLines TO the line numbers of calls to console logging functions
-	IF the faulty output is graphical
-		# To find these lines, try searching for keywords related to graphical output, like 'draw' or 'fill'
-		SET outputLines TO the line numbers of calls to graphical output functions that could have produced the faulty output
-	IF the faulty output is not in the console or in graphics
-	    # Are you sure its neither? Most computer output is one or the other.
-	    RETURN nothing
-	# Now that you have some lines that could have produced the faulty output, you're going to check each
+	# Graphical output includes things like colored lines and rectangles
+	IF the faulty output is graphical output
+		# To find these lines, try searching for keywords related to graphical output, like 'draw' or 'fill'. Focus on lines that directly render something, not on higher-level functions that indirectly call rendering functions.
+		SET outputLines TO the line numbers of function calls that directly render graphics to the screen
+	# Now that you have some lines that could have directly produced the faulty output, you're going to check each
 	# line, see if it executed, and then find the cause of it executing. If you're lucky, you only have one
 	# output line to check.
 	FOR EACH 'line' IN 'outputLines'
 		# First, let's make sure the line executed. You want to be sure that this is actually the source of the wrong output. You can check this by inserting a logging statement, or setting a breakpoint on the line.
 		IF the program executed 'line'
-			# Next, is anything about the output statement itself wrong? If so, you found the bug!
-			IF 'line' is defective
+			# Is anything about this line of code causing the failure? If so, you found the bug!
+			IF 'line' is has an error in it that causes the failure you're debugging
 				RETURN 'line'
 			# If the output statement is not wrong, perhaps the line was not supposed to execute at all?
 			IF 'line' was not supposed to execute at all
