@@ -30,6 +30,8 @@
                 <input class="btn btn-warning btn-sm" type="button" value="Not Yet" ng-click="main.innerStatement()" />
             </span>
         </div>
+        <p ng-repeat="comment in st.comments" ng-class="(main.execObj.activeLines.indexOf(st.id) >= 0 ) ? 'visibleDescription' : 'hidden' ">{{comment.replace('#','')}}</p>
+
         <ul style="list-style: none">
             <li ng-repeat=" st in st.statements" ng-include="'statement-renderer.html'"></li>
         </ul>
@@ -84,7 +86,7 @@
 
 <div class="container-fluid text-center">
     <div class="row content">
-        <div class="col-sm-6 text-left">
+        <div class="col-sm-7 text-left">
             <div class="panel-info">
                 <div class=" panel-heading">
                     <div id="btn-reset">
@@ -139,12 +141,12 @@
                                     </div>
                                     <div ng-attr-id="{{strat.name}}" class="panel-collapse collapse"
                                          ng-class="{'in' : $index == 0}">
-
                                         <div class="panel-body" style="height: auto;">
                                             <div>
                                                 <div ng-class="(main.execObj.activeLines.indexOf(strat.id) >= 0 ) ? 'active' : 'code'">
                                                     {{strat.text}}
                                                 </div>
+
                                                 <ul style="list-style: none">
                                                 </ul>
                                             </div>
@@ -155,23 +157,42 @@
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
-        <div class="col-sm-3 sidenav">
+        <div class="col-sm-5 sidenav">
             <div class="panel-primary">
                 <div class="panel-heading">
-                    Description
+                    Variables
                 </div>
                 <div class="panel-body text-left">
-                    <p ng-repeat="comment in main.execObj.currentStatement.comments" class="code-text">{{comment.replace('#','')}}</p>
+                    <div class="form-group var-div" ng-repeat="var in main.execObj.variables track by var.id"
+                         ng-show="var.visible == true && var.type !== 'argument'">
+                        <label class="col-md-4" ng-for="var.name"
+                               style="position: relative;top: 14px;">{{var.name}}</label>
+                        <variable-value class="col-md-8" model-id="var.name" is-array="isArray(var.val)" parent-id="var.parentId" fade-in="var.visible"
+                                        model="var.val" dirty-array="var.dirtyArray" prev-var="var.prevVar">
+
+                        </variable-value>
+                    </div>
                 </div>
+                <!--<p >The value of variables might changed due to calling a new strategy &#45;&#45; {{main.execObj.currentStatement.type}}</p>-->
+
+                <p ng-class="main.execObj.currentStatement.type =='strategy' ? 'unhidden' :'hidden'">The value of variables might changed due to calling a new strategy</p>
             </div>
+        </div>
+        <div class="col-sm-5 sidenav">
+            <!--<div class="panel-primary">-->
+                <!--<div class="panel-heading">-->
+                    <!--Description-->
+                <!--</div>-->
+                <!--<div class="panel-body text-left">-->
+                    <!--<p ng-repeat="comment in main.execObj.currentStatement.comments" class="code-text">{{comment.replace('#','')}}</p>-->
+                <!--</div>-->
+            <!--</div>-->
             <div class="panel-primary" ng-class="(main.execObj.currentStatement.miniSteps.length>0 ) ? 'unhidden' : 'hidden'">
                 <div class="panel-heading">
                     {{main.execObj.currentStatement.type.toUpperCase()}} Statement Steps
@@ -182,27 +203,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-3 sidenav">
-            <div class="panel-primary">
-                <div class="panel-heading">
-                    variables
-                </div>
-                <div class="panel-body text-left">
-                    <div class="form-group var-div" ng-repeat="var in main.execObj.variables track by var.id"
-                         ng-show="var.visible == true && var.type !== 'argument'">
-                        <label class="col-md-6" ng-for="var.name"
-                               style="position: relative;top: 14px;">{{var.name}}</label>
-                        <variable-value class="col-md-6" model-id="var.name" is-array="isArray(var.val)" parent-id="var.parentId" fade-in="var.visible"
-                                        model="var.val" dirty-array="var.dirtyArray" prev-var="var.prevVar">
 
-                        </variable-value>
-
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
     </div>
 </div>
 

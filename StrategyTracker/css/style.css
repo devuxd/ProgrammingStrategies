@@ -21,20 +21,6 @@
     width: 20%;
     float: left;
 }
-.code {
-    opacity: 0.4 !important;
-}
-
-.code p {
-    color: #000 !important;
-}
-
-.active {
-    opacity: 1;
-    font-weight: 700;
-    /*text-shadow: 2px 2px 6px #eade28;*/
-    background-color: #a6e1ec;
-}
 
 .margin-1 {
     margin-left: 2%;
@@ -63,6 +49,28 @@
 .unhidden {
     visibility: visible;
 }
+.visibleDescription{
+    visibility:visible;
+    background-color:rgba(43,214,131, 0.2);
+    font-family:'Open Sans', sans-serif;
+    font-size:12px;
+    font-style: italic;
+}
+.code {
+    opacity: 0.4 !important;
+}
+
+.code p {
+    color: #000 !important;
+}
+
+.active {
+    opacity: 1;
+    font-weight: 700;
+    /*text-shadow: 2px 2px 6px #eade28;*/
+    background-color: rgba(43,214,131, 0.2);
+    /*//DEFFFC;*/
+}
 
 .well {
     color: #777777;
@@ -83,6 +91,7 @@
     overflow: auto;
     overflow-x: hidden;
 }
+
 
 .desc-div {
     position: absolute;
@@ -229,7 +238,7 @@ accordion .accordion-navigation {
 }
 
 /* Set height of the grid so .sidenav can be 100% (adjust as needed) */
-.row.content {height: 450px}
+/*.row.content {height: 450px}*/
 
 /* Set gray background color and 100% height */
 .sidenav {
