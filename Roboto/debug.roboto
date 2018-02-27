@@ -18,8 +18,10 @@ STRATEGY debug()
 	FOR EACH 'line' IN 'outputLines'
 		# First, let's make sure the line executed. You want to be sure that this is actually the source of the wrong output. You can check this by inserting a logging statement, or setting a breakpoint on the line.
 		IF the program executed 'line'
-			# Is anything about this line of code causing the failure? If so, you found the bug!
-			IF 'line' is has an error in it that causes the failure you're debugging
+			Analyze the line to determine its role in the overall behavior of the program
+			# Check for errors such as the wrong function being called, the wrong argument being passed to a function, the wrong variable being referenced, or a wrong operator being used
+			IF any part of 'line' is inconsistent with its purpose
+				# You found the bug
 				RETURN 'line'
 			# If the output statement is not wrong, perhaps the line was not supposed to execute at all?
 			IF 'line' was not supposed to execute at all
