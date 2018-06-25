@@ -19,10 +19,14 @@
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
                 console.log("HERE1 with ", user.uid);
-                localStorage.setItem("ID", user.uid);
+                sessionStorage.setItem("ID", user.uid);
+                sessionStorage.setItem("Email", user.email);
+                sessionStorage.setItem("Name", user.displayName);
             }
             else {
-                console.log("fail");
+                console.log("Not logged in");
+                window.alert("You must be logged in to use this app");
+                window.location.href = '../public/index.html';
             }
         });
 
@@ -122,7 +126,7 @@
                         </button>
                     </div>
                         <div id="btn-Success">
-                            <button class="btn btn-default" id="success" ng-click="main.LogEventSuccess(); (window.location.href = '../StrategyTracker/StrategyTracker.html')"
+                            <button class="btn btn-default" id="success" ng-click="main.LogEventSuccess(); main.redirectToHome();"
                                     title="I have Successfully used the Strategy"> Success
                             </button>
                         </div>
