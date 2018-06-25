@@ -1,0 +1,2403 @@
+{
+  "strategies" : {
+    "-L0LYHckpXuotOm2Cfc3" : {
+      "description" : [ "# If you've spent a lot of time debugging unfamiliar code, the way that you probably debug is to first look at the failure, then look at the code to understand how it's architected, and then look for possible reasons for why the program failed. Once you have a guess, you probably then check it with things like breakpoints and logging. This strategy often works if you can have a lot of prior experience with debugging and inspecting program state. But if you don't have that experience, or you happen to guess wrong, this approach can lead to a lot of dead ends.", "#", "# The strategy you're about to use is different. Instead of guessing and checking, this strategy involves systematically working backwards from the code that directly caused the failed output to all of the code that caused that failed output to occur. As you work backwards, you'll check each statement for defects. If you work backwards like this, following the chain of causality from failure to cause, you will almost certainly find the bug." ],
+      "displayName" : "Debug Roboto",
+      "name" : "DebugRoboto",
+      "owner" : "Andy",
+      "robotoText" : "# If you've spent a lot of time debugging unfamiliar code, the way that you probably debug is to first look at the failure, then look at the code to understand how it's architected, and then look for possible reasons for why the program failed. Once you have a guess, you probably then check it with things like breakpoints and logging. This strategy often works if you can have a lot of prior experience with debugging and inspecting program state. But if you don't have that experience, or you happen to guess wrong, this approach can lead to a lot of dead ends.\n#\n# The strategy you're about to use is different. Instead of guessing and checking, this strategy involves systematically working backwards from the code that directly caused the failed output to all of the code that caused that failed output to occur. As you work backwards, you'll check each statement for defects. If you work backwards like this, following the chain of causality from failure to cause, you will almost certainly find the bug.\nSTRATEGY debug()\n\t# This first step will give you enough familiarity to find lines in the program that create the program's output.\n\tRead the names of all of the functions and variables in the program\n\t# Some programs produce command line output with print statemeents. Is the faulty output you're investigating printed to a command line?\n\tIF the faulty output is logged to a command line\n\t\t# To find print statements, try searching for keywords related to 'log' or 'print'\n\t\tSET outputLines TO the line numbers of calls to console logging functions\n\t# Graphical output includes things like colored lines and rectangles\n\tIF the faulty output is graphical output\n\t\t# To find these lines, try searching for keywords related to graphical output, like 'draw' or 'fill'. Focus on lines that directly render something, not on higher-level functions that indirectly call rendering functions.\n\t\tSET outputLines TO the line numbers of function calls that directly render graphics to the screen\n\t# Now that you have some lines that could have directly produced the faulty output, you're going to check each\n\t# line, see if it executed, and then find the cause of it executing. If you're lucky, you only have one\n\t# output line to check.\n\tFOR EACH 'line' IN 'outputLines'\n\t\t# First, let's make sure the line executed. You want to be sure that this is actually the source of the wrong output. You can check this by inserting a logging statement, or setting a breakpoint on the line.\n\t\tIF the program executed 'line'\n\t\t\tAnalyze the line to determine its role in the overall behavior of the program\n\t\t\t# Check for errors such as the wrong function being called, the wrong argument being passed to a function, the wrong variable being referenced, or a wrong operator being used\n\t\t\tIF any part of 'line' is inconsistent with its purpose\n\t\t\t\t# You found the bug\n\t\t\t\tRETURN 'line'\n\t\t\t# If the output statement is not wrong, perhaps the line was not supposed to execute at all?\n\t\t\tIF 'line' was not supposed to execute at all\n\t\t\t\t# The conditional might be in the same function as the output statement, or it might have been a conditional in a function that called this function. Check the call stack if necessary by setting a breakpoint.\n\t\t\t\tFind the conditional that led this line to being executed\n\t\t\t\t# Some value in the conditional's boolean expression must have been wrong. Which value was it?\n\t\t\t\tSET 'wrongValue' to the value in the conditional's boolean expression that ultimately allowed the faulty output to execute\n\t\t\t\t# We'll use another strategy to find the source of the incorrect value.\n\t\t\t\tRETURN  localizeWrongValue('wrongValue')\n\t\t\t# If the line was supposed to execute, but it executed with an incorrect value, find that value.\n\t\t\tIF 'line' executed with an incorrect value\n\t\t\t\tSET 'wrongValue' TO the incorrect value\n\t\t\t\t# We'll use another strategy to find the cause of the incorrect value.\n\t\t\t\tRETURN localizeWrongValue('wrongValue')\n\t# If you made it to this line, then you must have missed something. Is it possible you made a mistake above? If so, go back and verify your work, because something caused the faulty output.\n\tRETURN nothing\n\nSTRATEGY localizeWrongValue(wrongValue)\n\t# The approach of this strategy is to recursively search backwards for the source of a value.\n\t# We begin by finding all of the lines of code that could have produced the wrong value.\n\t# For example, if a value was stored in a variable, we would find all of the assignments to that variable\n\t# that could have defined the variables current value. If it was a function's return value,\n\t# find the return statements that returned that wrong value.\n\t# These lines include expressions that computed the wrong value, a value passed in through a parameter, or a function call that returned a value. Inspect the code to find the source of the incorrect value.\n\tSET 'lines' to all of the lines of the the program that could have produced 'wrongValue'\n\t# We'll check each line for errors, or for faulty values.\n\tFOR EACH 'line' in 'lines'\n\t\t# Use a logging statement or a breakpoint to verify that this line actually executed.\n\t\tIF 'line' executed\n\t\t\t# Does the line incorrectly compute the value? If so, you found the defect!\n\t\t\tIF 'line' is defective\n\t\t\t\tRETURN 'line'\n\t\t\t# If the line itself wasn't defective, maybe one of the values it used to execute was defective.\n\t\t\tSET 'badValue' TO any incorrect value used by the line to execute\n\t\t\tIF 'value' isn't nothing\n\t\t\t\tRETURN localizeWrongValue('badValue')\n\t# If you made it to this line, then you didn't find the cause of the wrong value. Is it possible you made a mistake above? If so, check your work and start over.\n\tRETURN nothing",
+      "strategies" : [ {
+        "id" : "debug0",
+        "name" : "debug",
+        "statements" : [ {
+          "comments" : [ "# This first step will give you enough familiarity to find lines in the program that create the program's output." ],
+          "id" : "debug0-0",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+          } ],
+          "text" : "Read the names of all of the functions and variables in the program",
+          "type" : "action",
+          "words" : [ "Read", "the", "names", "of", "all", "of", "the", "functions", "and", "variables", "in", "the", "program" ]
+        }, {
+          "comments" : [ "# Some programs produce command line output with print statemeents. Is the faulty output you're investigating printed to a command line?" ],
+          "id" : "debug0-1",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+          }, {
+            "role" : "User",
+            "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 3. The computer will go to the next statement."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "the", "faulty", "output", "is", "logged", "to", "a", "command", "line" ]
+          },
+          "statements" : [ {
+            "comments" : [ "# To find print statements, try searching for keywords related to 'log' or 'print'" ],
+            "id" : "debug0-1-0",
+            "identifier" : "outputLines",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+            }, {
+              "role" : "Computer",
+              "text" : "Step 2. The computer will record the value you specify for the variable."
+            } ],
+            "query" : {
+              "type" : "query",
+              "words" : [ "the", "line", "numbers", "of", "calls", "to", "console", "logging", "functions" ]
+            },
+            "text" : "set outputLines to the line numbers of calls to console logging functions",
+            "type" : "set"
+          } ],
+          "text" : "if the faulty output is logged to a command line",
+          "type" : "if"
+        }, {
+          "comments" : [ "# Graphical output includes things like colored lines and rectangles" ],
+          "id" : "debug0-2",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+          }, {
+            "role" : "User",
+            "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 3. The computer will go to the next statement."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "the", "faulty", "output", "is", "graphical", "output" ]
+          },
+          "statements" : [ {
+            "comments" : [ "# To find these lines, try searching for keywords related to graphical output, like 'draw' or 'fill'. Focus on lines that directly render something, not on higher-level functions that indirectly call rendering functions." ],
+            "id" : "debug0-2-0",
+            "identifier" : "outputLines",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+            }, {
+              "role" : "Computer",
+              "text" : "Step 2. The computer will record the value you specify for the variable."
+            } ],
+            "query" : {
+              "type" : "query",
+              "words" : [ "the", "line", "numbers", "of", "function", "calls", "that", "directly", "render", "graphics", "to", "the", "screen" ]
+            },
+            "text" : "set outputLines to the line numbers of function calls that directly render graphics to the screen",
+            "type" : "set"
+          } ],
+          "text" : "if the faulty output is graphical output",
+          "type" : "if"
+        }, {
+          "comments" : [ "# Now that you have some lines that could have directly produced the faulty output, you're going to check each", "# line, see if it executed, and then find the cause of it executing. If you're lucky, you only have one", "# output line to check." ],
+          "id" : "debug0-3",
+          "identifier" : "'line'",
+          "list" : "'outputLines'",
+          "miniSteps" : [ {
+            "role" : "Computer",
+            "text" : "Step 1. The computer will iterate over the elements in the collection and select the next element in the collection."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will record the value of the current element in the specified variable.\n"
+          }, {
+            "role" : "Computer",
+            "text" : "Step 3. The computer will go to the next statement, returning to the for each statement after control has reached the end of the section."
+          } ],
+          "statements" : [ {
+            "comments" : [ "# First, let's make sure the line executed. You want to be sure that this is actually the source of the wrong output. You can check this by inserting a logging statement, or setting a breakpoint on the line." ],
+            "id" : "debug0-3-0",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+            }, {
+              "role" : "User",
+              "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+            }, {
+              "role" : "Computer",
+              "text" : "Step 3. The computer will go to the next statement."
+            } ],
+            "query" : {
+              "type" : "query",
+              "words" : [ "the", "program", "executed", "'line'" ]
+            },
+            "statements" : [ {
+              "id" : "debug0-3-0-0",
+              "miniSteps" : [ {
+                "role" : "User",
+                "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+              } ],
+              "text" : "Analyze the line to determine its role in the overall behavior of the program",
+              "type" : "action",
+              "words" : [ "Analyze", "the", "line", "to", "determine", "its", "role", "in", "the", "overall", "behavior", "of", "the", "program" ]
+            }, {
+              "comments" : [ "# Check for errors such as the wrong function being called, the wrong argument being passed to a function, the wrong variable being referenced, or a wrong operator being used" ],
+              "id" : "debug0-3-0-1",
+              "miniSteps" : [ {
+                "role" : "User",
+                "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+              }, {
+                "role" : "User",
+                "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+              }, {
+                "role" : "Computer",
+                "text" : "Step 3. The computer will go to the next statement."
+              } ],
+              "query" : {
+                "type" : "query",
+                "words" : [ "any", "part", "of", "'line'", "is", "inconsistent", "with", "its", "purpose" ]
+              },
+              "statements" : [ {
+                "comments" : [ "# You found the bug" ],
+                "id" : "debug0-3-0-1-0",
+                "miniSteps" : [ {
+                  "role" : "Computer",
+                  "text" : "Step 1. The computer will return the specified value to the caller of the current strategy."
+                }, {
+                  "role" : "Computer",
+                  "text" : "Step 2. The computer will continue executing statements in the strategy's caller."
+                } ],
+                "query" : {
+                  "type" : "query",
+                  "words" : [ "'line'" ]
+                },
+                "text" : "return 'line'",
+                "type" : "return"
+              } ],
+              "text" : "if any part of 'line' is inconsistent with its purpose",
+              "type" : "if"
+            }, {
+              "comments" : [ "# If the output statement is not wrong, perhaps the line was not supposed to execute at all?" ],
+              "id" : "debug0-3-0-2",
+              "miniSteps" : [ {
+                "role" : "User",
+                "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+              }, {
+                "role" : "User",
+                "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+              }, {
+                "role" : "Computer",
+                "text" : "Step 3. The computer will go to the next statement."
+              } ],
+              "query" : {
+                "type" : "query",
+                "words" : [ "'line'", "was", "not", "supposed", "to", "execute", "at", "all" ]
+              },
+              "statements" : [ {
+                "comments" : [ "# The conditional might be in the same function as the output statement, or it might have been a conditional in a function that called this function. Check the call stack if necessary by setting a breakpoint." ],
+                "id" : "debug0-3-0-2-0",
+                "miniSteps" : [ {
+                  "role" : "User",
+                  "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+                } ],
+                "text" : "Find the conditional that led this line to being executed",
+                "type" : "action",
+                "words" : [ "Find", "the", "conditional", "that", "led", "this", "line", "to", "being", "executed" ]
+              }, {
+                "comments" : [ "# Some value in the conditional's boolean expression must have been wrong. Which value was it?" ],
+                "id" : "debug0-3-0-2-1",
+                "identifier" : "'wrongValue'",
+                "miniSteps" : [ {
+                  "role" : "User",
+                  "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+                }, {
+                  "role" : "Computer",
+                  "text" : "Step 2. The computer will record the value you specify for the variable."
+                } ],
+                "query" : {
+                  "type" : "query",
+                  "words" : [ "the", "value", "in", "the", "conditional's", "boolean", "expression", "that", "ultimately", "allowed", "the", "faulty", "output", "to", "execute" ]
+                },
+                "text" : "set 'wrongValue' to the value in the conditional's boolean expression that ultimately allowed the faulty output to execute",
+                "type" : "set"
+              }, {
+                "comments" : [ "# We'll use another strategy to find the source of the incorrect value." ],
+                "id" : "debug0-3-0-2-2",
+                "miniSteps" : [ {
+                  "role" : "Computer",
+                  "text" : "Step 1. The computer will return the specified value to the caller of the current strategy."
+                }, {
+                  "role" : "Computer",
+                  "text" : "Step 2. The computer will continue executing statements in the strategy's caller."
+                } ],
+                "query" : {
+                  "arguments" : [ "'wrongValue'" ],
+                  "name" : "localizeWrongValue",
+                  "type" : "call"
+                },
+                "text" : "return localizeWrongValue('wrongValue')",
+                "type" : "return"
+              } ],
+              "text" : "if 'line' was not supposed to execute at all",
+              "type" : "if"
+            }, {
+              "comments" : [ "# If the line was supposed to execute, but it executed with an incorrect value, find that value." ],
+              "id" : "debug0-3-0-3",
+              "miniSteps" : [ {
+                "role" : "User",
+                "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+              }, {
+                "role" : "User",
+                "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+              }, {
+                "role" : "Computer",
+                "text" : "Step 3. The computer will go to the next statement."
+              } ],
+              "query" : {
+                "type" : "query",
+                "words" : [ "'line'", "executed", "with", "an", "incorrect", "value" ]
+              },
+              "statements" : [ {
+                "id" : "debug0-3-0-3-0",
+                "identifier" : "'wrongValue'",
+                "miniSteps" : [ {
+                  "role" : "User",
+                  "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+                }, {
+                  "role" : "Computer",
+                  "text" : "Step 2. The computer will record the value you specify for the variable."
+                } ],
+                "query" : {
+                  "type" : "query",
+                  "words" : [ "the", "incorrect", "value" ]
+                },
+                "text" : "set 'wrongValue' to the incorrect value",
+                "type" : "set"
+              }, {
+                "comments" : [ "# We'll use another strategy to find the cause of the incorrect value." ],
+                "id" : "debug0-3-0-3-1",
+                "miniSteps" : [ {
+                  "role" : "Computer",
+                  "text" : "Step 1. The computer will return the specified value to the caller of the current strategy."
+                }, {
+                  "role" : "Computer",
+                  "text" : "Step 2. The computer will continue executing statements in the strategy's caller."
+                } ],
+                "query" : {
+                  "arguments" : [ "'wrongValue'" ],
+                  "name" : "localizeWrongValue",
+                  "type" : "call"
+                },
+                "text" : "return localizeWrongValue('wrongValue')",
+                "type" : "return"
+              } ],
+              "text" : "if 'line' executed with an incorrect value",
+              "type" : "if"
+            } ],
+            "text" : "if the program executed 'line'",
+            "type" : "if"
+          } ],
+          "text" : "for each 'line' in 'outputLines'",
+          "type" : "foreach"
+        }, {
+          "comments" : [ "# If you made it to this line, then you must have missed something. Is it possible you made a mistake above? If so, go back and verify your work, because something caused the faulty output." ],
+          "id" : "debug0-4",
+          "miniSteps" : [ {
+            "role" : "Computer",
+            "text" : "Step 1. The computer will return the specified value to the caller of the current strategy."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will continue executing statements in the strategy's caller."
+          } ],
+          "query" : {
+            "nothing" : "nothing",
+            "type" : "nothing"
+          },
+          "text" : "return nothing",
+          "type" : "return"
+        } ],
+        "text" : "Strategy debug()",
+        "type" : "strategy"
+      }, {
+        "id" : "localizeWrongValue1",
+        "name" : "localizeWrongValue",
+        "parameters" : [ "wrongValue" ],
+        "statements" : [ {
+          "comments" : [ "# The approach of this strategy is to recursively search backwards for the source of a value.", "# We begin by finding all of the lines of code that could have produced the wrong value.", "# For example, if a value was stored in a variable, we would find all of the assignments to that variable", "# that could have defined the variables current value. If it was a function's return value,", "# find the return statements that returned that wrong value.", "# These lines include expressions that computed the wrong value, a value passed in through a parameter, or a function call that returned a value. Inspect the code to find the source of the incorrect value." ],
+          "id" : "localizeWrongValue1-0",
+          "identifier" : "'lines'",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will record the value you specify for the variable."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "all", "of", "the", "lines", "of", "the", "the", "program", "that", "could", "have", "produced", "'wrongValue'" ]
+          },
+          "text" : "set 'lines' to all of the lines of the the program that could have produced 'wrongValue'",
+          "type" : "set"
+        }, {
+          "comments" : [ "# We'll check each line for errors, or for faulty values." ],
+          "id" : "localizeWrongValue1-1",
+          "identifier" : "'line'",
+          "list" : "'lines'",
+          "miniSteps" : [ {
+            "role" : "Computer",
+            "text" : "Step 1. The computer will iterate over the elements in the collection and select the next element in the collection."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will record the value of the current element in the specified variable.\n"
+          }, {
+            "role" : "Computer",
+            "text" : "Step 3. The computer will go to the next statement, returning to the for each statement after control has reached the end of the section."
+          } ],
+          "statements" : [ {
+            "comments" : [ "# Use a logging statement or a breakpoint to verify that this line actually executed." ],
+            "id" : "localizeWrongValue1-1-0",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+            }, {
+              "role" : "User",
+              "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+            }, {
+              "role" : "Computer",
+              "text" : "Step 3. The computer will go to the next statement."
+            } ],
+            "query" : {
+              "type" : "query",
+              "words" : [ "'line'", "executed" ]
+            },
+            "statements" : [ {
+              "comments" : [ "# Does the line incorrectly compute the value? If so, you found the defect!" ],
+              "id" : "localizeWrongValue1-1-0-0",
+              "miniSteps" : [ {
+                "role" : "User",
+                "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+              }, {
+                "role" : "User",
+                "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+              }, {
+                "role" : "Computer",
+                "text" : "Step 3. The computer will go to the next statement."
+              } ],
+              "query" : {
+                "type" : "query",
+                "words" : [ "'line'", "is", "defective" ]
+              },
+              "statements" : [ {
+                "id" : "localizeWrongValue1-1-0-0-0",
+                "miniSteps" : [ {
+                  "role" : "Computer",
+                  "text" : "Step 1. The computer will return the specified value to the caller of the current strategy."
+                }, {
+                  "role" : "Computer",
+                  "text" : "Step 2. The computer will continue executing statements in the strategy's caller."
+                } ],
+                "query" : {
+                  "type" : "query",
+                  "words" : [ "'line'" ]
+                },
+                "text" : "return 'line'",
+                "type" : "return"
+              } ],
+              "text" : "if 'line' is defective",
+              "type" : "if"
+            }, {
+              "comments" : [ "# If the line itself wasn't defective, maybe one of the values it used to execute was defective." ],
+              "id" : "localizeWrongValue1-1-0-1",
+              "identifier" : "'badValue'",
+              "miniSteps" : [ {
+                "role" : "User",
+                "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+              }, {
+                "role" : "Computer",
+                "text" : "Step 2. The computer will record the value you specify for the variable."
+              } ],
+              "query" : {
+                "type" : "query",
+                "words" : [ "any", "incorrect", "value", "used", "by", "the", "line", "to", "execute" ]
+              },
+              "text" : "set 'badValue' to any incorrect value used by the line to execute",
+              "type" : "set"
+            }, {
+              "id" : "localizeWrongValue1-1-0-2",
+              "miniSteps" : [ {
+                "role" : "User",
+                "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+              }, {
+                "role" : "User",
+                "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+              }, {
+                "role" : "Computer",
+                "text" : "Step 3. The computer will go to the next statement."
+              } ],
+              "query" : {
+                "type" : "query",
+                "words" : [ "'value'", "isn't", "nothing" ]
+              },
+              "statements" : [ {
+                "id" : "localizeWrongValue1-1-0-2-0",
+                "miniSteps" : [ {
+                  "role" : "Computer",
+                  "text" : "Step 1. The computer will return the specified value to the caller of the current strategy."
+                }, {
+                  "role" : "Computer",
+                  "text" : "Step 2. The computer will continue executing statements in the strategy's caller."
+                } ],
+                "query" : {
+                  "arguments" : [ "'badValue'" ],
+                  "name" : "localizeWrongValue",
+                  "type" : "call"
+                },
+                "text" : "return localizeWrongValue('badValue')",
+                "type" : "return"
+              } ],
+              "text" : "if 'value' isn't nothing",
+              "type" : "if"
+            } ],
+            "text" : "if 'line' executed",
+            "type" : "if"
+          } ],
+          "text" : "for each 'line' in 'lines'",
+          "type" : "foreach"
+        }, {
+          "comments" : [ "# If you made it to this line, then you didn't find the cause of the wrong value. Is it possible you made a mistake above? If so, check your work and start over." ],
+          "id" : "localizeWrongValue1-2",
+          "miniSteps" : [ {
+            "role" : "Computer",
+            "text" : "Step 1. The computer will return the specified value to the caller of the current strategy."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will continue executing statements in the strategy's caller."
+          } ],
+          "query" : {
+            "nothing" : "nothing",
+            "type" : "nothing"
+          },
+          "text" : "return nothing",
+          "type" : "return"
+        } ],
+        "text" : "Strategy localizeWrongValue(wrongValue)",
+        "type" : "strategy"
+      } ]
+    },
+    "-L1V3UZL0E0nggT4J1KV" : {
+      "description" : [ "# Enter text for the following variables below.", "# Let 'level' be the number of discs, 'source' be A, the ", "# leftmost peg, 'target' be C, the rightmost peg, and ", "# 'auxiliary' be B, the center peg" ],
+      "displayName" : "Tower of Hanoi",
+      "name" : "towerOfHanoi",
+      "owner" : "Thomas",
+      "robotoText" : "# Enter text for the following variables below.\n# Let 'level' be the number of discs, 'source' be A, the \n# leftmost peg, 'target' be C, the rightmost peg, and \n# 'auxiliary' be B, the center peg\nSTRATEGY towerOfHanoi(level source target auxiliary)\n\tSET 'topDiscs' TO 'level' minus one\n\tIF 'level' greater than 1\n\t\t# We will now jump to a substrategy to move some discs to the auxilary.\n\t\tDO towerOfHanoi('topDiscs' 'source' 'auxiliary' 'target')\n\tMove the disc at 'source' to 'target'\n\tIF 'level' greater than 1\n\t\t# We will now jump to a substrategy to move discs back from the auxilary.\n\t\tDO towerOfHanoi('topDiscs' 'auxiliary' 'target' 'source')",
+      "strategies" : [ {
+        "id" : "towerOfHanoi0",
+        "name" : "towerOfHanoi",
+        "parameters" : [ "level", "source", "target", "auxiliary" ],
+        "statements" : [ {
+          "id" : "towerOfHanoi0-0",
+          "identifier" : "'topDiscs'",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will record the value you specify for the variable."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "'level'", "minus", "one" ]
+          },
+          "text" : "set 'topDiscs' to 'level' minus one",
+          "type" : "set"
+        }, {
+          "id" : "towerOfHanoi0-1",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+          }, {
+            "role" : "User",
+            "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 3. The computer will go to the next statement."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "'level'", "greater", "than", "1" ]
+          },
+          "statements" : [ {
+            "call" : {
+              "arguments" : [ "'topDiscs'", "'source'", "'auxiliary'", "'target'" ],
+              "name" : "towerOfHanoi",
+              "type" : "call"
+            },
+            "comments" : [ "# We will now jump to a substrategy to move some discs to the auxilary." ],
+            "id" : "towerOfHanoi0-1-0",
+            "miniSteps" : [ {
+              "role" : "Computer",
+              "text" : "Step 1. The computer will invoke the specified strategy, passing the specified variable values to the strategy."
+            } ],
+            "text" : "do towerOfHanoi('topDiscs' 'source' 'auxiliary' 'target')",
+            "type" : "do"
+          } ],
+          "text" : "if 'level' greater than 1",
+          "type" : "if"
+        }, {
+          "id" : "towerOfHanoi0-2",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+          } ],
+          "text" : "Move the disc at 'source' to 'target'",
+          "type" : "action",
+          "words" : [ "Move", "the", "disc", "at", "'source'", "to", "'target'" ]
+        }, {
+          "id" : "towerOfHanoi0-3",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+          }, {
+            "role" : "User",
+            "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 3. The computer will go to the next statement."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "'level'", "greater", "than", "1" ]
+          },
+          "statements" : [ {
+            "call" : {
+              "arguments" : [ "'topDiscs'", "'auxiliary'", "'target'", "'source'" ],
+              "name" : "towerOfHanoi",
+              "type" : "call"
+            },
+            "comments" : [ "# We will now jump to a substrategy to move discs back from the auxilary." ],
+            "id" : "towerOfHanoi0-3-0",
+            "miniSteps" : [ {
+              "role" : "Computer",
+              "text" : "Step 1. The computer will invoke the specified strategy, passing the specified variable values to the strategy."
+            } ],
+            "text" : "do towerOfHanoi('topDiscs' 'auxiliary' 'target' 'source')",
+            "type" : "do"
+          } ],
+          "text" : "if 'level' greater than 1",
+          "type" : "if"
+        } ],
+        "text" : "Strategy towerOfHanoi(level source target auxiliary)",
+        "type" : "strategy"
+      } ]
+    },
+    "-L2MWcs1sa8SJZVJUXn8" : {
+      "description" : [ "# This is a strategy for doing design by writing tests first and then making sure code passes the tests.", "# This strategy requirements one parameter: requirements. Requirements describe in detail what your application should do. They often take the form of text explaining how your application should behave, particularly in response to specific inputs. In this strategy, you will need to reference the requirements for your application. You can either copy them here or simply refer to them being elsewhere." ],
+      "displayName" : "Test-Driven Development",
+      "name" : "testDrivenDevelopment",
+      "owner" : "Thomas",
+      "robotoText" : "# This is a strategy for doing design by writing tests first and then making sure code passes the tests.\n# This strategy requirements one parameter: requirements. Requirements describe in detail what your application should do. They often take the form of text explaining how your application should behave, particularly in response to specific inputs. In this strategy, you will need to reference the requirements for your application. You can either copy them here or simply refer to them being elsewhere.\nSTRATEGY testDrivenDevelopment(requirements)\n\t# The first step in test-driven development is enumerating all of the user scenarios.\n\t# You want to ensure that you enumerate specific requirements that are focused and small and can be described in a sentence or less. You should try to find all of the user scenarios which might exist.\n\t# You should separate each scenario with a comma.\n\tSET 'scenarios' to be short descriptions of the testable user scenarios in requirements\n\tFOR EACH 'scenario' IN 'scenarios'\n\t\tCreate a new test for scenario\n\t\t# Check that the new test demonstrates that the scenario is not yet implemented by checking that it does not pass\n\t\tUNTIL the new test does not pass\n\t\t\tFix the new test so that it does not pass\n\t\t# Make it work\n\t\tImplement the code to make the test pass\n\t\tRun the tests\n\t\tUNTIL all of the tests pass\n\t\t\tEdit the code to address the test failure\n\t\t\tRun the tests\n\t\t# Make it right\n\t\t# Look to see if there any issues that make the design less than ideal.\n\t\tSET 'designIssue' TO be an unaddressed design issue if any or nothing otherwise\n\t\tUNTIL 'designIssue' is nothing\n\t\t\tEdit the code to fix the design issue\n\t\t\tRun the tests\n\t\t\tSET 'designIssue' TO be an unaddressed design issue if any or nothing otherwise\n\t\t# Make it fast\n\t\t# Look to see if there any performance issues that might cause it to be slow in some circumstances\n\t\tSET 'perfIssue' TO be an unaddressed performance issue if any or nothing otherwise\n\t\tUNTIL 'perfIssue' is nothing\n\t\t\tEdit the code to fix the performance issue\n\t\t\tRun the tests\n\t\t\tSET 'perfIssue' TO be an unaddressed performance issue if any or nothing otherwise\n",
+      "strategies" : [ {
+        "id" : "testDrivenDevelopment0",
+        "name" : "testDrivenDevelopment",
+        "parameters" : [ "requirements" ],
+        "statements" : [ {
+          "comments" : [ "# The first step in test-driven development is enumerating all of the user scenarios.", "# You want to ensure that you enumerate specific requirements that are focused and small and can be described in a sentence or less. You should try to find all of the user scenarios which might exist.", "# You should separate each scenario with a comma." ],
+          "id" : "testDrivenDevelopment0-0",
+          "identifier" : "'scenarios'",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will record the value you specify for the variable."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "be", "short", "descriptions", "of", "the", "testable", "user", "scenarios", "in", "requirements" ]
+          },
+          "text" : "set 'scenarios' to be short descriptions of the testable user scenarios in requirements",
+          "type" : "set"
+        }, {
+          "id" : "testDrivenDevelopment0-1",
+          "identifier" : "'scenario'",
+          "list" : "'scenarios'",
+          "miniSteps" : [ {
+            "role" : "Computer",
+            "text" : "Step 1. The computer will iterate over the elements in the collection and select the next element in the collection."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will record the value of the current element in the specified variable.\n"
+          }, {
+            "role" : "Computer",
+            "text" : "Step 3. The computer will go to the next statement, returning to the for each statement after control has reached the end of the section."
+          } ],
+          "statements" : [ {
+            "id" : "testDrivenDevelopment0-1-0",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+            } ],
+            "text" : "Create a new test for scenario",
+            "type" : "action",
+            "words" : [ "Create", "a", "new", "test", "for", "scenario" ]
+          }, {
+            "comments" : [ "# Check that the new test demonstrates that the scenario is not yet implemented by checking that it does not pass" ],
+            "id" : "testDrivenDevelopment0-1-1",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+            }, {
+              "role" : "User",
+              "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+            }, {
+              "role" : "Computer",
+              "text" : "Step 3-The computer will go to the next statement, returning to the until statement after control has reached the end of the section."
+            } ],
+            "query" : {
+              "type" : "query",
+              "words" : [ "the", "new", "test", "does", "not", "pass" ]
+            },
+            "statements" : [ {
+              "id" : "testDrivenDevelopment0-1-1-0",
+              "miniSteps" : [ {
+                "role" : "User",
+                "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+              } ],
+              "text" : "Fix the new test so that it does not pass",
+              "type" : "action",
+              "words" : [ "Fix", "the", "new", "test", "so", "that", "it", "does", "not", "pass" ]
+            } ],
+            "text" : "until the new test does not pass",
+            "type" : "until"
+          }, {
+            "comments" : [ "# Make it work" ],
+            "id" : "testDrivenDevelopment0-1-2",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+            } ],
+            "text" : "Implement the code to make the test pass",
+            "type" : "action",
+            "words" : [ "Implement", "the", "code", "to", "make", "the", "test", "pass" ]
+          }, {
+            "id" : "testDrivenDevelopment0-1-3",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+            } ],
+            "text" : "Run the tests",
+            "type" : "action",
+            "words" : [ "Run", "the", "tests" ]
+          }, {
+            "id" : "testDrivenDevelopment0-1-4",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+            }, {
+              "role" : "User",
+              "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+            }, {
+              "role" : "Computer",
+              "text" : "Step 3-The computer will go to the next statement, returning to the until statement after control has reached the end of the section."
+            } ],
+            "query" : {
+              "type" : "query",
+              "words" : [ "all", "of", "the", "tests", "pass" ]
+            },
+            "statements" : [ {
+              "id" : "testDrivenDevelopment0-1-4-0",
+              "miniSteps" : [ {
+                "role" : "User",
+                "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+              } ],
+              "text" : "Edit the code to address the test failure",
+              "type" : "action",
+              "words" : [ "Edit", "the", "code", "to", "address", "the", "test", "failure" ]
+            }, {
+              "id" : "testDrivenDevelopment0-1-4-1",
+              "miniSteps" : [ {
+                "role" : "User",
+                "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+              } ],
+              "text" : "Run the tests",
+              "type" : "action",
+              "words" : [ "Run", "the", "tests" ]
+            } ],
+            "text" : "until all of the tests pass",
+            "type" : "until"
+          }, {
+            "comments" : [ "# Make it right", "# Look to see if there any issues that make the design less than ideal." ],
+            "id" : "testDrivenDevelopment0-1-5",
+            "identifier" : "'designIssue'",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+            }, {
+              "role" : "Computer",
+              "text" : "Step 2. The computer will record the value you specify for the variable."
+            } ],
+            "query" : {
+              "type" : "query",
+              "words" : [ "be", "an", "unaddressed", "design", "issue", "if", "any", "or", "nothing", "otherwise" ]
+            },
+            "text" : "set 'designIssue' to be an unaddressed design issue if any or nothing otherwise",
+            "type" : "set"
+          }, {
+            "id" : "testDrivenDevelopment0-1-6",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+            }, {
+              "role" : "User",
+              "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+            }, {
+              "role" : "Computer",
+              "text" : "Step 3-The computer will go to the next statement, returning to the until statement after control has reached the end of the section."
+            } ],
+            "query" : {
+              "type" : "query",
+              "words" : [ "'designIssue'", "is", "nothing" ]
+            },
+            "statements" : [ {
+              "id" : "testDrivenDevelopment0-1-6-0",
+              "miniSteps" : [ {
+                "role" : "User",
+                "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+              } ],
+              "text" : "Edit the code to fix the design issue",
+              "type" : "action",
+              "words" : [ "Edit", "the", "code", "to", "fix", "the", "design", "issue" ]
+            }, {
+              "id" : "testDrivenDevelopment0-1-6-1",
+              "miniSteps" : [ {
+                "role" : "User",
+                "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+              } ],
+              "text" : "Run the tests",
+              "type" : "action",
+              "words" : [ "Run", "the", "tests" ]
+            }, {
+              "id" : "testDrivenDevelopment0-1-6-2",
+              "identifier" : "'designIssue'",
+              "miniSteps" : [ {
+                "role" : "User",
+                "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+              }, {
+                "role" : "Computer",
+                "text" : "Step 2. The computer will record the value you specify for the variable."
+              } ],
+              "query" : {
+                "type" : "query",
+                "words" : [ "be", "an", "unaddressed", "design", "issue", "if", "any", "or", "nothing", "otherwise" ]
+              },
+              "text" : "set 'designIssue' to be an unaddressed design issue if any or nothing otherwise",
+              "type" : "set"
+            } ],
+            "text" : "until 'designIssue' is nothing",
+            "type" : "until"
+          }, {
+            "comments" : [ "# Make it fast", "# Look to see if there any performance issues that might cause it to be slow in some circumstances" ],
+            "id" : "testDrivenDevelopment0-1-7",
+            "identifier" : "'perfIssue'",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+            }, {
+              "role" : "Computer",
+              "text" : "Step 2. The computer will record the value you specify for the variable."
+            } ],
+            "query" : {
+              "type" : "query",
+              "words" : [ "be", "an", "unaddressed", "performance", "issue", "if", "any", "or", "nothing", "otherwise" ]
+            },
+            "text" : "set 'perfIssue' to be an unaddressed performance issue if any or nothing otherwise",
+            "type" : "set"
+          }, {
+            "id" : "testDrivenDevelopment0-1-8",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+            }, {
+              "role" : "User",
+              "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+            }, {
+              "role" : "Computer",
+              "text" : "Step 3-The computer will go to the next statement, returning to the until statement after control has reached the end of the section."
+            } ],
+            "query" : {
+              "type" : "query",
+              "words" : [ "'perfIssue'", "is", "nothing" ]
+            },
+            "statements" : [ {
+              "id" : "testDrivenDevelopment0-1-8-0",
+              "miniSteps" : [ {
+                "role" : "User",
+                "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+              } ],
+              "text" : "Edit the code to fix the performance issue",
+              "type" : "action",
+              "words" : [ "Edit", "the", "code", "to", "fix", "the", "performance", "issue" ]
+            }, {
+              "id" : "testDrivenDevelopment0-1-8-1",
+              "miniSteps" : [ {
+                "role" : "User",
+                "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+              } ],
+              "text" : "Run the tests",
+              "type" : "action",
+              "words" : [ "Run", "the", "tests" ]
+            }, {
+              "id" : "testDrivenDevelopment0-1-8-2",
+              "identifier" : "'perfIssue'",
+              "miniSteps" : [ {
+                "role" : "User",
+                "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+              }, {
+                "role" : "Computer",
+                "text" : "Step 2. The computer will record the value you specify for the variable."
+              } ],
+              "query" : {
+                "type" : "query",
+                "words" : [ "be", "an", "unaddressed", "performance", "issue", "if", "any", "or", "nothing", "otherwise" ]
+              },
+              "text" : "set 'perfIssue' to be an unaddressed performance issue if any or nothing otherwise",
+              "type" : "set"
+            } ],
+            "text" : "until 'perfIssue' is nothing",
+            "type" : "until"
+          } ],
+          "text" : "for each 'scenario' in 'scenarios'",
+          "type" : "foreach"
+        } ],
+        "text" : "Strategy testDrivenDevelopment(requirements)",
+        "type" : "strategy"
+      } ]
+    },
+    "-L2QPXtfRLyyPyUw-u2m" : {
+      "displayName" : "testRoboto",
+      "name" : "testRoboto",
+      "owner" : "Thomas",
+      "robotoText" : "STRATEGY verifyAPIHasCommunity(apiName)\n\t# This is the first comment\n\tSET 'site' TO the website that hosts the project with 'apiName'\n\t# This is a more serious comment\n\t# Because it's two lines long\n\tIF 'site' is nothing\n\t\tRETURN nothing\n\t# This tests the do/until loop\n\tUNTIL you have all the diamonds\n\t\tLook over your shoulder for cops\n\tRETURN assessRepositoryActivity('site')\n\nSTRATEGY assessRepositoryActivity(site)\n\tSET 'C' TO the last commit to the project\n\tSET 'CC' TO the number of contributors who've committed in the last month\n\tIF 'C' is in the last month and 'CC' is more than 5\n\t\tRETURN true\n\tRETURN false",
+      "strategies" : [ {
+        "id" : "verifyAPIHasCommunity0",
+        "name" : "verifyAPIHasCommunity",
+        "parameters" : [ "apiName" ],
+        "statements" : [ {
+          "comments" : [ "# This is the first comment" ],
+          "id" : "verifyAPIHasCommunity0-0",
+          "identifier" : "'site'",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will record the value you specify for the variable."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "the", "website", "that", "hosts", "the", "project", "with", "'apiName'" ]
+          },
+          "text" : "set 'site' to the website that hosts the project with 'apiName'",
+          "type" : "set"
+        }, {
+          "comments" : [ "# This is a more serious comment", "# Because it's two lines long" ],
+          "id" : "verifyAPIHasCommunity0-1",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+          }, {
+            "role" : "User",
+            "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 3. The computer will go to the next statement."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "'site'", "is", "nothing" ]
+          },
+          "statements" : [ {
+            "id" : "verifyAPIHasCommunity0-1-0",
+            "miniSteps" : [ {
+              "role" : "Computer",
+              "text" : "Step 1. The computer will return the specified value to the caller of the current strategy."
+            }, {
+              "role" : "Computer",
+              "text" : "Step 2. The computer will continue executing statements in the strategy's caller."
+            } ],
+            "query" : {
+              "nothing" : "nothing",
+              "type" : "nothing"
+            },
+            "text" : "return nothing",
+            "type" : "return"
+          } ],
+          "text" : "if 'site' is nothing",
+          "type" : "if"
+        }, {
+          "comments" : [ "# This tests the do/until loop" ],
+          "id" : "verifyAPIHasCommunity0-2",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+          }, {
+            "role" : "User",
+            "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 3-The computer will go to the next statement, returning to the until statement after control has reached the end of the section."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "you", "have", "all", "the", "diamonds" ]
+          },
+          "statements" : [ {
+            "id" : "verifyAPIHasCommunity0-2-0",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+            } ],
+            "text" : "Look over your shoulder for cops",
+            "type" : "action",
+            "words" : [ "Look", "over", "your", "shoulder", "for", "cops" ]
+          } ],
+          "text" : "until you have all the diamonds",
+          "type" : "until"
+        }, {
+          "id" : "verifyAPIHasCommunity0-3",
+          "miniSteps" : [ {
+            "role" : "Computer",
+            "text" : "Step 1. The computer will return the specified value to the caller of the current strategy."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will continue executing statements in the strategy's caller."
+          } ],
+          "query" : {
+            "arguments" : [ "'site'" ],
+            "name" : "assessRepositoryActivity",
+            "type" : "call"
+          },
+          "text" : "return assessRepositoryActivity('site')",
+          "type" : "return"
+        } ],
+        "text" : "Strategy verifyAPIHasCommunity(apiName)",
+        "type" : "strategy"
+      }, {
+        "id" : "assessRepositoryActivity1",
+        "name" : "assessRepositoryActivity",
+        "parameters" : [ "site" ],
+        "statements" : [ {
+          "id" : "assessRepositoryActivity1-0",
+          "identifier" : "'C'",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will record the value you specify for the variable."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "the", "last", "commit", "to", "the", "project" ]
+          },
+          "text" : "set 'C' to the last commit to the project",
+          "type" : "set"
+        }, {
+          "id" : "assessRepositoryActivity1-1",
+          "identifier" : "'CC'",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will record the value you specify for the variable."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "the", "number", "of", "contributors", "who've", "committed", "in", "the", "last", "month" ]
+          },
+          "text" : "set 'CC' to the number of contributors who've committed in the last month",
+          "type" : "set"
+        }, {
+          "id" : "assessRepositoryActivity1-2",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+          }, {
+            "role" : "User",
+            "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 3. The computer will go to the next statement."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "'C'", "is", "in", "the", "last", "month", "and", "'CC'", "is", "more", "than", "5" ]
+          },
+          "statements" : [ {
+            "id" : "assessRepositoryActivity1-2-0",
+            "miniSteps" : [ {
+              "role" : "Computer",
+              "text" : "Step 1. The computer will return the specified value to the caller of the current strategy."
+            }, {
+              "role" : "Computer",
+              "text" : "Step 2. The computer will continue executing statements in the strategy's caller."
+            } ],
+            "query" : {
+              "type" : "query",
+              "words" : [ "true" ]
+            },
+            "text" : "return true",
+            "type" : "return"
+          } ],
+          "text" : "if 'C' is in the last month and 'CC' is more than 5",
+          "type" : "if"
+        }, {
+          "id" : "assessRepositoryActivity1-3",
+          "miniSteps" : [ {
+            "role" : "Computer",
+            "text" : "Step 1. The computer will return the specified value to the caller of the current strategy."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will continue executing statements in the strategy's caller."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "false" ]
+          },
+          "text" : "return false",
+          "type" : "return"
+        } ],
+        "text" : "Strategy assessRepositoryActivity(site)",
+        "type" : "strategy"
+      } ]
+    },
+    "-L3eJqSX8ENeR7Wjaq9W" : {
+      "displayName" : "test2-2",
+      "name" : "test2-2",
+      "owner" : "maryam",
+      "robotoText" : "STRATEGY someTest(requirements)\n\t# The first step in test-driven development is enumerating all of the user scenarios.\n\t# You want to ensure that you enumerate specific requirements that are focused and small and can be described in a sentence or less. You should try to find all of the user scenarios which might exist.\n\t# You should separate each scenario with a comma.\n\tSET 'scenarios' to be short descriptions of the testable user scenarios in requirements\n\tFOR EACH 'scenario' IN 'scenarios'\n\t\tCreate a test for scenario\n\t\tUNTIL the test fails\n\t\t\tFix the test to ensure that it fails\n\t\t# Make it work\n\t\tImplement the code to make the test pass\n\t\tRun the tests",
+      "strategies" : [ {
+        "id" : "someTest0",
+        "name" : "someTest",
+        "parameters" : [ "requirements" ],
+        "statements" : [ {
+          "comments" : [ "# The first step in test-driven development is enumerating all of the user scenarios.", "# You want to ensure that you enumerate specific requirements that are focused and small and can be described in a sentence or less. You should try to find all of the user scenarios which might exist.", "# You should separate each scenario with a comma." ],
+          "id" : "someTest0-0",
+          "identifier" : "'scenarios'",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will record the value you specify for the variable."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "be", "short", "descriptions", "of", "the", "testable", "user", "scenarios", "in", "requirements" ]
+          },
+          "text" : "set 'scenarios' to be short descriptions of the testable user scenarios in requirements",
+          "type" : "set"
+        }, {
+          "id" : "someTest0-1",
+          "identifier" : "'scenario'",
+          "list" : "'scenarios'",
+          "miniSteps" : [ {
+            "role" : "Computer",
+            "text" : "Step 1. The computer will iterate over the elements in the collection and select the next element in the collection."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will record the value of the current element in the specified variable.\n"
+          }, {
+            "role" : "Computer",
+            "text" : "Step 3. The computer will go to the next statement, returning to the for each statement after control has reached the end of the section."
+          } ],
+          "statements" : [ {
+            "id" : "someTest0-1-0",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+            } ],
+            "text" : "Create a test for scenario",
+            "type" : "action",
+            "words" : [ "Create", "a", "test", "for", "scenario" ]
+          }, {
+            "id" : "someTest0-1-1",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+            }, {
+              "role" : "User",
+              "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+            }, {
+              "role" : "Computer",
+              "text" : "Step 3-The computer will go to the next statement, returning to the until statement after control has reached the end of the section."
+            } ],
+            "query" : {
+              "type" : "query",
+              "words" : [ "the", "test", "fails" ]
+            },
+            "statements" : [ {
+              "id" : "someTest0-1-1-0",
+              "miniSteps" : [ {
+                "role" : "User",
+                "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+              } ],
+              "text" : "Fix the test to ensure that it fails",
+              "type" : "action",
+              "words" : [ "Fix", "the", "test", "to", "ensure", "that", "it", "fails" ]
+            } ],
+            "text" : "until the test fails",
+            "type" : "until"
+          }, {
+            "comments" : [ "# Make it work" ],
+            "id" : "someTest0-1-2",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+            } ],
+            "text" : "Implement the code to make the test pass",
+            "type" : "action",
+            "words" : [ "Implement", "the", "code", "to", "make", "the", "test", "pass" ]
+          }, {
+            "id" : "someTest0-1-3",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+            } ],
+            "text" : "Run the tests",
+            "type" : "action",
+            "words" : [ "Run", "the", "tests" ]
+          } ],
+          "text" : "for each'scenario' in 'scenarios'",
+          "type" : "foreach"
+        } ],
+        "text" : "Strategy someTest(requirements)",
+        "type" : "strategy"
+      } ]
+    },
+    "-L5KOkxvQOD3X_POWRtI" : {
+      "description" : [ "# With this strategy you would be able to change the images in an html page with java script" ],
+      "displayName" : "Html Script",
+      "name" : "HtmlScript",
+      "owner" : "Maryam",
+      "robotoText" : "# With this strategy you would be able to change the images in an html page with java script\nSTRATEGY HtmlScript()\n\tRead all html tags that generate images\n\tSET 'images' TO be ids of all images in html\n\tFOR EACH 'imageId' IN 'images'\n\t\t# Use the document.getElementById() method to find the <img> element.\n\t\t# Use the src property to change its address.\n\t\t# The address for smiley.gif is 'https://www.w3schools.com/html/smiley.gif'\n\t\tCreate a script to change the image to smily\n\tIF header is black\n\t    RETURN changeHeaderColor()\n\tRETURN nothing\n\t\nSTRATEGY changeHeaderColor()\n\tRead all css tags that have header word\n\tRead 'background color' property and set the color to red\n\tIF header is red\n\t    RETURN nothing\n\tIF header is black\n\t    RETURN changeHeaderColor()\n\tRETURN nothing",
+      "strategies" : [ {
+        "id" : "HtmlScript0",
+        "name" : "HtmlScript",
+        "statements" : [ {
+          "id" : "HtmlScript0-0",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+          } ],
+          "text" : "Read all html tags that generate images",
+          "type" : "action",
+          "words" : [ "Read", "all", "html", "tags", "that", "generate", "images" ]
+        }, {
+          "id" : "HtmlScript0-1",
+          "identifier" : "'images'",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will record the value you specify for the variable."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "be", "ids", "of", "all", "images", "in", "html" ]
+          },
+          "text" : "set 'images' to be ids of all images in html",
+          "type" : "set"
+        }, {
+          "id" : "HtmlScript0-2",
+          "identifier" : "'imageId'",
+          "list" : "'images'",
+          "miniSteps" : [ {
+            "role" : "Computer",
+            "text" : "Step 1. The computer will iterate over the elements in the collection and select the next element in the collection."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will record the value of the current element in the specified variable.\n"
+          }, {
+            "role" : "Computer",
+            "text" : "Step 3. The computer will go to the next statement, returning to the for each statement after control has reached the end of the section."
+          } ],
+          "statements" : [ {
+            "comments" : [ "# Use the document.getElementById() method to find the <img> element.", "# Use the src property to change its address.", "# The address for smiley.gif is 'https://www.w3schools.com/html/smiley.gif'" ],
+            "id" : "HtmlScript0-2-0",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+            } ],
+            "text" : "Create a script to change the image to smily",
+            "type" : "action",
+            "words" : [ "Create", "a", "script", "to", "change", "the", "image", "to", "smily" ]
+          } ],
+          "text" : "for each 'imageId' in 'images'",
+          "type" : "foreach"
+        }, {
+          "id" : "HtmlScript0-3",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+          }, {
+            "role" : "User",
+            "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 3. The computer will go to the next statement."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "header", "is", "black" ]
+          },
+          "text" : "if header is black",
+          "type" : "if"
+        }, {
+          "id" : "HtmlScript0-4",
+          "miniSteps" : [ {
+            "role" : "Computer",
+            "text" : "Step 1. The computer will return the specified value to the caller of the current strategy."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will continue executing statements in the strategy's caller."
+          } ],
+          "query" : {
+            "name" : "changeHeaderColor",
+            "type" : "call"
+          },
+          "text" : "return changeHeaderColor()",
+          "type" : "return"
+        }, {
+          "id" : "HtmlScript0-5",
+          "miniSteps" : [ {
+            "role" : "Computer",
+            "text" : "Step 1. The computer will return the specified value to the caller of the current strategy."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will continue executing statements in the strategy's caller."
+          } ],
+          "query" : {
+            "nothing" : "nothing",
+            "type" : "nothing"
+          },
+          "text" : "return nothing",
+          "type" : "return"
+        }, {
+          "id" : "HtmlScript0-6",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+          } ],
+          "text" : "",
+          "type" : "action"
+        } ],
+        "text" : "Strategy HtmlScript()",
+        "type" : "strategy"
+      }, {
+        "id" : "changeHeaderColor1",
+        "name" : "changeHeaderColor",
+        "statements" : [ {
+          "id" : "changeHeaderColor1-0",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+          } ],
+          "text" : "Read all css tags that have header word",
+          "type" : "action",
+          "words" : [ "Read", "all", "css", "tags", "that", "have", "header", "word" ]
+        }, {
+          "id" : "changeHeaderColor1-1",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+          } ],
+          "text" : "Read 'background color' property and set the color to red",
+          "type" : "action",
+          "words" : [ "Read", "'background", "color'", "property", "and", "set", "the", "color", "to", "red" ]
+        }, {
+          "id" : "changeHeaderColor1-2",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+          }, {
+            "role" : "User",
+            "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 3. The computer will go to the next statement."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "header", "is", "red" ]
+          },
+          "text" : "if header is red",
+          "type" : "if"
+        }, {
+          "id" : "changeHeaderColor1-3",
+          "miniSteps" : [ {
+            "role" : "Computer",
+            "text" : "Step 1. The computer will return the specified value to the caller of the current strategy."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will continue executing statements in the strategy's caller."
+          } ],
+          "query" : {
+            "nothing" : "nothing",
+            "type" : "nothing"
+          },
+          "text" : "return nothing",
+          "type" : "return"
+        }, {
+          "id" : "changeHeaderColor1-4",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+          }, {
+            "role" : "User",
+            "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 3. The computer will go to the next statement."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "header", "is", "black" ]
+          },
+          "text" : "if header is black",
+          "type" : "if"
+        }, {
+          "id" : "changeHeaderColor1-5",
+          "miniSteps" : [ {
+            "role" : "Computer",
+            "text" : "Step 1. The computer will return the specified value to the caller of the current strategy."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will continue executing statements in the strategy's caller."
+          } ],
+          "query" : {
+            "name" : "changeHeaderColor",
+            "type" : "call"
+          },
+          "text" : "return changeHeaderColor()",
+          "type" : "return"
+        }, {
+          "id" : "changeHeaderColor1-6",
+          "miniSteps" : [ {
+            "role" : "Computer",
+            "text" : "Step 1. The computer will return the specified value to the caller of the current strategy."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will continue executing statements in the strategy's caller."
+          } ],
+          "query" : {
+            "nothing" : "nothing",
+            "type" : "nothing"
+          },
+          "text" : "return nothing",
+          "type" : "return"
+        } ],
+        "text" : "Strategy changeHeaderColor()",
+        "type" : "strategy"
+      } ]
+    },
+    "-L5TkNeauc5ONIEz4QJw" : {
+      "description" : [ "# This Strategy helps you merge 2 branches in githup and resolve conflicts" ],
+      "displayName" : "Git Merg",
+      "name" : "GitMerge",
+      "owner" : "Maryam",
+      "robotoText" : "# This Strategy helps you merge 2 branches in githup and resolve conflicts\nSTRATEGY GitMerge()\n\t# Open the teminal, and use cd(change directory) command to move to the local git project directory \n\tOpen the terminal and navigate to your git project directory\n\tIF you are not in the master branch\n\t\t# Run the command git checkout master\n\t\tcheckout to the master branch\n\tIF you are in the master branch\n\t\t# To merge the second branch with the master branch run the command \"git merge secondBranch\", which secondBranch is the name of your git second branch\n\t\tMerge the two branches\n\t\tIF the merge has a conflict\n\t\t\tSET 'conflictedFiles' TO the project files that have a conflict\n\t\t\tFOR EACH 'file' IN 'conflictedFiles'\n\t\t\t\tDO fixConflict('file')\n\t\t# Run GIT STATUS to see the latest changes\n\t\t# Run GIT ADD \n\t\t# Run GIT COMMIT -m \"\"\n\t\t# Run GIT PUSH\n\t\tCommit and push the changes\n\tRETURN nothing\n\nSTRATEGY fixConflict(conflictedFile)\n\tOpen the conflictedFile with your favorite text editor\n\t# To find a line with conflict in your file, search the file for the conflict marker <<<<<<< HEAD\n\tSET 'line' TO a line number that has conflict\n\t# until there is no line with <<<<<<< HEAD tag in the file\n\tUNTIL the file has no lines of conflict\n\t\t# You'll see the changes from the master branch after the line <<<<<<< HEAD\n\t\t# Next youll see ======= which divides 2 merged lines followed by >>>>>>> SECOND branch name\n\t\t# Decide if you want to keep only your branch's changes, keep only the other branch's changes, or make a brand new change, and edit the file by removing unwanted lines and save the file\n\t\t# Also remove >>>>>>Head & ====== from the lines and make sure that the file has proper code syntax.\n\t\tEdit the file following the description \n\t\tSET 'line' TO the next line number that has conflict\n\tReturn nothing\n",
+      "strategies" : [ {
+        "id" : "GitMerge0",
+        "name" : "GitMerge",
+        "statements" : [ {
+          "comments" : [ "# Open the teminal, and use cd(change directory) command to move to the local git project directory " ],
+          "id" : "GitMerge0-0",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+          } ],
+          "text" : "Open the terminal and navigate to your git project directory",
+          "type" : "action",
+          "words" : [ "Open", "the", "terminal", "and", "navigate", "to", "your", "git", "project", "directory" ]
+        }, {
+          "id" : "GitMerge0-1",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+          }, {
+            "role" : "User",
+            "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 3. The computer will go to the next statement."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "you", "are", "not", "in", "the", "master", "branch" ]
+          },
+          "statements" : [ {
+            "comments" : [ "# Run the command git checkout master" ],
+            "id" : "GitMerge0-1-0",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+            } ],
+            "text" : "checkout to the master branch",
+            "type" : "action",
+            "words" : [ "checkout", "to", "the", "master", "branch" ]
+          } ],
+          "text" : "if you are not in the master branch",
+          "type" : "if"
+        }, {
+          "id" : "GitMerge0-2",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+          }, {
+            "role" : "User",
+            "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 3. The computer will go to the next statement."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "you", "are", "in", "the", "master", "branch" ]
+          },
+          "statements" : [ {
+            "comments" : [ "# To merge the second branch with the master branch run the command \"git merge secondBranch\", which secondBranch is the name of your git second branch" ],
+            "id" : "GitMerge0-2-0",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+            } ],
+            "text" : "Merge the two branches",
+            "type" : "action",
+            "words" : [ "Merge", "the", "two", "branches" ]
+          }, {
+            "id" : "GitMerge0-2-1",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+            }, {
+              "role" : "User",
+              "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+            }, {
+              "role" : "Computer",
+              "text" : "Step 3. The computer will go to the next statement."
+            } ],
+            "query" : {
+              "type" : "query",
+              "words" : [ "the", "merge", "has", "a", "conflict" ]
+            },
+            "statements" : [ {
+              "id" : "GitMerge0-2-1-0",
+              "identifier" : "'conflictedFiles'",
+              "miniSteps" : [ {
+                "role" : "User",
+                "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+              }, {
+                "role" : "Computer",
+                "text" : "Step 2. The computer will record the value you specify for the variable."
+              } ],
+              "query" : {
+                "type" : "query",
+                "words" : [ "the", "project", "files", "that", "have", "a", "conflict" ]
+              },
+              "text" : "set 'conflictedFiles' to the project files that have a conflict",
+              "type" : "set"
+            }, {
+              "id" : "GitMerge0-2-1-1",
+              "identifier" : "'file'",
+              "list" : "'conflictedFiles'",
+              "miniSteps" : [ {
+                "role" : "Computer",
+                "text" : "Step 1. The computer will iterate over the elements in the collection and select the next element in the collection."
+              }, {
+                "role" : "Computer",
+                "text" : "Step 2. The computer will record the value of the current element in the specified variable.\n"
+              }, {
+                "role" : "Computer",
+                "text" : "Step 3. The computer will go to the next statement, returning to the for each statement after control has reached the end of the section."
+              } ],
+              "statements" : [ {
+                "call" : {
+                  "arguments" : [ "'file'" ],
+                  "name" : "fixConflict",
+                  "type" : "call"
+                },
+                "id" : "GitMerge0-2-1-1-0",
+                "miniSteps" : [ {
+                  "role" : "Computer",
+                  "text" : "Step 1. The computer will invoke the specified strategy, passing the specified variable values to the strategy."
+                } ],
+                "text" : "do fixConflict('file')",
+                "type" : "do"
+              } ],
+              "text" : "for each 'file' in 'conflictedFiles'",
+              "type" : "foreach"
+            } ],
+            "text" : "if the merge has a conflict",
+            "type" : "if"
+          }, {
+            "comments" : [ "# Run GIT STATUS to see the latest changes", "# Run GIT ADD ", "# Run GIT COMMIT -m \"\"", "# Run GIT PUSH" ],
+            "id" : "GitMerge0-2-2",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+            } ],
+            "text" : "Commit and push the changes",
+            "type" : "action",
+            "words" : [ "Commit", "and", "push", "the", "changes" ]
+          } ],
+          "text" : "if you are in the master branch",
+          "type" : "if"
+        }, {
+          "id" : "GitMerge0-3",
+          "miniSteps" : [ {
+            "role" : "Computer",
+            "text" : "Step 1. The computer will return the specified value to the caller of the current strategy."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will continue executing statements in the strategy's caller."
+          } ],
+          "query" : {
+            "nothing" : "nothing",
+            "type" : "nothing"
+          },
+          "text" : "return nothing",
+          "type" : "return"
+        } ],
+        "text" : "Strategy GitMerge()",
+        "type" : "strategy"
+      }, {
+        "id" : "fixConflict1",
+        "name" : "fixConflict",
+        "parameters" : [ "conflictedFile" ],
+        "statements" : [ {
+          "id" : "fixConflict1-0",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+          } ],
+          "text" : "Open the conflictedFile with your favorite text editor",
+          "type" : "action",
+          "words" : [ "Open", "the", "conflictedFile", "with", "your", "favorite", "text", "editor" ]
+        }, {
+          "comments" : [ "# To find a line with conflict in your file, search the file for the conflict marker <<<<<<< HEAD" ],
+          "id" : "fixConflict1-1",
+          "identifier" : "'line'",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will record the value you specify for the variable."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "a", "line", "number", "that", "has", "conflict" ]
+          },
+          "text" : "set 'line' to a line number that has conflict",
+          "type" : "set"
+        }, {
+          "comments" : [ "# until there is no line with <<<<<<< HEAD tag in the file" ],
+          "id" : "fixConflict1-2",
+          "miniSteps" : [ {
+            "role" : "User",
+            "text" : "Step 1. Find the value of the variable using the variables pane on the right."
+          }, {
+            "role" : "User",
+            "text" : "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 3-The computer will go to the next statement, returning to the until statement after control has reached the end of the section."
+          } ],
+          "query" : {
+            "type" : "query",
+            "words" : [ "the", "file", "has", "no", "lines", "of", "conflict" ]
+          },
+          "statements" : [ {
+            "comments" : [ "# You'll see the changes from the master branch after the line <<<<<<< HEAD", "# Next youll see ======= which divides 2 merged lines followed by >>>>>>> SECOND branch name", "# Decide if you want to keep only your branch's changes, keep only the other branch's changes, or make a brand new change, and edit the file by removing unwanted lines and save the file", "# Also remove >>>>>>Head & ====== from the lines and make sure that the file has proper code syntax." ],
+            "id" : "fixConflict1-2-0",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+            } ],
+            "text" : "Edit the file following the description",
+            "type" : "action",
+            "words" : [ "Edit", "the", "file", "following", "the", "description" ]
+          }, {
+            "id" : "fixConflict1-2-1",
+            "identifier" : "'line'",
+            "miniSteps" : [ {
+              "role" : "User",
+              "text" : "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+            }, {
+              "role" : "Computer",
+              "text" : "Step 2. The computer will record the value you specify for the variable."
+            } ],
+            "query" : {
+              "type" : "query",
+              "words" : [ "the", "next", "line", "number", "that", "has", "conflict" ]
+            },
+            "text" : "set 'line' to the next line number that has conflict",
+            "type" : "set"
+          } ],
+          "text" : "until the file has no lines of conflict",
+          "type" : "until"
+        }, {
+          "id" : "fixConflict1-3",
+          "miniSteps" : [ {
+            "role" : "Computer",
+            "text" : "Step 1. The computer will return the specified value to the caller of the current strategy."
+          }, {
+            "role" : "Computer",
+            "text" : "Step 2. The computer will continue executing statements in the strategy's caller."
+          } ],
+          "query" : {
+            "nothing" : "nothing",
+            "type" : "nothing"
+          },
+          "text" : "return nothing",
+          "type" : "return"
+        } ],
+        "text" : "Strategy fixConflict(conflictedFile)",
+        "type" : "strategy"
+      } ]
+    }
+  },
+  "users" : {
+    "BZ0HUazqcTar70WRa4uBNDNcyLh1" : {
+      "session" : {
+        "-LFsP6klN1hsx6J9fvAy" : {
+          "Events" : {
+            "-LFsPTtG-2IMr_B4RPO5" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:27:23"
+            },
+            "-LFsPUOmOTp9XN0myphJ" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:27:25"
+            },
+            "-LFsPWskZEUBOrhT7LOn" : {
+              "Event" : "False",
+              "date" : "6/25/2018",
+              "time" : "15:27:35"
+            },
+            "-LFsQ-T_DJ_9PEYoY1fl" : {
+              "Event" : "True",
+              "date" : "6/25/2018",
+              "time" : "15:29:41"
+            },
+            "-LFsQg7CLzm4rlRIB35v" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:32:39"
+            },
+            "-LFsQiTXAjU3VDxR3rXq" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:32:49"
+            },
+            "-LFsQjbTUzH06KZ8Zcgj" : {
+              "Event" : "Previous",
+              "date" : "6/25/2018",
+              "time" : "15:32:54"
+            },
+            "-LFsQtkiO_SFYsAaYciu" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:33:35"
+            },
+            "-LFsQv9MtjSIOsHblD8l" : {
+              "Event" : "Previous",
+              "date" : "6/25/2018",
+              "time" : "15:33:41"
+            },
+            "-LFsQzoEvbftbj2Gp8Df" : {
+              "Event" : "Success",
+              "date" : "6/25/2018",
+              "time" : "15:34:0"
+            },
+            "-LFsR-rrpBdWvAN1Noee" : {
+              "Event" : "Reset",
+              "date" : "6/25/2018",
+              "time" : "15:34:4"
+            }
+          },
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "15:25:48"
+        }
+      },
+      "userInfo" : {
+        "Email" : "rishin.pandit@gmail.com",
+        "Name" : "Rishin Pandit"
+      }
+    },
+    "GSGirAmpAzbEqbdoLeEiLP47X0C2" : {
+      "session" : {
+        "-LFsKoFQHSR4fQEOfRk-" : {
+          "Events" : {
+            "-LFsKpBd9CXW6dhe4MD9" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:6:44"
+            },
+            "-LFsKpfdxacvSb05BBL6" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:6:46"
+            },
+            "-LFsKrdPro4_NszgDlV7" : {
+              "Event" : "Reset",
+              "date" : "6/25/2018",
+              "time" : "15:6:54"
+            }
+          },
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "15:6:40"
+        },
+        "-LFsKrxezqtojIzSsEHn" : {
+          "Events" : {
+            "-LFsKsLmRZfqjB5kpvrS" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:6:57"
+            },
+            "-LFsKsUuKmVJrk0_KqOK" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:6:57"
+            },
+            "-LFsKsnuMY_XtYvWX05a" : {
+              "Event" : "False",
+              "date" : "6/25/2018",
+              "time" : "15:6:59"
+            },
+            "-LFsKu0fad7xf6Kj5IxG" : {
+              "Event" : "Success",
+              "date" : "6/25/2018",
+              "time" : "15:7:4"
+            }
+          },
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "15:6:55"
+        },
+        "-LFsL2aHHjjJVJPmTK9H" : {
+          "Events" : {
+            "-LFsL2qFA1uz4SudWrIA" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:7:44"
+            },
+            "-LFsL2wjamPe6iSXu1gJ" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:7:44"
+            },
+            "-LFsL3KUel969XiL7roV" : {
+              "Event" : "False",
+              "date" : "6/25/2018",
+              "time" : "15:7:46"
+            },
+            "-LFsL3ZtgArHdsuiAV_H" : {
+              "Event" : "Reset",
+              "date" : "6/25/2018",
+              "time" : "15:7:47"
+            }
+          },
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "15:7:43"
+        },
+        "-LFsL3rEqQCoAhEFdQY1" : {
+          "Events" : {
+            "-LFsL4N7V3uYMJmCmcwl" : {
+              "Event" : "Success",
+              "date" : "6/25/2018",
+              "time" : "15:7:50"
+            }
+          },
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "15:7:48"
+        },
+        "-LFsL7g_aowNK3YmUZes" : {
+          "Events" : {
+            "-LFsLYtl_ZujaL1KLqxB" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:9:55"
+            },
+            "-LFsLZ1nJfd94zwxoo9I" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:9:56"
+            }
+          },
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "15:8:4"
+        }
+      },
+      "userInfo" : {
+        "Email" : "latoza@gmail.com",
+        "Name" : "Thomas LaToza"
+      }
+    },
+    "K6LGHMXrpGXRlFrrWsolq0uQtzI3" : {
+      "session" : {
+        "-LFsZbfHZJtP9rCxaXmQ" : {
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "13:11:21"
+        }
+      },
+      "userInfo" : {
+        "Email" : "ajko@uw.edu",
+        "Name" : "Andrew Ko"
+      }
+    },
+    "spNj5MFqTwcl4xgqDrGB1RRus8K2" : {
+      "session" : {
+        "-LFdE-w9YRRlFq6hYi7P" : {
+          "Events" : {
+            "-LFdE07aDLPvmdzkku3D" : {
+              "Event" : "Next",
+              "date" : "6/22/2018",
+              "time" : "16:42:40"
+            },
+            "-LFdE0A95OM2u4w5D5Lq" : {
+              "Event" : "Next",
+              "date" : "6/22/2018",
+              "time" : "16:42:40"
+            },
+            "-LFdE0El6qo6Wy5YEoHo" : {
+              "Event" : "Next",
+              "date" : "6/22/2018",
+              "time" : "16:42:40"
+            },
+            "-LFdE0Hd2T0IIzRtryY8" : {
+              "Event" : "Next",
+              "date" : "6/22/2018",
+              "time" : "16:42:40"
+            },
+            "-LFdE0YNewg0hayE6Oe2" : {
+              "Event" : "True",
+              "date" : "6/22/2018",
+              "time" : "16:42:41"
+            },
+            "-LFdE0fhWgqceVpmwzkm" : {
+              "Event" : "Previous",
+              "date" : "6/22/2018",
+              "time" : "16:42:42"
+            },
+            "-LFdE0iBxpQ0orzH6vNJ" : {
+              "Event" : "Previous",
+              "date" : "6/22/2018",
+              "time" : "16:42:42"
+            },
+            "-LFdE0wklVKmbkyZJM9W" : {
+              "Event" : "Previous",
+              "date" : "6/22/2018",
+              "time" : "16:42:43"
+            },
+            "-LFdE1IvsrikTgY3SG_W" : {
+              "Event" : "Success",
+              "date" : "6/22/2018",
+              "time" : "16:42:44"
+            }
+          },
+          "date" : "6/22/2018",
+          "strategy" : "HtmlScript",
+          "time" : "16:42:39"
+        },
+        "-LFdE26EpTZjM5trP9N0" : {
+          "Events" : {
+            "-LFdE2Fzfvu4AUxVlrhV" : {
+              "Event" : "Next",
+              "date" : "6/22/2018",
+              "time" : "16:42:48"
+            },
+            "-LFdE2IL9KS8mfUvRN-k" : {
+              "Event" : "Next",
+              "date" : "6/22/2018",
+              "time" : "16:42:48"
+            },
+            "-LFdE2X1AhVj8eVym46b" : {
+              "Event" : "True",
+              "date" : "6/22/2018",
+              "time" : "16:42:49"
+            },
+            "-LFdE2gTIwLZWOXYazDp" : {
+              "Event" : "Next",
+              "date" : "6/22/2018",
+              "time" : "16:42:50"
+            },
+            "-LFdE2zVSC_QedhANqcG" : {
+              "Event" : "True",
+              "date" : "6/22/2018",
+              "time" : "16:42:51"
+            },
+            "-LFdE38yuag-WCvE7XLX" : {
+              "Event" : "Next",
+              "date" : "6/22/2018",
+              "time" : "16:42:52"
+            },
+            "-LFdE3BFy83vzW3NSAWs" : {
+              "Event" : "Next",
+              "date" : "6/22/2018",
+              "time" : "16:42:52"
+            },
+            "-LFdE3DvT2xMXGCxWU3s" : {
+              "Event" : "Next",
+              "date" : "6/22/2018",
+              "time" : "16:42:52"
+            },
+            "-LFdE3xfwucDW5rXxu8x" : {
+              "Event" : "Next",
+              "date" : "6/22/2018",
+              "time" : "16:42:55"
+            },
+            "-LFdE4t42i16QEjJI2kH" : {
+              "Event" : "Reset",
+              "date" : "6/22/2018",
+              "time" : "16:42:59"
+            }
+          },
+          "date" : "6/22/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "16:42:48"
+        },
+        "-LFdE591OOuP6Js1qquz" : {
+          "Events" : {
+            "-LFdE5J2kiMtde8TwWe4" : {
+              "Event" : "Next",
+              "date" : "6/22/2018",
+              "time" : "16:43:1"
+            },
+            "-LFdE5Lb0Yy-s9b0bXpS" : {
+              "Event" : "Next",
+              "date" : "6/22/2018",
+              "time" : "16:43:1"
+            }
+          },
+          "date" : "6/22/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "16:43:0"
+        },
+        "-LFs8PF84IFUmr33WHP0" : {
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "14:12:27"
+        },
+        "-LFs8dgA9Eow-NAa-HTR" : {
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "14:13:30"
+        },
+        "-LFs98gmd8XpmwEslVoP" : {
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "14:15:41"
+        },
+        "-LFs9DxZ3OlDi3UL2uKw" : {
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "14:16:2"
+        },
+        "-LFs9NH-IepHJFkocKaq" : {
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "14:16:41"
+        },
+        "-LFs9bIw_AXsIQ7ZMbnG" : {
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "14:17:42"
+        },
+        "-LFsABEuQiemmXydggCw" : {
+          "Event" : {
+            "-LFsADKtjw0clYYIFeqL" : {
+              "Event" : "False",
+              "date" : "6/25/2018",
+              "time" : "14:20:22"
+            }
+          },
+          "Events" : {
+            "-LFsACPpz1Zmw2UF34ox" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "14:20:18"
+            },
+            "-LFsACaOobHlwO7SS1H_" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "14:20:19"
+            },
+            "-LFsACt9Zs3xJmQocjcj" : {
+              "Event" : "True",
+              "date" : "6/25/2018",
+              "time" : "14:20:20"
+            },
+            "-LFsAD4W6iW-CCBGgKQU" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "14:20:21"
+            },
+            "-LFsADWYVRsMTu5DR3M3" : {
+              "Event" : "Previous",
+              "date" : "6/25/2018",
+              "time" : "14:20:23"
+            }
+          },
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "14:20:14"
+        },
+        "-LFsAE_-GZ9JDKZhLcqQ" : {
+          "Events" : {
+            "-LFsAEm4-gdEvfI7Fmnw" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "14:20:28"
+            },
+            "-LFsAFH887rSZU51JyLk" : {
+              "Event" : "Success",
+              "date" : "6/25/2018",
+              "time" : "14:20:30"
+            },
+            "-LFsANu5Jw09S9Kz8kc1" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "14:21:5"
+            },
+            "-LFsAO2tqgnzxJdGAAO5" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "14:21:6"
+            },
+            "-LFsAX4TWLHpjkg8nHVX" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "14:21:43"
+            },
+            "-LFsAXNPb6ZZajytSGNk" : {
+              "Event" : "True",
+              "date" : "6/25/2018",
+              "time" : "14:21:44"
+            },
+            "-LFsAXYzAc2sQUP2Q4IH" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "14:21:45"
+            },
+            "-LFsAXuHDgVb56_r9ukI" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "14:21:46"
+            },
+            "-LFsAYHSmcriWCRjdF6T" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "14:21:48"
+            },
+            "-LFsAgWVb1TUhQLz4hjN" : {
+              "Event" : "Previous",
+              "date" : "6/25/2018",
+              "time" : "14:22:26"
+            },
+            "-LFsAgdRaqno9y3gXTau" : {
+              "Event" : "Previous",
+              "date" : "6/25/2018",
+              "time" : "14:22:26"
+            },
+            "-LFsAgqiXYHbmcte2N4r" : {
+              "Event" : "Previous",
+              "date" : "6/25/2018",
+              "time" : "14:22:27"
+            }
+          },
+          "date" : "6/25/2018",
+          "strategy" : "HtmlScript",
+          "time" : "14:20:27"
+        },
+        "-LFsAULw-giNqvLbeYtq" : {
+          "Event" : {
+            "-LFsAcWhDJIudeG-yu3p" : {
+              "Event" : "False",
+              "date" : "6/25/2018",
+              "time" : "14:22:9"
+            }
+          },
+          "Events" : {
+            "-LFsAUcaBaT7v261o18i" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "14:21:33"
+            },
+            "-LFsAUf21ML3l4CXZ1wW" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "14:21:33"
+            },
+            "-LFsAUw6VgEmL3amkOS-" : {
+              "Event" : "True",
+              "date" : "6/25/2018",
+              "time" : "14:21:34"
+            },
+            "-LFsAV2uatolBd8mPEfp" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "14:21:35"
+            }
+          },
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "14:21:32"
+        },
+        "-LFsBOK1W4N9ZSjf8sg2" : {
+          "Events" : {
+            "-LFsBOphY4Ok66hMJlfn" : {
+              "Event" : "Success",
+              "date" : "6/25/2018",
+              "time" : "14:25:31"
+            },
+            "-LFsBQHUpUEoGjJNwM2j" : {
+              "Event" : "Success",
+              "date" : "6/25/2018",
+              "time" : "14:25:37"
+            }
+          },
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "14:25:29"
+        },
+        "-LFsE1DrFnuSGvUG3Zoz" : {
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "14:37:1"
+        },
+        "-LFsJvX2pt1Aq1pARE5f" : {
+          "Events" : {
+            "-LFsJvpq0AnIkQaOrt6U" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:2:48"
+            },
+            "-LFsJvsdaGTWO2W43UP8" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:2:48"
+            },
+            "-LFsJw6ePT4SN9FDZNKA" : {
+              "Event" : "True",
+              "date" : "6/25/2018",
+              "time" : "15:2:49"
+            },
+            "-LFsJwFSUtuGuCZdpVCM" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:2:49"
+            },
+            "-LFsJwTjUf2mwmSpK1dj" : {
+              "Event" : "False",
+              "date" : "6/25/2018",
+              "time" : "15:2:50"
+            },
+            "-LFsJwcJxi39wS7gH4sz" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:2:51"
+            },
+            "-LFsJwmTzRj7kqsX13uw" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:2:52"
+            },
+            "-LFsJxWgviplkXreMIwe" : {
+              "Event" : "Success",
+              "date" : "6/25/2018",
+              "time" : "15:2:55"
+            }
+          },
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "15:2:46"
+        },
+        "-LFsKfiy8rQlUEp4sc0m" : {
+          "Events" : {
+            "-LFsKfus6e6EiccMxFrj" : {
+              "Event" : "Success",
+              "date" : "6/25/2018",
+              "time" : "15:6:5"
+            }
+          },
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "15:6:4"
+        },
+        "-LFsMgbkS1RHtzSKC_dL" : {
+          "date" : "6/25/2018",
+          "strategy" : "towerOfHanoi",
+          "time" : "15:14:52"
+        },
+        "-LFsMgsUXGW2AW6VS3WD" : {
+          "date" : "6/25/2018",
+          "strategy" : "towerOfHanoi",
+          "time" : "15:14:53"
+        },
+        "-LFsMhuLX2p6gaqDaCYC" : {
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "15:14:57"
+        },
+        "-LFsPrmAN2kMvkJZag0f" : {
+          "Events" : {
+            "-LFsPs7lsEuSeqaBsNFH" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:28:45"
+            },
+            "-LFsPsEH3279zlkbUtpl" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:28:46"
+            },
+            "-LFsPsTQm6_ZctEASvKL" : {
+              "Event" : "True",
+              "date" : "6/25/2018",
+              "time" : "15:28:47"
+            },
+            "-LFsPsbbduqeOwLeF_p0" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:28:47"
+            },
+            "-LFsPspnds_PdIlVCgvq" : {
+              "Event" : "True",
+              "date" : "6/25/2018",
+              "time" : "15:28:48"
+            },
+            "-LFsPszGZYzIZ0DHqFsa" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:28:49"
+            },
+            "-LFsPtA_p10x952OJ_Ex" : {
+              "Event" : "Reset",
+              "date" : "6/25/2018",
+              "time" : "15:28:50"
+            }
+          },
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "15:28:44"
+        },
+        "-LFsPtR6Cb79hHzDubz-" : {
+          "Events" : {
+            "-LFsPtlYS58sxZqTYcmH" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:28:52"
+            },
+            "-LFsPto_l_NL4VpvOAxa" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:28:52"
+            },
+            "-LFsPu1_wcNtgQKcyeRu" : {
+              "Event" : "False",
+              "date" : "6/25/2018",
+              "time" : "15:28:53"
+            },
+            "-LFsPuJKLX3Ps_s901Xm" : {
+              "Event" : "True",
+              "date" : "6/25/2018",
+              "time" : "15:28:54"
+            },
+            "-LFsPuTnHcDF7QZYm6g6" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:28:55"
+            },
+            "-LFsPubkE5qduUhGG3pG" : {
+              "Event" : "Success",
+              "date" : "6/25/2018",
+              "time" : "15:28:56"
+            }
+          },
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "15:28:51"
+        },
+        "-LFsQ0pbRQUk7nclVHMo" : {
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "15:29:25"
+        },
+        "-LFsTrCp_CcTVjQ6ucla" : {
+          "Events" : {
+            "-LFsTrTy0ke1pm3VqMG4" : {
+              "Event" : "Reset",
+              "date" : "6/25/2018",
+              "time" : "15:46:11"
+            }
+          },
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "15:46:10"
+        },
+        "-LFsTriJ6cdWKwGUme_j" : {
+          "Events" : {
+            "-LFsTrsssV2mCNF1ITzS" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:46:13"
+            },
+            "-LFsTs35p2s0onnvZ5r2" : {
+              "Event" : "Next",
+              "date" : "6/25/2018",
+              "time" : "15:46:14"
+            },
+            "-LFsTsKHRNWi-WFvVgmM" : {
+              "Event" : "False",
+              "date" : "6/25/2018",
+              "time" : "15:46:15"
+            }
+          },
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "15:46:12"
+        },
+        "-LFsVAvalyjbpxSPx62Q" : {
+          "date" : "6/25/2018",
+          "strategy" : "DebugRoboto",
+          "time" : "15:51:57"
+        },
+        "null" : {
+          "Events" : {
+            "-LFsDccNqWWWqt0TTCVu" : {
+              "Event" : "Success",
+              "date" : "6/25/2018",
+              "time" : "14:35:16"
+            },
+            "-LFsOEkN94gvKMYT3Kxd" : {
+              "Event" : "Reset",
+              "date" : "6/25/2018",
+              "time" : "15:21:38"
+            }
+          }
+        }
+      },
+      "userInfo" : {
+        "Email" : "throwaway14199999@gmail.com",
+        "Name" : "David Hull"
+      }
+    }
+  }
+}
