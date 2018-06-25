@@ -10,9 +10,9 @@ var config = {
     storageBucket: "strategytracker.appspot.com",
     messagingSenderId: "261249836518"
 };
-firebase.initializeApp(config);
+        firebase.initializeApp(config);
 
-if (typeof window !== 'undefined' && window.angular) {
+        if (typeof window !== 'undefined' && window.angular) {
     let myapp = angular.module('myapp', ['ngSanitize']);
 
     myapp.run(function ($rootScope) {
@@ -72,6 +72,106 @@ if (typeof window !== 'undefined' && window.angular) {
                 $window.location = $window.location.origin + $window.location.pathname + '?strategy=' + vm.myStrategy.name;
             };
 
+            vm.redirectToHome = function () {
+                $window.location = './StrategyTracker.html';
+            }
+           vm.LogData = function () {
+                var user = sessionStorage.getItem('ID');
+                var name = sessionStorage.getItem('Name');
+                var email = sessionStorage.getItem("Email");
+               console.log("HERE2 with ", user);
+                var date = new Date();
+                firebase.database().ref('users/' + user + '/session').push({
+                    time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                  date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
+                    strategy: vm.myStrategy.name
+                }).then((snap) => {
+                    const key = snap.key;
+                    sessionStorage.setItem("session", key);
+                })
+               firebase.database().ref('users/' + user + '/userInfo').set({
+                   Email: email,
+                   Name: name
+               })
+
+            }
+
+            vm.LogEventReset = function () {
+               var user = sessionStorage.getItem('ID');
+               var session = sessionStorage.getItem('session');
+               var date = new Date();
+                firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
+                    time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                    date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
+                    Event: "Reset"
+                });
+            }
+
+            vm.LogEventNext = function () {
+                var user = sessionStorage.getItem('ID');
+                var session = sessionStorage.getItem('session');
+                var date = new Date();
+                firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
+                    time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                    date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
+                    Event: "Next"
+                });
+            }
+
+            vm.LogEventPrevious = function () {
+                var user = sessionStorage.getItem('ID');
+                var session = sessionStorage.getItem('session');
+                var date = new Date();
+                firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
+                    time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                    date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
+                    Event: "Previous"
+                });
+            }
+
+            vm.LogEventSuccess = function () {
+                var user = sessionStorage.getItem('ID');
+                var session = sessionStorage.getItem('session');
+                var date = new Date();
+                firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
+                    time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                    date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
+                    Event: "Success"
+                });
+            }
+
+            vm.LogEventTrue = function () {
+                var user = sessionStorage.getItem('ID');
+                var session = sessionStorage.getItem('session');
+                var date = new Date();
+                firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
+                    time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                    date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
+                    Event: "True"
+                });
+            }
+
+            vm.LogEventFalse = function () {
+                var user = sessionStorage.getItem('ID');
+                var session = sessionStorage.getItem('session');
+                var date = new Date();
+                firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
+                    time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                    date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
+                    Event: "False"
+                });
+            }
+
+            vm.LogEventNotYet= function () {
+                var user = sessionStorage.getItem('ID');
+                var session = sessionStorage.getItem('session');
+                var date = new Date();
+                firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
+                    time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                    date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
+                    Event: "Not Yet"
+                });
+            }
             vm.proceedToStrategy = function () {
                 let flag = true;
                 angular.forEach(vm.parameters, function (val, key) {
