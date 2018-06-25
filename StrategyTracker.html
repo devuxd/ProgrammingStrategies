@@ -18,7 +18,6 @@
         firebase.initializeApp(config);
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
-                console.log("HERE1 with ", user.uid);
                 sessionStorage.setItem("ID", user.uid);
                 sessionStorage.setItem("Email", user.email);
                 sessionStorage.setItem("Name", user.displayName);
