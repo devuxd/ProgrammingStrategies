@@ -3,6 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
+
+    <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyAXjL6f739BVqLDknymCN2H36-NBDS8LvY",
+            authDomain: "strategytracker.firebaseapp.com",
+            databaseURL: "https://strategytracker.firebaseio.com",
+            projectId: "strategytracker",
+            storageBucket: "strategytracker.appspot.com",
+            messagingSenderId: "261249836518"
+        };
+        firebase.initializeApp(config);
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                sessionStorage.setItem("ID", user.uid);
+                sessionStorage.setItem("Email", user.email);
+                sessionStorage.setItem("Name", user.displayName);
+            }
+            else {
+                console.log("Not logged in");
+                window.alert("You must be logged in to use this app");
+                window.location.href = '../public/index.html';
+            }
+        });
+
+
+    </script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -22,12 +51,12 @@
         <div ng-class="(main.execObj.activeLines.indexOf(st.id) >= 0 ) ? 'active' : 'code'">
             <span ng-bind-html="st.text"></span>
             <span ng-if="st.type == 'if'  && (main.execObj.activeLines.indexOf(st.id) >= 0 )">
-                <input class="btn btn-success btn-sm" type="button" value="True" ng-click="main.innerStatement()" />
-                <input class="btn btn-warning btn-sm" type="button" value="False" ng-click="main.outerStatement()" />
+                <input class="btn btn-success btn-sm" type="button" value="True" ng-click="main.LogEventTrue(); main.innerStatement()" />
+                <input class="btn btn-warning btn-sm" type="button" value="False" ng-click="main.LogEventFalse();main.outerStatement()" />
             </span>
             <span ng-if="st.type == 'until'  && (main.execObj.activeLines.indexOf(st.id) >= 0 )">
-                <input class="btn btn-success btn-sm" type="button" value="True" ng-click="main.outerStatement()" />
-                <input class="btn btn-warning btn-sm" type="button" value="Not Yet" ng-click="main.innerStatement()" />
+                <input class="btn btn-success btn-sm" type="button" value="True" ng-click="main.LogEventTrue(); main.outerStatement()" />
+                <input class="btn btn-warning btn-sm" type="button" value="Not Yet" ng-click="main.LogEventNotYet();main.innerStatement()" />
             </span>
         </div>
         <p ng-repeat="comment in st.comments" ng-class="(main.execObj.activeLines.indexOf(st.id) >= 0 ) ? 'visibleDescription' : 'hidden' ">{{comment.replace('#','')}}</p>
@@ -35,6 +64,7 @@
         <ul style="list-style: none">
             <li ng-repeat=" st in st.statements" ng-include="'statement-renderer.html'"></li>
         </ul>
+
     </script>
     <title> Debugging Strategy</title>
 </head>
@@ -64,7 +94,7 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" ng-click="main.proceedToStrategy()">
+                <button type="button" class="btn btn-default" ng-click="main.LogData(); main.proceedToStrategy()">
                     Proceed
                 </button>
                 <button type="button" class="btn btn-default" data-dismiss="modal"
@@ -90,20 +120,25 @@
             <div class="panel-info">
                 <div class=" panel-heading">
                     <div id="btn-reset">
-                        <button class="btn btn-default" id="reset" ng-click="main.reset()"
-                                title="Reset the strategy steps to the first step"> Reset
+                        <button class="btn btn-default" id="reset" ng-click="main.LogEventReset(); main.reset()"
+                                title="Reset the strategy steps to the first step"> Try Again
                         </button>
                     </div>
+                        <div id="btn-Success">
+                            <button class="btn btn-default" id="success" ng-click="main.LogEventSuccess(); main.redirectToHome();"
+                                    title="I have Successfully used the Strategy"> Success
+                            </button>
+                        </div>
 
                     <div id="buttons" class="form-group" style="margin-bottom: 0; text-align: right">
 
                         <button class="btn btn-default" id="prev"
                                 ng-disabled="main.isPrevDisabled || !main.selectedStrategy"
-                                ng-click="main.prevStatement()"> Previous
+                                ng-click="main.LogEventPrevious();main.prevStatement()"> Previous
                         </button>
                         <button class="btn btn-primary" id="next"
                                 ng-disabled="main.execObj.activeLines.length > 1 || !main.selectedStrategy || main.execObj.setNeeded || main.execObj.selectionNeeded"
-                                ng-click="main.nextStatement()"> Next
+                                ng-click="main.LogEventNext();main.nextStatement()"> Next
                         </button>
                         <!--<p>{{variables}}</p>-->
 
