@@ -12,6 +12,23 @@ var config = {
 };
         firebase.initializeApp(config);
 
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                sessionStorage.setItem("ID", user.uid);
+                sessionStorage.setItem("Email", user.email);
+                sessionStorage.setItem("Name", user.displayName);
+            }
+            else {
+                firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+                    .then(function() {
+                        var provider = new firebase.auth.GoogleAuthProvider();
+                        return firebase.auth().signInWithPopup(provider);
+                    }).catch(function(error) {
+                        window.alert(error);
+                })
+            }
+        });
+
         if (typeof window !== 'undefined' && window.angular) {
     let myapp = angular.module('myapp', ['ngSanitize']);
 
@@ -79,7 +96,7 @@ var config = {
                 var user = sessionStorage.getItem('ID');
                 var name = sessionStorage.getItem('Name');
                 var email = sessionStorage.getItem("Email");
-               console.log("HERE2 with ", user);
+              //console.log("HERE2 with ", user);
                 var date = new Date();
                 firebase.database().ref('users/' + user + '/session').push({
                     time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
@@ -100,10 +117,19 @@ var config = {
                var user = sessionStorage.getItem('ID');
                var session = sessionStorage.getItem('session');
                var date = new Date();
+                var line;
+                if(vm.execObj == null)
+                {
+                    line = "end"
+                }
+                else {
+                    line = vm.execObj.activeLines[0];
+                }
                 firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
                     time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
                     date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
-                    Event: "Reset"
+                    Event: "Reset",
+                    Line: line
                 });
             }
 
@@ -111,10 +137,19 @@ var config = {
                 var user = sessionStorage.getItem('ID');
                 var session = sessionStorage.getItem('session');
                 var date = new Date();
+                var line;
+                if(vm.execObj == null)
+                {
+                    line = "end"
+                }
+                else {
+                    line = vm.execObj.activeLines[0];
+                }
                 firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
                     time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
                     date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
-                    Event: "Next"
+                    Event: "Next",
+                    Line: line
                 });
             }
 
@@ -122,10 +157,19 @@ var config = {
                 var user = sessionStorage.getItem('ID');
                 var session = sessionStorage.getItem('session');
                 var date = new Date();
+                var line;
+                if(vm.execObj == null)
+                {
+                    line = "end"
+                }
+                else {
+                    line = vm.execObj.activeLines[0];
+                }
                 firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
                     time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
                     date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
-                    Event: "Previous"
+                    Event: "Previous",
+                    Line: line
                 });
             }
 
@@ -133,10 +177,19 @@ var config = {
                 var user = sessionStorage.getItem('ID');
                 var session = sessionStorage.getItem('session');
                 var date = new Date();
+                var line;
+                if(vm.execObj == null)
+                {
+                    line = "end"
+                }
+                else {
+                    line = vm.execObj.activeLines[0];
+                }
                 firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
                     time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
                     date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
-                    Event: "Success"
+                    Event: "Success",
+                    Line: line
                 });
             }
 
@@ -144,10 +197,19 @@ var config = {
                 var user = sessionStorage.getItem('ID');
                 var session = sessionStorage.getItem('session');
                 var date = new Date();
+                var line;
+                if(vm.execObj == null)
+                {
+                    line = "end"
+                }
+                else {
+                    line = vm.execObj.activeLines[0];
+                }
                 firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
                     time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
                     date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
-                    Event: "True"
+                    Event: "True",
+                    Line: line
                 });
             }
 
@@ -155,10 +217,19 @@ var config = {
                 var user = sessionStorage.getItem('ID');
                 var session = sessionStorage.getItem('session');
                 var date = new Date();
+                var line;
+                if(vm.execObj == null)
+                {
+                    line = "end"
+                }
+                else {
+                    line = vm.execObj.activeLines[0];
+                }
                 firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
                     time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
                     date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
-                    Event: "False"
+                    Event: "False",
+                    Line: line
                 });
             }
 
@@ -166,10 +237,19 @@ var config = {
                 var user = sessionStorage.getItem('ID');
                 var session = sessionStorage.getItem('session');
                 var date = new Date();
+                var line;
+                if(vm.execObj == null)
+                {
+                    line = "end"
+                }
+                else {
+                    line = vm.execObj.activeLines[0];
+                }
                 firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
                     time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
                     date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
-                    Event: "Not Yet"
+                    Event: "Not Yet",
+                    Line: line
                 });
             }
             vm.proceedToStrategy = function () {
@@ -281,7 +361,7 @@ var config = {
                     let variable = vm.execObj.variables.find(function (val, index, arr) {
                         return val.name == id;
                     });
-                    console.log(variable);
+                    //console.log(variable);
                     if (variable.dirtyArray !== undefined) variable.dirtyArray = [];
                 }
                 checkType();
@@ -540,7 +620,7 @@ class Interpreter {
                 });
                 args.push(myvar);
             });
-            console.log("ARGS", args);
+           // console.log("ARGS", args);
 
             let strategy = this.findStrategy(currentExecutionContext.pc.type === 'do' ? currentExecutionContext.pc.call.name : currentExecutionContext.pc.query.name);
             currentExecutionContext = new FunctionExecContext(strategy);
@@ -610,7 +690,7 @@ class FunctionExecContext {
         this.extractVariables(this.strategy.statements, globalCounter, this);
         var uniq = [...new Set(this.variables)];
         uniq.forEach(function (variable) {
-            console.log("var:   " + variable.name);
+           // console.log("var:   " + variable.name);
         });
         this.callStack = [];
     }
