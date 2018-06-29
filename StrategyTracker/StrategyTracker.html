@@ -112,7 +112,7 @@
                             </button>
 
                         <button class="btn btn-primary pull-right" id="next"
-                                ng-hide="!main.selectedStrategy || main.execObj == null || main.execObj.selectionNeeded"
+                                ng-hide="!main.selectedStrategy || main.execObj == null || main.execObj.selectionNeeded || main.execObj.setNeeded"
                                 ng-click="main.LogEventNext();main.nextStatement()"> Next
                         </button>
 
