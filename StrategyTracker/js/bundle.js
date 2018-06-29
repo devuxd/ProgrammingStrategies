@@ -269,6 +269,7 @@ var config = {
             }
             vm.proceedToStrategy = function () {
                 let flag = true;
+                document.getElementById("ButtonPane").style.display = 'block';
                 angular.forEach(vm.parameters, function (val, key) {
                     if (val.val == null || val.val.trim() == '') {
                         flag = false;
