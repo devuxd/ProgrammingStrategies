@@ -14,15 +14,24 @@ var config = {
 
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
+                console.log(user)
+                firebase.auth().getRedirectResult().then(function(result) {
+                    if (result.credential) {
+                        var token = result.credential.accessToken;
+                    }
+                    user = result.user;
+                })
                 sessionStorage.setItem("ID", user.uid);
                 sessionStorage.setItem("Email", user.email);
                 sessionStorage.setItem("Name", user.displayName);
             }
             else {
+                console.log("HERE");
                 firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
                     .then(function() {
                         var provider = new firebase.auth.GoogleAuthProvider();
-                        return firebase.auth().signInWithPopup(provider);
+                        return firebase.auth().signInWithRedirect(provider);
+
                     }).catch(function(error) {
                         window.alert(error);
                 })
