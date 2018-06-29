@@ -14,7 +14,6 @@ var config = {
 
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
-                console.log(user)
                 firebase.auth().getRedirectResult().then(function(result) {
                     if (result.credential) {
                         var token = result.credential.accessToken;
