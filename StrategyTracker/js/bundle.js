@@ -85,9 +85,16 @@ var config = {
                 });
                 vm.myStrategy = vm.selectedStrategy;
             }
-            vm.strategyChanged = function () {
-                $window.location = $window.location.origin + $window.location.pathname + '?strategy=' + vm.myStrategy.name;
+            vm.strategyChangedDebug = function () {
+                $window.location = $window.location.origin + $window.location.pathname + '?strategy=' + "debugCode";
             };
+
+            vm.strategyChangedReuse = function () {
+                $window.location = $window.location.origin + $window.location.pathname + '?strategy=' + "CodeReuseTest";
+            };
+            // vm.strategyChanged = function () {
+            //     $window.location = $window.location.origin + $window.location.pathname + '?strategy=' + vm.myStrategy.name;
+            // };
 
             vm.redirectToHome = function () {
                 $window.location = './StrategyTracker.html';
