@@ -101,18 +101,18 @@
                 <div class=" panel-heading ">
                     <div id="buttons1" class="form-inline" style="margin-bottom: 0;">
                         <button class="btn btn-warning btn-sm" id="reset" ng-click="main.LogEventReset(); main.reset()"
-                                ng-hide="!main.selectedStrategy || main.execObj.setNeeded || main.execObj.selectionNeeded"
+                                ng-hide="!main.selectedStrategy"
                                 title="Reset the strategy steps to the first step"> Let me try again
                         </button>
 
 
                             <button class="btn btn-success btn-sm" id="success" ng-click="main.LogEventSuccess(); main.redirectToHome();"
-                                    ng-hide="!main.selectedStrategy || main.execObj.setNeeded || main.execObj.selectionNeeded"
+                                    ng-hide="!main.selectedStrategy"
                                     title="I have Successfully used the Strategy"> I solved the problem
                             </button>
 
                         <button class="btn btn-primary pull-right" id="next"
-                                ng-hide="main.execObj.activeLines.length > 1 || !main.selectedStrategy || main.execObj.setNeeded || main.execObj.selectionNeeded"
+                                ng-hide="!main.selectedStrategy || main.execObj == null || main.execObj.selectionNeeded"
                                 ng-click="main.LogEventNext();main.nextStatement()"> Next
                         </button>
 
