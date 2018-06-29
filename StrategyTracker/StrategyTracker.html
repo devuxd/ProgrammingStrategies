@@ -42,7 +42,7 @@
 </head>
 <body ng-controller="MainCtrl as main" ng-cloak>
 <h4 class="strategy-select">Please select your Strategy</h4>
-<h3 id="model-fault-localization" class="header-level-1" style="color:white;"> ->
+<h3 id="model-fault-localization" class="header-level-1" style="color:white;">  ->
     <button class="btn btn-default" id="one"
             ng-click="main.strategyChangedDebug()"> Debug
     </button>
@@ -98,7 +98,7 @@
     <div class="row content">
         <div class="col-sm-7 text-left">
             <div class="panel-info">
-                <div class=" panel-heading">
+                <div class=" panel-heading ">
                     <div id="buttons1" class="form-inline" style="margin-bottom: 0;">
                         <button class="btn btn-warning btn-sm" id="reset" ng-click="main.LogEventReset(); main.reset()"
                                 ng-hide="!main.selectedStrategy || main.execObj.setNeeded || main.execObj.selectionNeeded"
