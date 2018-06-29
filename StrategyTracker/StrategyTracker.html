@@ -43,11 +43,19 @@
 <body ng-controller="MainCtrl as main" ng-cloak>
 <h4 class="strategy-select">Please select your Strategy</h4>
 <h3 id="model-fault-localization" class="header-level-1">
-    <select ng-model="main.myStrategy"
-            style="width: 270px;"
-            ng-change="main.strategyChanged()"
-            ng-options="strat.displayName for strat in main.allStrategies"></select>
+    <button class="btn btn-default" id="one"
+            ng-click="main.strategyChangedDebug()"> Debug
+    </button>
+    <button class="btn btn-default" id="two"
+            ng-click="main.strategyChangedReuse()"> Code Reuse
+    </button>
 </h3>
+<!--<h3 id="model-fault-localization" class="header-level-1">-->
+    <!--<select ng-model="main.myStrategy"-->
+            <!--style="width: 270px;"-->
+            <!--ng-change="main.strategyChanged()"-->
+            <!--ng-options="strat.displayName for strat in main.allStrategies"></select>-->
+<!--</h3>-->
 <!-- Modal -->
 <div class="modal fade" id="initialParams" role="dialog">
     <div class="modal-dialog">
