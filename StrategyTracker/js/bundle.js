@@ -339,12 +339,15 @@ var config = {
             vm.nextStatement = function () {
                 vm.execObj = interpreter.execute();
                 // vm.execObj.variables.forEach(function (variable) {
-                //     console.log("Variables:   " + variable.name);
+                //     console.log("Variables:   " + varchiable.name);
                 // });
                 if (vm.execObj == null) {
                     $timeout(function () {
-                        alert("Congratulation!You have reached end of strategy! If you think you did not finish the task, reset the strategy and start over again. ");
-                    }, 100);
+                        $("#FinalDialog").modal({
+                            backdrop: "static",
+                            keyboard: "false"
+                        });}, 100);
+                       // alert("Congratulations!You have reached end of strategy! If you think you did not finish the task, reset the strategy and start over again. ");
                     return;
                 }
                 checkType();
