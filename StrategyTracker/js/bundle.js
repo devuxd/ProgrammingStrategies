@@ -98,7 +98,7 @@ var config = {
             };
 
             vm.strategyChangedReuse = function () {
-                $window.location = $window.location.origin + $window.location.pathname + '?strategy=' + "CodeReuseTest";
+                $window.location = $window.location.origin + $window.location.pathname + '?strategy=' + "LearnToCode";
             };
             // vm.strategyChanged = function () {
             //     $window.location = $window.location.origin + $window.location.pathname + '?strategy=' + vm.myStrategy.name;
