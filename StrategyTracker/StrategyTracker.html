@@ -84,6 +84,28 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="FinalDialog" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Congratulations! You have reached end of strategy! If you think you did not finish the task, reset the strategy and start over again.</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group var-div" ng-repeat="">
+                    <label class="col-sm-4" ng-for="var" style="margin-bottom: 10px"></label>
+                    <input class="col-sm-8" type="text" ng-id="var" ng-model="var.val" style="margin-bottom: 10px">
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"> Done
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- end Modal -->
 <nav class="container-fluid" id="header-title">
     <header class="row">
