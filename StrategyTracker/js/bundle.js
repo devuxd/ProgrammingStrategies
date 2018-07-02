@@ -135,7 +135,7 @@ var config = {
                 var line;
                 if(vm.execObj == null)
                 {
-                    line = "end"
+                    line = "z-end"
                 }
                 else {
                     line = vm.execObj.activeLines[0];
@@ -155,7 +155,7 @@ var config = {
                 var line;
                 if(vm.execObj == null)
                 {
-                    line = "end"
+                    line = "z-end"
                 }
                 else {
                     line = vm.execObj.activeLines[0];
@@ -175,7 +175,7 @@ var config = {
                 var line;
                 if(vm.execObj == null)
                 {
-                    line = "end"
+                    line = "z-end"
                 }
                 else {
                     line = vm.execObj.activeLines[0];
@@ -195,7 +195,7 @@ var config = {
                 var line;
                 if(vm.execObj == null)
                 {
-                    line = "end"
+                    line = "z-end"
                 }
                 else {
                     line = vm.execObj.activeLines[0];
@@ -215,7 +215,7 @@ var config = {
                 var line;
                 if(vm.execObj == null)
                 {
-                    line = "end"
+                    line = "z-end"
                 }
                 else {
                     line = vm.execObj.activeLines[0];
@@ -235,7 +235,7 @@ var config = {
                 var line;
                 if(vm.execObj == null)
                 {
-                    line = "end"
+                    line = "z-end"
                 }
                 else {
                     line = vm.execObj.activeLines[0];
@@ -255,7 +255,7 @@ var config = {
                 var line;
                 if(vm.execObj == null)
                 {
-                    line = "end"
+                    line = "z-end"
                 }
                 else {
                     line = vm.execObj.activeLines[0];
