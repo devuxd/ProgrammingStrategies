@@ -47,7 +47,7 @@
             ng-click="main.strategyChangedDebug()"> Debug
     </button>
     <button class="btn btn-default" id="two"
-            ng-click="main.strategyChangedReuse()"> Code Reuse
+            ng-click="main.strategyChangedReuse()"> Learn to Code
     </button>
 </h3>
 <!--<h3 id="model-fault-localization" class="header-level-1">-->
@@ -89,7 +89,7 @@
     <header class="row">
        <span class="ribbon-inner">
             <h1 style="text-align: center;">ProgrammingStrategies</h1>
-            <h5 style="text-align: center;">A repository of strategies for programming</h5>
+            <h5 style="text-align: center;">A helpful web application</h5>
        </span>
     </header>
 </nav>
@@ -123,17 +123,17 @@
                 </div>
             </div>
             <div id="strategy-panel" class="panel-info">
-                <div class="panel-heading">
-                    {{main.selectedStrategy.displayName}}
-                    <div ng-if="main.execObj.activeLines.length > 1"
-                         style="color:orangered; font-family: '.SF NS Display';  font-size: 22px; display: inline; margin-left: 3%">
-                        <strong>Please Select the desired statement.</strong>
-                    </div>
-                    <div ng-if="main.execObj.setNeeded"
-                         style="color:orangered; font-family: '.SF NS Display';  font-size: 22px; display: inline; margin-left: 3%">
-                        <strong>Please set the variable</strong>
-                    </div>
-                </div>
+                <!--<div class="panel-heading">-->
+                    <!--&lt;!&ndash;{{main.selectedStrategy.displayName}}&ndash;&gt;-->
+                    <!--<div ng-if="main.execObj.activeLines.length > 1"-->
+                         <!--style="color:orangered; font-family: '.SF NS Display';  font-size: 22px; display: inline; margin-left: 3%">-->
+                        <!--<strong>Please Select the desired statement.</strong>-->
+                    <!--</div>-->
+                    <!--<div ng-if="main.execObj.setNeeded"-->
+                         <!--style="color:orangered; font-family: '.SF NS Display';  font-size: 22px; display: inline; margin-left: 3%">-->
+                        <!--<strong>Please set the variable</strong>-->
+                    <!--</div>-->
+                <!--</div>-->
 
                 <div class="panel-body">
                     <div class="row">
@@ -145,10 +145,10 @@
                                     <!-- accordion headers with strategies names-->
                                     <div class="panel-heading">
                                         <h4 class="panel-title">
-                                            <a data-toggle="collapse" data-parent="#strategiesAccordion"
-                                               ng-href="{{'#' + strat.name}}">
-                                                {{strat.name}}
-                                            </a>
+                                            <!--<a data-toggle="collapse" data-parent="#strategiesAccordion"-->
+                                               <!--ng-href="{{'#' + strat.name}}">-->
+                                                <!--{{strat.name}}-->
+                                            <!--</a>-->
                                         </h4>
                                     </div>
                                     <div ng-attr-id="{{strat.name}}" class="panel-collapse collapse"
