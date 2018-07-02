@@ -41,20 +41,21 @@
     <title> Debugging Strategy</title>
 </head>
 <body ng-controller="MainCtrl as main" ng-cloak>
-<h4 class="strategy-select">Please select your Strategy</h4>
-<h3 id="model-fault-localization" class="header-level-1" style="color:white;">  ->
-    <button class="btn btn-default" id="one"
-            ng-click="main.strategyChangedDebug()"> Debug
-    </button>
-    <button class="btn btn-default" id="two"
-            ng-click="main.strategyChangedReuse()"> Learn to Code
-    </button>
-</h3>
+<!--<h4 class="strategy-select">Please select your Strategy</h4>-->
+<!--<h3 id="model-fault-localization" class="header-level-1" style="color:white;">  ->-->
+    <!--<button class="btn btn-default" id="one"-->
+            <!--ng-click="main.strategyChangedDebug()"> Debug-->
+    <!--</button>-->
+    <!--<button class="btn btn-default" id="two"-->
+            <!--ng-click="main.strategyChangedReuse()"> Learn to Code-->
+    <!--</button>-->
+<!--</h3>-->
 <!--<h3 id="model-fault-localization" class="header-level-1">-->
     <!--<select ng-model="main.myStrategy"-->
             <!--style="width: 270px;"-->
             <!--ng-change="main.strategyChanged()"-->
             <!--ng-options="strat.displayName for strat in main.allStrategies"></select>-->
+
 <!--</h3>-->
 <!-- Modal -->
 <div class="modal fade" id="initialParams" role="dialog">
@@ -90,14 +91,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Congratulations! You have reached end of strategy! If you think you did not finish the task, reset the strategy and start over again.</h4>
+                <h4 class="modal-title">Congratulations! You have reached the end of the strategy!</h4>
             </div>
             <div class="modal-body">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-warning btn-sm" data-dismiss="modal" ng-click="main.LogEventReset(); main.reset()"> Let me Try again
+                <button type="button" class="btn btn-warning btn-sm" data-dismiss="modal" ng-click="main.LogEventReset(); main.reset()"> Let me try again
                 </button>
-                <button type="button" class="btn btn-success btn-sm" data-dismiss="modal" ng-click="main.LogEventSuccess(); main.redirectToHome();"> I solved the Problem
+                <button type="button" class="btn btn-success btn-sm" data-dismiss="modal" ng-click="main.LogEventSuccess(); main.redirectToHome();"> I solved the problem
                 </button>
             </div>
         </div>
@@ -107,8 +108,16 @@
 <nav class="container-fluid" id="header-title">
     <header class="row">
        <span class="ribbon-inner">
-            <h1 style="text-align: center;">ProgrammingStrategies</h1>
-            <h5 style="text-align: center;">A helpful web application</h5>
+            <!--<h1 style="text-align: center;">ProgrammingStrategies</h1>-->
+            <!--<h5 style="text-align: center;">A helpful web application</h5>-->
+           <h4> Please select your Strategy ->
+           <button class="btn btn-default" id="one"
+                   ng-click="main.strategyChangedDebug()"> Debug
+    </button>
+    <button class="btn btn-default" id="two"
+            ng-click="main.strategyChangedReuse()"> Learn to Code
+    </button>
+               </h4>
        </span>
     </header>
 </nav>
