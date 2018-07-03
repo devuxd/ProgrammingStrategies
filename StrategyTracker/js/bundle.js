@@ -1,7 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 const models = require('./models.js');
 // require('./dataManagement.js');
-
 var config = {
     apiKey: "AIzaSyAXjL6f739BVqLDknymCN2H36-NBDS8LvY",
     authDomain: "strategytracker.firebaseapp.com",
@@ -14,25 +13,20 @@ var config = {
 
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
-                firebase.auth().getRedirectResult().then(function(result) {
-                    if (result.credential) {
-                        var token = result.credential.accessToken;
-                    }
-                    user = result.user;
-                })
+                document.getElementById("notloaded").style.display = "none"
+                document.getElementById("loaded").style.display = ""
                 sessionStorage.setItem("ID", user.uid);
                 sessionStorage.setItem("Email", user.email);
                 sessionStorage.setItem("Name", user.displayName);
             }
             else {
-                console.log("HERE");
                 firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
                     .then(function() {
                         var provider = new firebase.auth.GoogleAuthProvider();
                         return firebase.auth().signInWithRedirect(provider);
 
                     }).catch(function(error) {
-                        window.alert(error);
+                        window.alert("You do not have permission to sign in, ", error);
                 })
             }
         });
