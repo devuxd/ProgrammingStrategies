@@ -11,6 +11,11 @@ var config = {
 };
         firebase.initializeApp(config);
 
+        firebase.auth().getRedirectResult().then(function(result) {
+        }).catch(function(error) {
+            window.location.href = "./LoginFail.html";
+        });
+
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
                 document.getElementById("notloaded").style.display = "none"
@@ -24,10 +29,9 @@ var config = {
                     .then(function() {
                         var provider = new firebase.auth.GoogleAuthProvider();
                         return firebase.auth().signInWithRedirect(provider);
+                    })
 
-                    }).catch(function(error) {
-                        window.alert("You do not have permission to sign in, ", error);
-                })
+
             }
         });
 
