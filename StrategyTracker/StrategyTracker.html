@@ -28,7 +28,7 @@
             </span>
             <span ng-if="st.type == 'until'  && (main.execObj.activeLines.indexOf(st.id) >= 0 )">
                 <input class="btn btn-success btn-sm" type="button" value="True" ng-click="main.LogEventTrue(); main.outerStatement()" />
-                <input class="btn btn-warning btn-sm" type="button" value="Still more examples" ng-click="main.LogEventNotYet();main.innerStatement()" />
+                <input class="btn btn-warning btn-sm" type="button" value="More examples" ng-click="main.LogEventNotYet();main.innerStatement()" />
             </span>
         </div>
         <p ng-repeat="comment in st.comments" ng-class="(main.execObj.activeLines.indexOf(st.id) >= 0 ) ? 'visibleDescription' : 'hidden' ">{{comment.replace('#','')}}</p>
