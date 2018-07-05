@@ -27,8 +27,8 @@
                 <input class="btn btn-warning btn-sm" type="button" value="False" ng-click="main.LogEventFalse();main.outerStatement()" />
             </span>
             <span ng-if="st.type == 'until'  && (main.execObj.activeLines.indexOf(st.id) >= 0 )"> <br>
-                <input class="btn btn-success btn-sm" type="button" value="Enter loop" ng-click="main.LogEventNotYet();main.innerStatement()" />
-                <input class="btn btn-warning btn-sm" type="button" value="Stop looping" ng-click="main.LogEventTrue(); main.outerStatement()" />
+                <input class="btn btn-success btn-sm" type="button" value="Enter loop" ng-click="main.LogEventEnterLoop();main.innerStatement()" />
+                <input class="btn btn-warning btn-sm" type="button" value="Stop looping" ng-click="main.LogEventExitLoop(); main.outerStatement()" />
 
             </span>
         </div>
