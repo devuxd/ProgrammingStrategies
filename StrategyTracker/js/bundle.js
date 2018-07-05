@@ -245,8 +245,7 @@ var config = {
                     Line: line
                 });
             }
-
-            vm.LogEventNotYet= function () {
+            vm.LogEventExitLoop = function () {
                 var user = sessionStorage.getItem('ID');
                 var session = sessionStorage.getItem('session');
                 var date = new Date();
@@ -261,7 +260,26 @@ var config = {
                 firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
                     time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
                     date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
-                    Event: "Not Yet",
+                    Event: "Exit Loop",
+                    Line: line
+                });
+            }
+            vm.LogEventEnterLoop= function () {
+                var user = sessionStorage.getItem('ID');
+                var session = sessionStorage.getItem('session');
+                var date = new Date();
+                var line;
+                if(vm.execObj == null)
+                {
+                    line = "z-end"
+                }
+                else {
+                    line = vm.execObj.activeLines[0];
+                }
+                firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
+                    time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                    date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
+                    Event: "Enter Loop",
                     Line: line
                 });
             }
