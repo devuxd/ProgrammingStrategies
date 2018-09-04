@@ -1,7 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 const models = require('./models.js');
 // require('./dataManagement.js');
-
 var config = {
     apiKey: "AIzaSyAXjL6f739BVqLDknymCN2H36-NBDS8LvY",
     authDomain: "strategytracker.firebaseapp.com",
@@ -10,9 +9,33 @@ var config = {
     storageBucket: "strategytracker.appspot.com",
     messagingSenderId: "261249836518"
 };
-firebase.initializeApp(config);
+        firebase.initializeApp(config);
 
-if (typeof window !== 'undefined' && window.angular) {
+        firebase.auth().getRedirectResult().then(function(result) {
+        }).catch(function(error) {
+            window.location.href = "./LoginFail.html";
+        });
+
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById("notloaded").style.display = "none"
+                document.getElementById("loaded").style.display = ""
+                sessionStorage.setItem("ID", user.uid);
+                sessionStorage.setItem("Email", user.email);
+                sessionStorage.setItem("Name", user.displayName);
+            }
+            else {
+                firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+                    .then(function() {
+                        var provider = new firebase.auth.GoogleAuthProvider();
+                        return firebase.auth().signInWithRedirect(provider);
+                    })
+
+
+            }
+        });
+
+        if (typeof window !== 'undefined' && window.angular) {
     let myapp = angular.module('myapp', ['ngSanitize']);
 
     myapp.run(function ($rootScope) {
@@ -68,12 +91,202 @@ if (typeof window !== 'undefined' && window.angular) {
                 });
                 vm.myStrategy = vm.selectedStrategy;
             }
-            vm.strategyChanged = function () {
-                $window.location = $window.location.origin + $window.location.pathname + '?strategy=' + vm.myStrategy.name;
+            vm.strategyChangedDebug = function () {
+                $window.location = $window.location.origin + $window.location.pathname + '?strategy=' + "debugCode";
             };
 
+            vm.strategyChangedReuse = function () {
+                $window.location = $window.location.origin + $window.location.pathname + '?strategy=' + "LearnToCode";
+            };
+            // vm.strategyChanged = function () {
+            //     $window.location = $window.location.origin + $window.location.pathname + '?strategy=' + vm.myStrategy.name;
+            // };
+
+            vm.redirectToHome = function () {
+                $window.location = './StrategyTracker.html';
+            }
+           vm.LogData = function () {
+                var user = sessionStorage.getItem('ID');
+                var name = sessionStorage.getItem('Name');
+                var email = sessionStorage.getItem("Email");
+              //console.log("HERE2 with ", user);
+                var date = new Date();
+                firebase.database().ref('users/' + user + '/session').push({
+                    time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                  date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
+                    strategy: vm.myStrategy.name
+                }).then((snap) => {
+                    const key = snap.key;
+                    sessionStorage.setItem("session", key);
+                })
+               firebase.database().ref('users/' + user + '/userInfo').set({
+                   Email: email,
+                   Name: name
+               })
+
+            }
+
+            vm.LogEventReset = function () {
+               var user = sessionStorage.getItem('ID');
+               var session = sessionStorage.getItem('session');
+               var date = new Date();
+                var line;
+                if(vm.execObj == null)
+                {
+                    line = "z-end"
+                }
+                else {
+                    line = vm.execObj.activeLines[0];
+                }
+                firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
+                    time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                    date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
+                    Event: "Reset",
+                    Line: line
+                });
+            }
+
+            vm.LogEventNext = function () {
+                var user = sessionStorage.getItem('ID');
+                var session = sessionStorage.getItem('session');
+                var date = new Date();
+                var line;
+                if(vm.execObj == null)
+                {
+                    line = "z-end"
+                }
+                else {
+                    line = vm.execObj.activeLines[0];
+                }
+                firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
+                    time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                    date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
+                    Event: "Next",
+                    Line: line
+                });
+            }
+
+            vm.LogEventPrevious = function () {
+                var user = sessionStorage.getItem('ID');
+                var session = sessionStorage.getItem('session');
+                var date = new Date();
+                var line;
+                if(vm.execObj == null)
+                {
+                    line = "z-end"
+                }
+                else {
+                    line = vm.execObj.activeLines[0];
+                }
+                firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
+                    time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                    date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
+                    Event: "Previous",
+                    Line: line
+                });
+            }
+
+            vm.LogEventSuccess = function () {
+                var user = sessionStorage.getItem('ID');
+                var session = sessionStorage.getItem('session');
+                var date = new Date();
+                var line;
+                if(vm.execObj == null)
+                {
+                    line = "z-end"
+                }
+                else {
+                    line = vm.execObj.activeLines[0];
+                }
+                firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
+                    time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                    date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
+                    Event: "Success",
+                    Line: line
+                });
+            }
+
+            vm.LogEventTrue = function () {
+                var user = sessionStorage.getItem('ID');
+                var session = sessionStorage.getItem('session');
+                var date = new Date();
+                var line;
+                if(vm.execObj == null)
+                {
+                    line = "z-end"
+                }
+                else {
+                    line = vm.execObj.activeLines[0];
+                }
+                firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
+                    time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                    date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
+                    Event: "True",
+                    Line: line
+                });
+            }
+
+            vm.LogEventFalse = function () {
+                var user = sessionStorage.getItem('ID');
+                var session = sessionStorage.getItem('session');
+                var date = new Date();
+                var line;
+                if(vm.execObj == null)
+                {
+                    line = "z-end"
+                }
+                else {
+                    line = vm.execObj.activeLines[0];
+                }
+                firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
+                    time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                    date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
+                    Event: "False",
+                    Line: line
+                });
+            }
+            vm.LogEventExitLoop = function () {
+                var user = sessionStorage.getItem('ID');
+                var session = sessionStorage.getItem('session');
+                var date = new Date();
+                var line;
+                if(vm.execObj == null)
+                {
+                    line = "z-end"
+                }
+                else {
+                    line = vm.execObj.activeLines[0];
+                }
+                firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
+                    time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                    date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
+                    Event: "Exit Loop",
+                    Line: line
+                });
+            }
+            vm.LogEventEnterLoop= function () {
+                var user = sessionStorage.getItem('ID');
+                var session = sessionStorage.getItem('session');
+                var date = new Date();
+                var line;
+                if(vm.execObj == null)
+                {
+                    line = "z-end"
+                }
+                else {
+                    line = vm.execObj.activeLines[0];
+                }
+                firebase.database().ref('users/' + user + '/session/' + session + '/Events').push({
+                    time:  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                    date: date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear(),
+                    Event: "Enter Loop",
+                    Line: line
+                });
+            }
             vm.proceedToStrategy = function () {
                 let flag = true;
+                document.getElementById("ButtonPane").style.display = 'block';
+                document.getElementById("VariablesPane").style.display = '';
                 angular.forEach(vm.parameters, function (val, key) {
                     if (val.val == null || val.val.trim() == '') {
                         flag = false;
@@ -142,12 +355,15 @@ if (typeof window !== 'undefined' && window.angular) {
             vm.nextStatement = function () {
                 vm.execObj = interpreter.execute();
                 // vm.execObj.variables.forEach(function (variable) {
-                //     console.log("Variables:   " + variable.name);
+                //     console.log("Variables:   " + varchiable.name);
                 // });
                 if (vm.execObj == null) {
                     $timeout(function () {
-                        alert("Congratulation!You have reached end of strategy! If you think you did not finish the task, reset the strategy and start over again. ");
-                    }, 100);
+                        $("#FinalDialog").modal({
+                            backdrop: "static",
+                            keyboard: "false"
+                        });}, 100);
+                       // alert("Congratulations!You have reached end of strategy! If you think you did not finish the task, reset the strategy and start over again. ");
                     return;
                 }
                 checkType();
@@ -181,7 +397,7 @@ if (typeof window !== 'undefined' && window.angular) {
                     let variable = vm.execObj.variables.find(function (val, index, arr) {
                         return val.name == id;
                     });
-                    console.log(variable);
+                    //console.log(variable);
                     if (variable.dirtyArray !== undefined) variable.dirtyArray = [];
                 }
                 checkType();
@@ -440,7 +656,7 @@ class Interpreter {
                 });
                 args.push(myvar);
             });
-            console.log("ARGS", args);
+           // console.log("ARGS", args);
 
             let strategy = this.findStrategy(currentExecutionContext.pc.type === 'do' ? currentExecutionContext.pc.call.name : currentExecutionContext.pc.query.name);
             currentExecutionContext = new FunctionExecContext(strategy);
@@ -510,7 +726,7 @@ class FunctionExecContext {
         this.extractVariables(this.strategy.statements, globalCounter, this);
         var uniq = [...new Set(this.variables)];
         uniq.forEach(function (variable) {
-            console.log("var:   " + variable.name);
+           // console.log("var:   " + variable.name);
         });
         this.callStack = [];
     }

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -22,12 +23,13 @@
         <div ng-class="(main.execObj.activeLines.indexOf(st.id) >= 0 ) ? 'active' : 'code'">
             <span ng-bind-html="st.text"></span>
             <span ng-if="st.type == 'if'  && (main.execObj.activeLines.indexOf(st.id) >= 0 )">
-                <input class="btn btn-success btn-sm" type="button" value="True" ng-click="main.innerStatement()" />
-                <input class="btn btn-warning btn-sm" type="button" value="False" ng-click="main.outerStatement()" />
+                <input class="btn btn-success btn-sm" type="button" value="True" ng-click="main.LogEventTrue(); main.innerStatement()" />
+                <input class="btn btn-warning btn-sm" type="button" value="False" ng-click="main.LogEventFalse();main.outerStatement()" />
             </span>
-            <span ng-if="st.type == 'until'  && (main.execObj.activeLines.indexOf(st.id) >= 0 )">
-                <input class="btn btn-success btn-sm" type="button" value="True" ng-click="main.outerStatement()" />
-                <input class="btn btn-warning btn-sm" type="button" value="Not Yet" ng-click="main.innerStatement()" />
+            <span ng-if="st.type == 'until'  && (main.execObj.activeLines.indexOf(st.id) >= 0 )"> <br>
+                <input class="btn btn-success btn-sm" type="button" value="Enter loop" ng-click="main.LogEventEnterLoop();main.innerStatement()" />
+                <input class="btn btn-warning btn-sm" type="button" value="Stop looping" ng-click="main.LogEventExitLoop(); main.outerStatement()" />
+
             </span>
         </div>
         <p ng-repeat="comment in st.comments" ng-class="(main.execObj.activeLines.indexOf(st.id) >= 0 ) ? 'visibleDescription' : 'hidden' ">{{comment.replace('#','')}}</p>
@@ -35,17 +37,27 @@
         <ul style="list-style: none">
             <li ng-repeat=" st in st.statements" ng-include="'statement-renderer.html'"></li>
         </ul>
+
     </script>
     <title> Debugging Strategy</title>
 </head>
 <body ng-controller="MainCtrl as main" ng-cloak>
-<h4 class="strategy-select">Please select your Strategy</h4>
-<h3 id="model-fault-localization" class="header-level-1">
-    <select ng-model="main.myStrategy"
-            style="width: 270px;"
-            ng-change="main.strategyChanged()"
-            ng-options="strat.displayName for strat in main.allStrategies"></select>
-</h3>
+<!--<h4 class="strategy-select">Please select your Strategy</h4>-->
+<!--<h3 id="model-fault-localization" class="header-level-1" style="color:white;">  ->-->
+    <!--<button class="btn btn-default" id="one"-->
+            <!--ng-click="main.strategyChangedDebug()"> Debug-->
+    <!--</button>-->
+    <!--<button class="btn btn-default" id="two"-->
+            <!--ng-click="main.strategyChangedReuse()"> Learn to Code-->
+    <!--</button>-->
+<!--</h3>-->
+<!--<h3 id="model-fault-localization" class="header-level-1">-->
+    <!--<select ng-model="main.myStrategy"-->
+            <!--style="width: 270px;"-->
+            <!--ng-change="main.strategyChanged()"-->
+            <!--ng-options="strat.displayName for strat in main.allStrategies"></select>-->
+
+<!--</h3>-->
 <!-- Modal -->
 <div class="modal fade" id="initialParams" role="dialog">
     <div class="modal-dialog">
@@ -64,7 +76,7 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" ng-click="main.proceedToStrategy()">
+                <button type="button" class="btn btn-default" ng-click="main.LogData(); main.proceedToStrategy()">
                     Proceed
                 </button>
                 <button type="button" class="btn btn-default" data-dismiss="modal"
@@ -74,54 +86,86 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="FinalDialog" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Congratulations! You have reached the end of the strategy!</h4>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning btn-sm" data-dismiss="modal" ng-click="main.LogEventReset(); main.reset()"> Let me try again
+                </button>
+                <button type="button" class="btn btn-success btn-sm" data-dismiss="modal" ng-click="main.LogEventSuccess(); main.redirectToHome();"> I solved the problem
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- end Modal -->
+
 <nav class="container-fluid" id="header-title">
     <header class="row">
        <span class="ribbon-inner">
-            <h1 style="text-align: center;">ProgrammingStrategies</h1>
-            <h5 style="text-align: center;">A repository of strategies for programming</h5>
+            <!--<h1 style="text-align: center;">ProgrammingStrategies</h1>-->
+            <!--<h5 style="text-align: center;">A helpful web application</h5>-->
+           <h4 id ="notloaded" style="display: block"> Loading strategies</h4>
+           <h4  id = "loaded"  style="display: none" > Please select your Strategy ->
+           <button class="btn btn-default" id="one"
+                   ng-click="main.strategyChangedDebug()"> Debug
+    </button>
+    <button class="btn btn-default" id="two"
+            ng-click="main.strategyChangedReuse()"> How to...
+    </button>
+               </h4>
        </span>
     </header>
 </nav>
 
 <div class="container-fluid text-center">
-    <div class="row content">
-        <div class="col-sm-7 text-left">
+    <div class="row content" >
+        <div class="col-sm-7 text-left"  style="display: none;" id = "ButtonPane">
             <div class="panel-info">
-                <div class=" panel-heading">
-                    <div id="btn-reset">
-                        <button class="btn btn-default" id="reset" ng-click="main.reset()"
-                                title="Reset the strategy steps to the first step"> Reset
+                <div class=" panel-heading ">
+                    <div id="buttons1" class="form-inline" style="margin-bottom: 0;">
+                        <button class="btn btn-warning btn-sm" id="reset" ng-click="main.LogEventReset(); main.reset()"
+                                title="Reset the strategy steps to the first step"> Let me try again
                         </button>
-                    </div>
 
-                    <div id="buttons" class="form-group" style="margin-bottom: 0; text-align: right">
 
-                        <button class="btn btn-default" id="prev"
-                                ng-disabled="main.isPrevDisabled || !main.selectedStrategy"
-                                ng-click="main.prevStatement()"> Previous
+                            <button class="btn btn-success btn-sm" id="success" ng-click="main.LogEventSuccess(); main.redirectToHome();"
+                                    title="I have Successfully used the Strategy"> I solved the problem
+                            </button>
+
+                        <button class="btn btn-primary pull-right" id="next"
+                                ng-disabled="!main.selectedStrategy || main.execObj.setNeeded || main.execObj.selectionNeeded || main.execObj == null"
+                                ng-click="main.LogEventNext();main.nextStatement()"> Next
                         </button>
-                        <button class="btn btn-primary" id="next"
-                                ng-disabled="main.execObj.activeLines.length > 1 || !main.selectedStrategy || main.execObj.setNeeded || main.execObj.selectionNeeded"
-                                ng-click="main.nextStatement()"> Next
+
+                        <button class="btn btn-default pull-right" id="prev"
+                                ng-disabled="main.execObj.currentStatement.type =='strategy'"
+                                ng-click="main.LogEventPrevious();main.prevStatement()"> Previous
                         </button>
+
                         <!--<p>{{variables}}</p>-->
-
                     </div>
                 </div>
             </div>
             <div id="strategy-panel" class="panel-info">
-                <div class="panel-heading">
-                    {{main.selectedStrategy.displayName}}
-                    <div ng-if="main.execObj.activeLines.length > 1"
-                         style="color:orangered; font-family: '.SF NS Display';  font-size: 22px; display: inline; margin-left: 3%">
-                        <strong>Please Select the desired statement.</strong>
-                    </div>
-                    <div ng-if="main.execObj.setNeeded"
-                         style="color:orangered; font-family: '.SF NS Display';  font-size: 22px; display: inline; margin-left: 3%">
-                        <strong>Please set the variable</strong>
-                    </div>
-                </div>
+                <!--<div class="panel-heading">-->
+                    <!--&lt;!&ndash;{{main.selectedStrategy.displayName}}&ndash;&gt;-->
+                    <!--<div ng-if="main.execObj.activeLines.length > 1"-->
+                         <!--style="color:orangered; font-family: '.SF NS Display';  font-size: 22px; display: inline; margin-left: 3%">-->
+                        <!--<strong>Please Select the desired statement.</strong>-->
+                    <!--</div>-->
+                    <!--<div ng-if="main.execObj.setNeeded"-->
+                         <!--style="color:orangered; font-family: '.SF NS Display';  font-size: 22px; display: inline; margin-left: 3%">-->
+                        <!--<strong>Please set the variable</strong>-->
+                    <!--</div>-->
+                <!--</div>-->
 
                 <div class="panel-body">
                     <div class="row">
@@ -133,10 +177,10 @@
                                     <!-- accordion headers with strategies names-->
                                     <div class="panel-heading">
                                         <h4 class="panel-title">
-                                            <a data-toggle="collapse" data-parent="#strategiesAccordion"
-                                               ng-href="{{'#' + strat.name}}">
-                                                {{strat.name}}
-                                            </a>
+                                            <!--<a data-toggle="collapse" data-parent="#strategiesAccordion"-->
+                                               <!--ng-href="{{'#' + strat.name}}">-->
+                                                <!--{{strat.name}}-->
+                                            <!--</a>-->
                                         </h4>
                                     </div>
                                     <div ng-attr-id="{{strat.name}}" class="panel-collapse collapse"
@@ -165,8 +209,9 @@
         </div>
         <div class="col-sm-5 sidenav">
             <div class="panel-primary">
-                <div class="panel-heading">
+                <div class="panel-heading"  style="display: none;" id = "VariablesPane">
                     Variables
+                    <p> Please separate multiple inputs with a comma</p>
                 </div>
                 <div class="panel-body text-left">
                     <div class="form-group var-div" ng-repeat="var in main.execObj.variables track by var.id"
