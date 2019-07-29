@@ -11,9 +11,9 @@ if (typeof window !== 'undefined' && window.angular) {
         let strategies= [];
         let deferred = $q.defer();
         firebase.database().ref('strategies').once('value').then(function(snapshot) {
-            snapshot.forEach(function(childStrategy) {
-                strategies.push(childStrategy.val());
-            });
+                snapshot.forEach(function(childStrategy) {
+                    strategies.push(childStrategy.val());
+                });
             deferred.resolve(strategies);
         }).catch(function(err) {
             deferred.reject(err);

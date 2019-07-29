@@ -19,5 +19,7 @@
     "babelify": "^7.3.0",
     "browserify": "^14.4.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "nearley": "^2.15.1"
+  }
 }

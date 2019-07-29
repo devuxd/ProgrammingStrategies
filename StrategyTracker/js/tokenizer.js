@@ -128,7 +128,7 @@ function tokenize(strategy) {
 
 // Expects a list of strings.
 function parseApproach(owner, name, displayName, type, tokens, robotoText) {
-
+    // console.log(tokens);
     var strategies = [];
     var descriptions = [];
     var index=0;
@@ -502,23 +502,24 @@ module.exports = {
 
 };
 
-// fs = require('fs')
-// //console.log(process.argv[2]);
-//
-// fs.readFile(process.argv[2], 'utf8', function (err,data) {
-//     if (err) {
-//         return console.log(err);
-//     }
-//     //console.log("data = ", data);
-//     var strategy = data;
-//
-//     try {
-//         var tokens = new Tokens(strategy);
-//         //owner, name, displayName, type, tokens, robotoText
-//         var ast = parseApproach("meysam", process.argv[2], "meysam", "approach",  tokens, "");
-//         console.log(JSON.stringify(ast, null, 2));
-//     } catch(ex) {
-//         console.log(ex);
-//     }
-//
-// });
+fs = require('fs')
+//console.log(process.argv[2]);
+
+fs.readFile(process.argv[2], 'utf8', function (err,data) {
+    if (err) {
+        return console.log(err);
+    }
+    //console.log("data = ", data);
+    var strategy = data;
+
+    try {
+        var tokens = new Tokens(strategy);
+        //console.log(tokens);
+        //owner, name, displayName, type, tokens, robotoText
+        var ast = parseApproach("maryam", process.argv[2], "maryam", "approach",  tokens, "");
+        console.log(JSON.stringify(ast, null, 2));
+    } catch(ex) {
+        console.log(ex);
+    }
+
+});

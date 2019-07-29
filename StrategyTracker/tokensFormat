@@ -1,0 +1,267 @@
+{
+  "owner": "maryam",
+  "name": "test2.txt",
+  "description": [],
+  "displayName": "maryam",
+  "robotoText": "",
+
+
+  
+  "strategies": [
+    {
+      "type": "strategy",
+      "name": "verifyAPIHasCommunity",
+      "id": "verifyAPIHasCommunity0",
+      "parameters": [
+        "apiName"
+      ],
+      "statements": [
+        {
+          "type": "set",
+          "miniSteps": [
+            {
+              "role": "User",
+              "text": "Step 1. Gather the information described and record the value for the variable in the Variables pane at right. you can insert multiple variables separating with comma (,)."
+            },
+            {
+              "role": "Computer",
+              "text": "Step 2. The computer will record the value you specify for the variable."
+            }
+          ],
+          "identifier": "'site'",
+          "query": {
+            "type": "query",
+            "words": [
+              "the",
+              "website",
+              "that",
+              "hosts",
+              "the",
+              "project",
+              "with",
+              "'apiName'"
+            ]
+          },
+          "comments": [
+            "# This is the first comment"
+          ],
+          "id": "verifyAPIHasCommunity0-0",
+          "text": "set 'site' to the website that hosts the project with 'apiName'"
+        },
+        {
+          "type": "if",
+          "query": {
+            "type": "query",
+            "words": [
+              "'site'",
+              "is",
+              "nothing"
+            ]
+          },
+          "miniSteps": [
+            {
+              "role": "User",
+              "text": "Step 1. Find the value of the variable using the variables pane on the right."
+            },
+            {
+              "role": "User",
+              "text": "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+            },
+            {
+              "role": "Computer",
+              "text": "Step 3. The computer will go to the next statement."
+            }
+          ],
+          "statements": [
+            {
+              "type": "return",
+              "miniSteps": [
+                {
+                  "role": "Computer",
+                  "text": "Step 1. The computer will return the specified value to the caller of the current strategy."
+                },
+                {
+                  "role": "Computer",
+                  "text": "Step 2. The computer will continue executing statements in the strategy's caller."
+                }
+              ],
+              "query": {
+                "type": "nothing",
+                "nothing": "nothing"
+              },
+              "comments": [],
+              "id": "verifyAPIHasCommunity0-1-0",
+              "text": "return nothing"
+            }
+          ],
+          "comments": [
+            "# This is a more serious comment",
+            "# Because it's two lines long"
+          ],
+          "id": "verifyAPIHasCommunity0-1",
+          "text": "if 'site' is nothing"
+        },
+        {
+          "type": "until",
+          "query": {
+            "type": "query",
+            "words": [
+              "you",
+              "have",
+              "all",
+              "the",
+              "diamonds"
+            ]
+          },
+          "miniSteps": [
+            {
+              "role": "User",
+              "text": "Step 1. Find the value of the variable using the variables pane on the right."
+            },
+            {
+              "role": "User",
+              "text": "Step 2. Inspect the condition in the statement. If the condition is true, click True. Otherwise, click False."
+            },
+            {
+              "role": "Computer",
+              "text": "Step 3-The computer will go to the next statement, returning to the until statement after control has reached the end of the section."
+            }
+          ],
+          "statements": [
+            {
+              "type": "action",
+              "miniSteps": [
+                {
+                  "role": "User",
+                  "text": "Perform the action described in the statement, returning to the StrategyTracker when you are done."
+                }
+              ],
+              "words": [
+                "Look",
+                "over",
+                "your",
+                "shoulder",
+                "for",
+                "cops"
+              ],
+              "comments": [],
+              "id": "verifyAPIHasCommunity0-2-0",
+              "text": "Look over your shoulder for cops"
+            }
+          ],
+          "comments": [
+            "# This tests the do/until loop"
+          ],
+          "id": "verifyAPIHasCommunity0-2",
+          "text": "until you have all the diamonds"
+        },
+        {
+          "type": "return",
+          "miniSteps": [
+            {
+              "role": "Computer",
+              "text": "Step 1. The computer will return the specified value to the caller of the current strategy."
+            },
+            {
+              "role": "Computer",
+              "text": "Step 2. The computer will continue executing statements in the strategy's caller."
+            }
+          ],
+          "query": {
+            "type": "call",
+            "name": "assessRepositoryActivity",
+            "arguments": [
+              "'site'"
+            ]
+          },
+          "comments": [],
+          "id": "verifyAPIHasCommunity0-3",
+          "text": "return assessRepositoryActivity('site')"
+        }
+      ],
+      "text": "Strategy verifyAPIHasCommunity(apiName)"
+    }
+  ]
+}
+
+
+
+
+Tokens {
+  tokens: 
+   [ 'STRATEGY',
+     'verifyAPIHasCommunity',
+     '(',
+     'apiName',
+     ')',
+     '\n',
+     '\t',
+     '# This is the first comment',
+     '\n',
+     '\t',
+     'SET',
+     '\'site\'',
+     'TO',
+     'the',
+     'website',
+     'that',
+     'hosts',
+     'the',
+     'project',
+     'with',
+     '\'apiName\'',
+     '\n',
+     '\t',
+     '# This is a more serious comment',
+     '\n',
+     '\t',
+     '# Because it\'s two lines long',
+     '\n',
+     '\t',
+     'IF',
+     '\'site\'',
+     'is',
+     'nothing',
+     '\n',
+     '\t',
+     '\t',
+     'RETURN',
+     'nothing',
+     '\n',
+     '\t',
+     '# This tests the do/until loop',
+     '\n',
+     '\t',
+     'UNTIL',
+     'you',
+     'have',
+     'all',
+     'the',
+     'diamonds',
+     '\n',
+     '\t',
+     '\t',
+     'Look',
+     'over',
+     'your',
+     'shoulder',
+     'for',
+     'cops',
+     '\n',
+     '\t',
+     'RETURN',
+     'assessRepositoryActivity',
+     '(',
+     '\'site\'',
+     ')',
+     '\n' ],
+  eaten: [],
+  eat: [Function],
+  uneat: [Function],
+  eatN: [Function],
+  count: [Function],
+  hasNext: [Function],
+  nextIs: [Function],
+  peek: [Function],
+  currentLine: [Function] 
+}
